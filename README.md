@@ -1,2 +1,4 @@
 saturn
 ======
+
+Galaxy's emulator.
