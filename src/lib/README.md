@@ -1,0 +1,1 @@
+The `src/lib/` directory contains the source code for saturn's libraries. 
