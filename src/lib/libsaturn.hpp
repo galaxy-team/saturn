@@ -31,13 +31,18 @@ namespace galaxy {
          * a dcpu represents a virtual DCPU machine
          */
         class dcpu {
-            std::array<uint16_t, 0x10000> ram;
-            uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
-            std::vector<device> devices;
-            std::queue<uint16_t> interrrupt_queue;
+
+          protected:
 
             bool interrupts_enabled;
             bool on_fire;
+            std::vector<device> devices;
+            std::queue<uint16_t> interrupt_queue;
+
+          public:
+
+            std::array<std::uint16_t, 0x10000> ram;
+            uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
 
             int clock_speed;
 
@@ -47,6 +52,11 @@ namespace galaxy {
 
             // number of cycles left to execute;
             int cycles;
+
+	    /**
+	     * initialize the CPU to default values
+	     */
+	    dcpu();
 
             /**
              * execute the indicated number of cycles
@@ -77,7 +87,7 @@ namespace galaxy {
              */
             void reset();
 
-        }
+        };
     }
 }
 
