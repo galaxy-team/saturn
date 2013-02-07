@@ -23,7 +23,7 @@ file named "LICENSE-LGPL.txt".
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
-#include "libdcpu.hpp"
+#include "libsaturn.hpp"
 
 namespace galaxy {
     namespace saturn {
