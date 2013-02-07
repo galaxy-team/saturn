@@ -31,60 +31,29 @@ namespace galaxy {
          * a dcpu represents a virtual DCPU machine
          */
         class dcpu {
-
-          protected:
-
+        protected:
             bool interrupts_enabled;
             bool on_fire;
-            std::vector<device> devices;
+            std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
-
-          public:
-
+        public:
             std::array<std::uint16_t, 0x10000> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
 
-            int clock_speed;
+            /// initialize the CPU to default values
+            dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
+                        PC(0), SP(0), EX(0), IA(0) {}
 
-            // total cycle count
-            // NOTE: not sure if this should be a larger type
-            int total_cycles;
+            /// perform a CPU cycle
+            void cycle();
 
-            // number of cycles left to execute;
-            int cycles;
+            /// attach a hardware device to the CPU. steals the unique_ptr, and so returns a reference so you can still use it after attaching it.
+            device& attach_device(std::unique_ptr<device>);
 
-	    /**
-	     * initialize the CPU to default values
-	     */
-	    dcpu();
+            /// flash memory with a std::array<uint16_t>
+            void flash(std::array<std::uint16_t, 0x10000>);
 
-            /**
-             * execute the indicated number of cycles
-             */
-            void execute(int num_cycles);
-
-            /**
-             * execute necessary number of cycles
-             * to remain at clock speed
-             */
-            void execute();
-
-            /**
-             * attach a hardware device to the CPU
-             */
-            void attach_device(device hw);
-
-            /**
-             * flash memory with a std::vector<uint16_t>
-             */
-            void flash(
-                std::vector::const_iterator begin,
-                std::vector::const_iterator end
-            );
-
-            /**
-             * Reset memory and registers
-             */
+            /// Reset memory and registers
             void reset();
 
         };
