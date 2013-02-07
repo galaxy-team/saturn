@@ -36,6 +36,10 @@ namespace galaxy {
             bool on_fire;
             std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
+
+	    /// parse the given value and return it
+	    std::uint16_t get_value(std::uint16_t);
+
         public:
             std::array<std::uint16_t, 0x10000> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
@@ -50,7 +54,7 @@ namespace galaxy {
 
             /// initialize the CPU to default values
             dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
-                        PC(0), SP(0), EX(0), IA(0) {}
+                        PC(0), SP(0xffff), EX(0), IA(0) {}
 
             /// perform a CPU cycle
             void cycle();
