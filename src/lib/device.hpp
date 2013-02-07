@@ -41,14 +41,7 @@ namespace galaxy {
 
             dcpu* cpu;
 
-            /**
-             * called at approximately 60 Hz
-             */
-            virtual void tick() = 0;
-
-            /**
-             * called when a hardware interrupt is sent to the device
-             */
+            /// called when a hardware interrupt is sent to the device
             virtual void handle_interrupt() = 0;
         }
     }
