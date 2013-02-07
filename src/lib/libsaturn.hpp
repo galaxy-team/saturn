@@ -40,6 +40,12 @@ namespace galaxy {
 	    /// parse the given value and return it
 	    std::uint16_t get_value(std::uint16_t);
 
+	    /**
+	     * parse the given address and set it
+	     * to the given value
+	     */
+	    void set_value(std::uint16_t, std::uint16_t);
+
         public:
             std::array<std::uint16_t, 0x10000> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
@@ -54,10 +60,17 @@ namespace galaxy {
 
             /// initialize the CPU to default values
             dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
-                        PC(0), SP(0xffff), EX(0), IA(0) {}
+                        PC(0), SP(0xffff), EX(0), IA(0),
+                        interrupts_enabled(false) {}
 
             /// perform a CPU cycle
             void cycle();
+
+	    /**
+	     * Trigger a software interrupt with the given message.
+	     * This method is for use by hardware devices.
+	     */
+	    void interrrupt(std::uint16_t);
 
             /// attach a hardware device to the CPU. steals the unique_ptr, and so returns a reference so you can still use it after attaching it.
             device& attach_device(std::unique_ptr<device>);
