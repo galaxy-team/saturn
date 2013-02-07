@@ -23,7 +23,7 @@ file named "LICENSE-LGPL.txt".
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
-#include "libjupiter.hpp"
+#include "libdcpu.hpp"
 
 namespace galaxy {
     namespace saturn {
@@ -39,7 +39,7 @@ namespace galaxy {
             std::uint16_t version;
             std::string name;
 
-            dcpu cpu;
+            shared_ptr<dcpu> cpu;
 
             /**
              * called at approximately 60 Hz
