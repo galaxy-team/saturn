@@ -40,6 +40,14 @@ namespace galaxy {
             std::array<std::uint16_t, 0x10000> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
 
+            /**
+             * The number of cycles the DCPU should sleep.
+             * Incremented whenever an instruction takes
+             * more than one cycle, and decremented when
+             * the DCPU sleeps for a cycle
+             */
+            int sleep_cycles;
+
             /// initialize the CPU to default values
             dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0) {}
