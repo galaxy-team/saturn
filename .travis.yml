@@ -12,3 +12,5 @@ script:
    - "cmake ."
    - "make"
 
+notifications:
+  irc: "irc.freenode.net#0x10c-galaxy"
