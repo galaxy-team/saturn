@@ -20,13 +20,16 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#include <cstdint>
-#include <vector>
-#include <queue>
-#include <array>
-#include <memory>
 #include "libsaturn.hpp"
 #include "device.hpp"
+
+#include <cstdint>
+
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <queue>
+#include <vector>
 
 void galaxy::saturn::dcpu::cycle()
 {
@@ -45,10 +48,10 @@ void galaxy::saturn::dcpu::cycle()
     bool skip = false;
 
     std::uint16_t instruction = ram[PC++];
-    std::uint16_t opcode = instruction & 0b11111;
+    std::uint16_t opcode = instruction & 0x1f;
 
-    std::uint16_t b = (instruction >> 5) & 0b11111;
-    std::uint16_t a = (instruction >> 10) & 0b111111;
+    std::uint16_t b = (instruction >> 5) & 0x1f;
+    std::uint16_t a = (instruction >> 10) & 0x3f;
 
     std::uint16_t a_value = get_value(a);
     std::uint16_t b_value;
@@ -729,20 +732,36 @@ galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(std::unique_ptr<devi
     return *hw;
 }
 
+/*
+template <typename Iter>
+void galaxy::saturn::dcpu::flash(Iter begin, Iter end)
+{
+    std::copy(begin, end, ram.begin());
+}
+*/
+
 void galaxy::saturn::dcpu::flash(
     std::vector<std::uint16_t>::const_iterator begin,
     std::vector<std::uint16_t>::const_iterator end
 )
 {
-    int i = 0;
-    for(; begin != end; ++begin) {
-        ram[i] = *begin;
-        i++;
-    }
+    std::copy(begin, end, ram.begin());
 }
+
+void galaxy::saturn::dcpu::flash(
+    std::array<std::uint16_t, 0x10000>::const_iterator begin,
+    std::array<std::uint16_t, 0x10000>::const_iterator end
+)
+{
+    std::copy(begin, end, ram.begin());
+}
+
 
 void galaxy::saturn::dcpu::reset()
 {
     A = B = C = X = Y = Z = I = J = PC = SP = EX = IA = 0;
     ram.fill(0);
+    interrupt_queue_enabled = false;
+    queue_interrupts = false;
+    sleep_cycles = 0;
 }
