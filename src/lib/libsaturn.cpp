@@ -45,10 +45,10 @@ void galaxy::saturn::dcpu::cycle()
     bool skip = false;
 
     std::uint16_t instruction = ram[PC++];
-    std::uint16_t opcode = instruction & 0xfffff;
+    std::uint16_t opcode = instruction & 0b11111;
 
-    std::uint16_t b = (instruction >> 5) & 0xfffff;
-    std::uint16_t a = (instruction >> 10) & 0xffffff;
+    std::uint16_t b = (instruction >> 5) & 0b11111;
+    std::uint16_t a = (instruction >> 10) & 0b111111;
 
     std::uint16_t a_value = get_value(a);
     std::uint16_t b_value;

@@ -66,8 +66,9 @@ namespace galaxy {
 
             /// initialize the CPU to default values
             dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
-                        PC(0), SP(0), EX(0), IA(0),
-                        interrupt_queue_enabled(false) {}
+                        PC(0), SP(0), EX(0), IA(0), sleep_cycles(0),
+                        interrupt_queue_enabled(false),
+                        queue_interrupts(false) {}
 
             /// perform a CPU cycle
             void cycle();
