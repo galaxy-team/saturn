@@ -23,10 +23,13 @@ file named "LICENSE-LGPL.txt".
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
+#include <cstdint>
+#include <string>
 #include "libsaturn.hpp"
 
 namespace galaxy {
     namespace saturn {
+    	class dcpu;
         /**
          * a device represents a DCPU hardware device
          */
@@ -42,8 +45,8 @@ namespace galaxy {
             dcpu* cpu;
 
             /// called when a hardware interrupt is sent to the device
-            virtual void handle_interrupt() = 0;
-        }
+            virtual void interrupt() = 0;
+        };
     }
 }
 

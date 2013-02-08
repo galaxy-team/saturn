@@ -23,6 +23,11 @@ file named "LICENSE-LGPL.txt".
 #ifndef LIBSATURN_HPP
 #define LIBSATURN_HPP
 
+#include <cstdint>
+#include <vector>
+#include <queue>
+#include <memory>
+#include <array>
 #include "device.hpp"
 
 namespace galaxy {
@@ -32,19 +37,20 @@ namespace galaxy {
          */
         class dcpu {
         protected:
-            bool interrupts_enabled;
+            bool interrupt_queue_enabled;
+            bool queue_interrupts;
             bool on_fire;
             std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
 
-	    /// parse the given value and return it
-	    std::uint16_t get_value(std::uint16_t);
+            /// parse the given value and return it
+            std::uint16_t get_value(std::uint16_t);
 
-	    /**
-	     * parse the given address and set it
-	     * to the given value
-	     */
-	    void set_value(std::uint16_t, std::uint16_t);
+            /**
+             * parse the given address and set it
+             * to the given value
+             */
+            void set_value(std::uint16_t, std::uint16_t);
 
         public:
             std::array<std::uint16_t, 0x10000> ram;
@@ -60,23 +66,25 @@ namespace galaxy {
 
             /// initialize the CPU to default values
             dcpu()  :   A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
-                        PC(0), SP(0xffff), EX(0), IA(0),
-                        interrupts_enabled(false) {}
+                        PC(0), SP(0), EX(0), IA(0),
+                        interrupt_queue_enabled(false) {}
 
             /// perform a CPU cycle
             void cycle();
 
-	    /**
-	     * Trigger a software interrupt with the given message.
-	     * This method is for use by hardware devices.
-	     */
-	    void interrrupt(std::uint16_t);
+            /**
+             * Trigger a software interrupt with the given message.
+             */
+            void interrupt(std::uint16_t);
 
             /// attach a hardware device to the CPU. steals the unique_ptr, and so returns a reference so you can still use it after attaching it.
             device& attach_device(std::unique_ptr<device>);
 
             /// flash memory with a std::array<uint16_t>
-            void flash(std::array<std::uint16_t, 0x10000>);
+            void flash(
+                std::vector<std::uint16_t>::const_iterator begin,
+                std::vector<std::uint16_t>::const_iterator end
+            );
 
             /// Reset memory and registers
             void reset();
