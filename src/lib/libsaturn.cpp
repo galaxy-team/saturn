@@ -197,7 +197,7 @@ void galaxy::saturn::dcpu::cycle()
                 
                 /// invalid opcode
                 default:
-                    throw new std::exception(); // not sure if that's proper C++
+                    throw std::exception(); // not sure if that's proper C++
             }
             break;
         

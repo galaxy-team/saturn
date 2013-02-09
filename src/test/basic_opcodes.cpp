@@ -11,7 +11,7 @@ try { \
         name##_cpu.cycle(); \
     } \
 } \
-catch(std::exception& e) {} \
+catch(const std::exception& e) {} \
 if(name##_cpu.A != result) { \
     std::cerr << "error: Test case \"" << #name << "\" failed! It returned 0x" << std::hex << name##_cpu.A << std::endl; \
     return -1; \
