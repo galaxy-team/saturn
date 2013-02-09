@@ -14,7 +14,7 @@ try { \
 catch(std::exception e) {} \
 if(name_cpu.A != result) { \
     std::cerr << "error: Test case \"" << #name << "\" failed! It returned 0x" << std::hex << name_cpu.A << std::endl; \
-    return -1;
+    return -1; \
 } else { \
     std::cout << "Test case \"" << #name << "\" passed." << std::endl; \
 }
