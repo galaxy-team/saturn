@@ -194,6 +194,10 @@ void galaxy::saturn::dcpu::cycle()
                     }
 
                     break;
+                
+                /// invalid opcode
+                default:
+                    throw new std::exception(); // not sure if that's proper C++
             }
             break;
         
@@ -516,6 +520,10 @@ void galaxy::saturn::dcpu::cycle()
             I--;
             J--;
             break;
+                
+        /// invalid opcode
+        default:
+            throw new std::exception(); // not sure if that's proper C++
     }
 
     if (skip) {
