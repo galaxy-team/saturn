@@ -6,9 +6,12 @@
 std::vector<std::uint16_t> name(code); \
 dcpu name_cpu(); \
 name_cpu.flash(name.begin(), name.end()); \
-while(name_cpu.running) { \
-    name_cpu.cycle(); \
+try { \
+    while(true) { \
+        name_cpu.cycle(); \
+    } \
 } \
+catch(std::exception e) {} \
 if(name_cpu.A != result) { \
     std::cerr << "error: Test case \"" << #name << "\" failed! It returned 0x" << std::hex << name_cpu.A << std::endl; \
     return -1;
