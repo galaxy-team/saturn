@@ -56,8 +56,8 @@ void galaxy::saturn::dcpu::cycle()
     std::uint16_t a_value = get_value(a);
     std::uint16_t b_value;
 
-    int s_a = a_value;
-    int s_b;
+    std::int16_t s_a = a_value;
+    std::int16_t s_b;
 
     if (opcode != 0x00) {
         /*
@@ -264,7 +264,7 @@ void galaxy::saturn::dcpu::cycle()
             sleep_cycles += 2;
 
             EX = ((s_b * s_a) >> 16) & 0xffff;
-            set_value(b, s_b * s_b);
+            set_value(b, s_b * s_a);
             break;
 
         /**

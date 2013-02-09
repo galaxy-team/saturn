@@ -8,6 +8,7 @@ galaxy::saturn::dcpu name##_cpu; \
 name##_cpu.flash(name.begin(), name.end()); \
 try { \
     while(true) { \
+        std::cout<< "PC: 0x" << std::hex << name##_cpu.PC << " A: 0x" << std::hex << name##_cpu.A << std::endl; \
         name##_cpu.cycle(); \
     } \
 } \
