@@ -637,7 +637,7 @@ std::uint16_t galaxy::saturn::dcpu::get_value(std::uint16_t val)
             return ram[PC++];
 
         default:
-            return val - 0x20;
+            return val - 0x21;
     }
 }
 

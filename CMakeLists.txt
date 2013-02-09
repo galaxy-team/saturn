@@ -5,7 +5,7 @@ project(saturn)
 
 set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
 
-add_library (libsaturn
+add_library (saturn
     src/lib/libsaturn.cpp)
 
 # these commented out lines will be enabled as the corresponding features are written
