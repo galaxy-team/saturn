@@ -4,17 +4,16 @@
 
 #define TEST_CASE(name, code, result) \
 std::vector<std::uint16_t> name(code); \
-galaxy::saturn::dcpu name##_cpu; \
-name##_cpu.flash(name.begin(), name.end()); \
+cpu.reset(); \
+cpu.flash(name.begin(), name.end()); \
 try { \
     while(true) { \
-        std::cout<< "PC: 0x" << std::hex << name##_cpu.PC << " A: 0x" << std::hex << name##_cpu.A << std::endl; \
-        name##_cpu.cycle(); \
+        cpu.cycle(); \
     } \
 } \
 catch(const std::exception& e) {} \
-if(name##_cpu.A != result) { \
-    std::cerr << "error: Test case \"" << #name << "\" failed! It returned 0x" << std::hex << name##_cpu.A << std::endl; \
+if(cpu.A != result) { \
+    std::cerr << "error: Test case \"" << #name << "\" failed! It returned 0x" << std::hex << cpu.A << std::endl; \
     return -1; \
 } else { \
     std::cout << "Test case \"" << #name << "\" passed." << std::endl; \
@@ -25,6 +24,8 @@ if(name##_cpu.A != result) { \
 
 int main() {
 
+    galaxy::saturn::dcpu cpu;
+
     TEST_CASE(set, PR({0x7c01, 0xdead}), 0xdead);
     TEST_CASE(add, PR({0xd001, 0x7c02, 0x0043}), 0x56);
     TEST_CASE(sub, PR({0x7c03, 0xfffe}), 0x2);
@@ -34,13 +35,13 @@ int main() {
     TEST_CASE(dvi, PR({0x7c01, 0xffdb, 0x9807}), 0xfff9);
     TEST_CASE(mod, PR({0x7c01, 0xffdb, 0x9808}), 0x4);
     TEST_CASE(mdi, PR({0x7c01, 0xffdb, 0x9809}), 0xfffe);
-    TEST_CASE(and, PR({0x7c01, 0xf0f0, 0x7c0a, 0x00ff}), 0x00f0);
+    TEST_CASE(and_b, PR({0x7c01, 0xf0f0, 0x7c0a, 0x00ff}), 0x00f0);
     TEST_CASE(bor, PR({0x7c01, 0xf0f0, 0x7c0b, 0x00ff}), 0xf0ff);
-    TEST_CASE(xor, PR({0x7c01, 0xf0f0, 0x7c0c, 0x00ff}), 0xf00f);
+    TEST_CASE(xor_b, PR({0x7c01, 0xf0f0, 0x7c0c, 0x00ff}), 0xf00f);
     TEST_CASE(shr, PR({0x7c01, 0xfedb, 0x940d}), 0x0fed);
     TEST_CASE(asr, PR({0x7c01, 0xfedb, 0x940e}), 0xffed);
     TEST_CASE(shl, PR({0x7c01, 0x1234, 0xa40f}), 0x3400);
-    TEST_CASE(ifb, PR({0x7c21, 0x0342, 0x7c41, 0x0234, 0x0830, 0x8802, 0x8441, 0x0830, 0x8803}), 0x1);
+    TEST_CASE(ifb, PR({0x7c21, 0x0342, 0x7c41, 0x0234, 0x0830, 0x8802, 0x8441, 0x0830, 0x8803}), 0x0001);
     TEST_CASE(ifc, PR({0x7c21, 0x0342, 0x7c41, 0x0234, 0x0831, 0x8802, 0x8441, 0x0831, 0x8803}), 0xffff);
     TEST_CASE(ife, PR({0x7c21, 0xdead, 0x7c41, 0xdead, 0x0832, 0x8802, 0xc043, 0x0832, 0x8803}), 0x1);
     TEST_CASE(ifn, PR({0x7c21, 0xdead, 0x7c41, 0xdead, 0x0833, 0x8802, 0xc043, 0x0833, 0x8803}), 0xffff);

@@ -343,7 +343,7 @@ void galaxy::saturn::dcpu::cycle()
          */
         case 0x0b:
             sleep_cycles++;
-            set_value(b, b_value & a_value);
+            set_value(b, b_value | a_value);
             break;
 
         /**
@@ -385,7 +385,7 @@ void galaxy::saturn::dcpu::cycle()
         case 0x0f:
             sleep_cycles++;
             EX = ((b_value << a_value) >> 16) & 0xffff;
-            set_value(b, b_value >> a_value);
+            set_value(b, b_value << a_value);
             break;
 
         /// conditional statements can take more cycles due to chaining
@@ -527,13 +527,15 @@ void galaxy::saturn::dcpu::cycle()
     }
 
     if (skip) {
+	PC++;
+        get_value(a);
+        get_value(b);
         sleep_cycles++;
-        PC++;
         while (ram[PC] >= 0x10 && ram[PC] <= 0x17) {
+            PC++;
             get_value(a);
             get_value(b);
             sleep_cycles++;
-            PC++;
         }
     }
                 
