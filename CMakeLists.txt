@@ -1,23 +1,32 @@
 cmake_minimum_required(VERSION 2.8.5)
 project(saturn)
 
-#set(VERBOSE, True)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
+#set(VERBOSE, ON)
+#SET(DEBUG, ON)
 
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
 
-add_library (saturn
-    src/lib/libsaturn.cpp)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/
+)
 
-# these commented out lines will be enabled as the corresponding features are written
+add_library (libsaturn
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libsaturn.cpp
+)
+set_target_properties(libsaturn PROPERTIES PREFIX "")
+
 
 #add_executable(saturn
 #    src/main.cpp
 #)
-#target_link_libraries(saturn
-#     libsaturn
-#)
 
-#ENABLE_TESTING()
-#ADD_TEST(SimpleTest ${CMAKE_CURRENT_BINARY_DIR}/SimpleTest Hello)
+# turns out you have to manually build tests before you can run them. go figure
+add_executable(test_basic_opcodes
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
+)
 
+ENABLE_TESTING()
+ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
 
