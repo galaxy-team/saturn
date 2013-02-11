@@ -5,7 +5,10 @@ project(saturn)
 #set(VERBOSE, ON)
 #SET(DEBUG, ON)
 
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
 
 include_directories(
@@ -22,11 +25,13 @@ set_target_properties(libsaturn PROPERTIES PREFIX "")
 #    src/main.cpp
 #)
 
-# turns out you have to manually build tests before you can run them. go figure
-add_executable(test_basic_opcodes
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
-)
+IF (TEST)
+    # turns out you have to manually build tests before you can run them. go figure
+    add_executable(test_basic_opcodes
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
+    )
 
-ENABLE_TESTING()
-ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
+    ENABLE_TESTING()
+    ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
+ENDIF(TEST)
 
