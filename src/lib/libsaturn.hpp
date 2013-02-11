@@ -67,7 +67,10 @@ namespace galaxy {
             dcpu()  :   interrupt_queue_enabled(false), queue_interrupts(false),
                         A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0), 
-                        sleep_cycles(0) {}
+                        sleep_cycles(0)
+            {
+                ram.fill(0);
+            }
 
             /// perform a CPU cycle
             void cycle();
