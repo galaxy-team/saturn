@@ -30,12 +30,38 @@ set_target_properties(libsaturn PROPERTIES PREFIX "")
 
 # if testing has been enabled, build the tests and run them! :D
 IF (TEST)
-    # turns out you have to manually build tests before you can run them. go figure
+    ENABLE_TESTING()
+
+    # Locate GTest
+    find_package(GTest REQUIRED)
+    include_directories(${GTEST_INCLUDE_DIRS})
+ 
     add_executable(test_basic_opcodes
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
     )
+    target_link_libraries(test_basic_opcodes ${GTEST_LIBRARIES})
 
-    ENABLE_TESTING()
+
+ 
+
+    # Link runTests with what we want to test and the GTest and pthread library
+    
+
     ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
 ENDIF(TEST)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
