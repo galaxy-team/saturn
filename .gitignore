@@ -12,5 +12,13 @@
 *.la
 *.a
 
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+Testing
+cmake_install.cmake
+
+
 # generic dis-includes
-build/
+bin/
