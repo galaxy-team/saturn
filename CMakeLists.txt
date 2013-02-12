@@ -33,11 +33,11 @@ set(TEST "YES")
 IF (TEST)
     ENABLE_TESTING()
 
-    add_executable(test_basic_opcodes
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
+    add_executable(tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
     )
 
-    ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
+    ADD_TEST(tests ${CMAKE_CURRENT_BINARY_DIR}/tests "Unit tests")
 ENDIF(TEST)
 
 
