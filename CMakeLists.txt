@@ -38,7 +38,7 @@ IF (TEST)
     )
     target_link_libraries(tests libsaturn)
 
-    ADD_TEST(tests ${CMAKE_CURRENT_BINARY_DIR}/tests "Unit tests")
+    ADD_TEST(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests "Unit tests")
 ENDIF(TEST)
 
 
