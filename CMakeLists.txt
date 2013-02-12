@@ -29,6 +29,7 @@ set_target_properties(libsaturn PROPERTIES PREFIX "")
 #)
 
 # if testing has been enabled, build the tests and run them! :D
+set(TEST "YES")
 IF (TEST)
     ENABLE_TESTING()
 
