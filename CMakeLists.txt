@@ -36,6 +36,7 @@ IF (TEST)
     add_executable(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
     )
+    target_link_libraries(tests libsaturn)
 
     ADD_TEST(tests ${CMAKE_CURRENT_BINARY_DIR}/tests "Unit tests")
 ENDIF(TEST)
