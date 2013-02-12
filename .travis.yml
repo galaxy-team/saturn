@@ -11,7 +11,7 @@ before_script:
 script:
    - "cmake ."
    - "make"
-   - "make test"
+   - "./bin/tests"
 
 notifications:
   irc: "irc.freenode.net#0x10c-galaxy"
