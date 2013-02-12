@@ -73,7 +73,7 @@ TEST_CASE("opcodes/add", "sets b to b+a, sets EX to 0x0001 if there's an overflo
 
 TEST_CASE("opcodes/sub", "sets b to b-a, sets EX to 0xffff if there's an underflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+    std::vector<std::uint16_t> codez = {0x7c01, 0xdeaf};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
