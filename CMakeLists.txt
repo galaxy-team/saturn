@@ -33,20 +33,9 @@ set(TEST "YES")
 IF (TEST)
     ENABLE_TESTING()
 
-    # Locate GTest
-    find_package(GTest REQUIRED)
-    include_directories(${GTEST_INCLUDE_DIRS})
- 
     add_executable(test_basic_opcodes
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/basic_opcodes.cpp
     )
-    target_link_libraries(test_basic_opcodes ${GTEST_LIBRARIES})
-
-
- 
-
-    # Link runTests with what we want to test and the GTest and pthread library
-    
 
     ADD_TEST(basic_opcodes ${CMAKE_CURRENT_BINARY_DIR}/basic_opcodes "Basic opcodes")
 ENDIF(TEST)
