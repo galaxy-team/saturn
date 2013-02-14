@@ -46,7 +46,7 @@ TEST_CASE("opcodes/set", "sets b to a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/add", "sets b to b+a, sets EX to 0x0001 if there's an overflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
@@ -66,34 +66,51 @@ TEST_CASE("opcodes/add", "sets b to b+a, sets EX to 0x0001 if there's an overflo
     execute(cpu);
     REQUIRE(cpu.A == 0x031a);
     REQUIRE(cpu.EX == 0x0001);
-
 }
-
-/// all tests after this point are incorrect and need to be fixed
 
 TEST_CASE("opcodes/sub", "sets b to b-a, sets EX to 0xffff if there's an underflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdeaf};
+
+    cpu.A = 0xf32d;
+    std::vector<std::uint16_t> codez = {0x7c03, 0xfed};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
-} 
+    REQUIRE(cpu.A == 0xe340);
+    REQUIRE(cpu.EX == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0x435;
+    codez = {0x7c03, 0x0500};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xff35);
+    REQUIRE(cpu.EX == 0xffff);
+}
 
 TEST_CASE("opcodes/mul", "sets b to b*a, sets EX to ((b*a)>>16)&0xffff (treats b, a as unsigned)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x234;
+    std::vector<std::uint16_t> codez = {0x7c04, 0xfffe};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
-} 
+    REQUIRE(cpu.A == 0xfb98);
+    REQUIRE(cpu.EX == 0x0233);
+}
 
 TEST_CASE("opcodes/mli", "like MUL, but treat b, a as signed") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x234;
+    std::vector<std::uint16_t> codez = {0x7c05, 0xfffe};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
-} 
+    REQUIRE(cpu.A == 0xfb98);
+    REQUIRE(cpu.EX == 0xffff);
+}
+
+/// not implemented yet
 
 TEST_CASE("opcodes/div", "sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0, sets b and EX to 0 instead. (treats b, a as unsigned)") {
     galaxy::saturn::dcpu cpu;
@@ -101,7 +118,7 @@ TEST_CASE("opcodes/div", "sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0,
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0") {
     galaxy::saturn::dcpu cpu;
@@ -109,7 +126,7 @@ TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0")
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/mod", "sets b to b%a. if a==0, sets b to 0 instead.") {
     galaxy::saturn::dcpu cpu;
@@ -117,7 +134,7 @@ TEST_CASE("opcodes/mod", "sets b to b%a. if a==0, sets b to 0 instead.") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/mdi", "like MOD, but treat b, a as signed. (MDI -7, 16 == -7)") {
     galaxy::saturn::dcpu cpu;
@@ -125,7 +142,7 @@ TEST_CASE("opcodes/mdi", "like MOD, but treat b, a as signed. (MDI -7, 16 == -7)
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/and", "sets b to b&a") {
     galaxy::saturn::dcpu cpu;
@@ -133,7 +150,7 @@ TEST_CASE("opcodes/and", "sets b to b&a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/bor", "sets b to b|a") {
     galaxy::saturn::dcpu cpu;
@@ -141,7 +158,7 @@ TEST_CASE("opcodes/bor", "sets b to b|a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/xor", "sets b to b^a") {
     galaxy::saturn::dcpu cpu;
@@ -149,7 +166,7 @@ TEST_CASE("opcodes/xor", "sets b to b^a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/shr", "sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff (logical shift)") {
     galaxy::saturn::dcpu cpu;
@@ -157,7 +174,7 @@ TEST_CASE("opcodes/shr", "sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff (logic
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/asr", "sets b to b>>a, sets EX to ((b<<16)>>>a)&0xffff (arithmetic shift) (treats b as signed)") {
     galaxy::saturn::dcpu cpu;
@@ -165,7 +182,7 @@ TEST_CASE("opcodes/asr", "sets b to b>>a, sets EX to ((b<<16)>>>a)&0xffff (arith
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/shl", "sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff") {
     galaxy::saturn::dcpu cpu;
@@ -173,7 +190,7 @@ TEST_CASE("opcodes/shl", "sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
     galaxy::saturn::dcpu cpu;
@@ -181,7 +198,7 @@ TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifc", "performs next instruction only if (b&a)==0") {
     galaxy::saturn::dcpu cpu;
@@ -189,7 +206,7 @@ TEST_CASE("opcodes/ifc", "performs next instruction only if (b&a)==0") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
     galaxy::saturn::dcpu cpu;
@@ -197,7 +214,7 @@ TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
     galaxy::saturn::dcpu cpu;
@@ -205,7 +222,7 @@ TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
     galaxy::saturn::dcpu cpu;
@@ -213,7 +230,7 @@ TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifa", "performs next instruction only if b>a (signed)") {
     galaxy::saturn::dcpu cpu;
@@ -221,7 +238,7 @@ TEST_CASE("opcodes/ifa", "performs next instruction only if b>a (signed)") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifl", "performs next instruction only if b<a") {
     galaxy::saturn::dcpu cpu;
@@ -229,7 +246,7 @@ TEST_CASE("opcodes/ifl", "performs next instruction only if b<a") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
     galaxy::saturn::dcpu cpu;
@@ -237,7 +254,7 @@ TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/adx", "sets b to b+a+EX, sets EX to 0x0001 if there is an overflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
@@ -245,7 +262,7 @@ TEST_CASE("opcodes/adx", "sets b to b+a+EX, sets EX to 0x0001 if there is an ove
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/sbx", "sets b to b-a+EX, sets EX to 0xFFFF if there is an underflow, 0x0001 if there's an overflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
@@ -253,7 +270,7 @@ TEST_CASE("opcodes/sbx", "sets b to b-a+EX, sets EX to 0xFFFF if there is an und
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/sti", "sets b to a, then increases I and J by 1") {
     galaxy::saturn::dcpu cpu;
@@ -261,7 +278,7 @@ TEST_CASE("opcodes/sti", "sets b to a, then increases I and J by 1") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
 
 TEST_CASE("opcodes/std", "sets b to a, then decreases I and J by 1") {
     galaxy::saturn::dcpu cpu;
@@ -269,4 +286,4 @@ TEST_CASE("opcodes/std", "sets b to a, then decreases I and J by 1") {
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-} 
+}
