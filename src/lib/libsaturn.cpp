@@ -194,13 +194,13 @@ void galaxy::saturn::dcpu::cycle()
                     }
 
                     break;
-                
+
                 /// invalid opcode
                 default:
                     throw std::exception(); // not sure if that's proper C++
             }
             break;
-        
+
         /**
          * SET - 1 cycle
          * sets b to a
@@ -226,7 +226,7 @@ void galaxy::saturn::dcpu::cycle()
 
             set_value(b, b_value + a_value);
             break;
-        
+
         /**
          * SUB - 2 cycles
          * sets b to b-a, sets EX to 0xffff if there's an underflow,
@@ -500,7 +500,7 @@ void galaxy::saturn::dcpu::cycle()
             }
             set_value(b, b_value - a_value + EX);
             break;
-        
+
         /**
          * STI - 2 cycles
          * sets b to a, then increases I and J by 1
@@ -520,7 +520,7 @@ void galaxy::saturn::dcpu::cycle()
             I--;
             J--;
             break;
-                
+
         /// invalid opcode
         default:
             throw new std::exception(); // not sure if that's proper C++
@@ -538,7 +538,7 @@ void galaxy::saturn::dcpu::cycle()
             sleep_cycles++;
         }
     }
-                
+
     /**
      * a cycle has been executed
      * NOTE: this means we can use
@@ -740,30 +740,6 @@ galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(std::unique_ptr<devi
     devices.push_back(std::move(hw));
     hw->cpu = this;
     return *hw;
-}
-
-/*
-template <typename Iter>
-void galaxy::saturn::dcpu::flash(Iter begin, Iter end)
-{
-    std::copy(begin, end, ram.begin());
-}
-*/
-
-void galaxy::saturn::dcpu::flash(
-    std::vector<std::uint16_t>::const_iterator begin,
-    std::vector<std::uint16_t>::const_iterator end
-)
-{
-    std::copy(begin, end, ram.begin());
-}
-
-void galaxy::saturn::dcpu::flash(
-    std::array<std::uint16_t, 0x10000>::const_iterator begin,
-    std::array<std::uint16_t, 0x10000>::const_iterator end
-)
-{
-    std::copy(begin, end, ram.begin());
 }
 
 
