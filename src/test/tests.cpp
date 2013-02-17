@@ -483,32 +483,76 @@ TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
 
 TEST_CASE("opcodes/adx", "sets b to b+a+EX, sets EX to 0x0001 if there is an overflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1234;
+    cpu.B = 0x5678;
+    cpu.EX = 0xf00;
+    std::vector<std::uint16_t> codez = {0x041a};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x77ac);
+    REQUIRE(cpu.EX == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0xfade;
+    cpu.B = 0x5678;
+    cpu.EX = 0x0f00;
+    codez = {0x041a};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x6056);
+    REQUIRE(cpu.EX == 0x0001);
 }
 
 TEST_CASE("opcodes/sbx", "sets b to b-a+EX, sets EX to 0xFFFF if there is an underflow, 0x0001 if there's an overflow, 0x0 otherwise") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xfade;
+    cpu.B = 0x5678;
+    cpu.EX = 0xf00;
+    std::vector<std::uint16_t> codez = {0x041b};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0xb366);
+    REQUIRE(cpu.EX == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0x0f00;
+    cpu.B = 0x5678;
+    cpu.EX = 0xf00;
+    codez = {0x041b};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xc788);
+    REQUIRE(cpu.EX == 0xffff);
+
+    // TODO: overflow test?
 }
 
 TEST_CASE("opcodes/sti", "sets b to a, then increases I and J by 1") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xf00;
+    cpu.B = 0xdead;
+    std::vector<std::uint16_t> codez = {0x041e};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.I == 0x1);
+    REQUIRE(cpu.J == 0x1);
 }
 
 TEST_CASE("opcodes/std", "sets b to a, then decreases I and J by 1") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xf00;
+    cpu.B = 0xdead;
+    std::vector<std::uint16_t> codez = {0x041f};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.I == 0xffff);
+    REQUIRE(cpu.J == 0xffff);
 }
