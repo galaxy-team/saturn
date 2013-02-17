@@ -203,18 +203,56 @@ TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0")
 
 TEST_CASE("opcodes/mod", "sets b to b%a. if a==0, sets b to 0 instead.") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1231;
+    std::vector<std::uint16_t> codez = {0x7c08, 0x000f};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x0007);
+
+    cpu.reset();
+
+    cpu.A = 0xfff9;
+    codez = {0x7c08, 0x0016};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x000d);
+
+    cpu.reset();
+
+    cpu.A = 0x23;
+    codez = {0x7c08, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0);
 }
 
 TEST_CASE("opcodes/mdi", "like MOD, but treat b, a as signed. (MDI -7, 16 == -7)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1231;
+    std::vector<std::uint16_t> codez = {0x7c09, 0x000f};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x0007);
+
+    cpu.reset();
+
+    cpu.A = 0xfff9;
+    codez = {0x7c09, 0x0016};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xfff9);
+
+    cpu.reset();
+
+    cpu.A = 0x23;
+    codez = {0x7c09, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0);
 }
 
 TEST_CASE("opcodes/and", "sets b to b&a") {
