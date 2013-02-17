@@ -257,26 +257,35 @@ TEST_CASE("opcodes/mdi", "like MOD, but treat b, a as signed. (MDI -7, 16 == -7)
 
 TEST_CASE("opcodes/and", "sets b to b&a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    /// 0b0101 0101 0101 0101 & 0b0011 0011 0011 0011 == 0b0001 0001 0001 0001
+    cpu.A = 0x5555;
+    std::vector<std::uint16_t> codez = {0x7c0a, 0x3333};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x1111);
 }
 
 TEST_CASE("opcodes/bor", "sets b to b|a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    /// 0b0101 0101 0101 0101 | 0b0011 0011 0011 0011 == 0b0111 0111 0111 0111
+    cpu.A = 0x5555;
+    std::vector<std::uint16_t> codez = {0x7c0b, 0x3333};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x7777);
 }
 
 TEST_CASE("opcodes/xor", "sets b to b^a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    /// 0b0101 0101 0101 0101 ^ 0b0011 0011 0011 0011 == 0b0110 0110 0110 0110
+    cpu.A = 0x5555;
+    std::vector<std::uint16_t> codez = {0x7c0c, 0x3333};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x6666);
 }
 
 TEST_CASE("opcodes/shr", "sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff (logical shift)") {
