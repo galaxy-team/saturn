@@ -11,8 +11,7 @@ void execute(galaxy::saturn::dcpu& cpu) {
     } catch(std::exception& e) {}
 }
 
-TEST_CASE("defaults/registers", "All registers should initially be set to 0") {
-    galaxy::saturn::dcpu cpu;
+void check_registers(galaxy::saturn::dcpu& cpu) {
     REQUIRE(cpu.A == 0);
     REQUIRE(cpu.B == 0);
     REQUIRE(cpu.C == 0);
@@ -27,8 +26,42 @@ TEST_CASE("defaults/registers", "All registers should initially be set to 0") {
     REQUIRE(cpu.IA == 0);
 }
 
+void check_memory(galaxy::saturn::dcpu& cpu) {
+    bool all_zero = true;
+
+    for (int i = 0; i < cpu.ram.size(); i++) {
+        if (cpu.ram[i] != 0) {
+            all_zero = false;
+        }
+    }
+
+    REQUIRE(all_zero);
+}
+
+TEST_CASE("defaults/registers", "All registers should initially be set to 0") {
+    galaxy::saturn::dcpu cpu;
+    check_registers(cpu);
+}
+
 TEST_CASE("defaults/memory", "All memory should initially be set to 0") {
     galaxy::saturn::dcpu cpu;
+    check_memory(cpu);
+}
+
+TEST_CASE("reset/registers", "All registers should be 0 after a reset") {
+    galaxy::saturn::dcpu cpu;
+    cpu.A = cpu.B = cpu.C = cpu.X = cpu.Y = cpu.Z = cpu.I = cpu.J = cpu.PC = cpu.SP = cpu.EX = cpu.IA = 0x234;
+
+    cpu.reset();
+    check_registers(cpu);
+}
+
+TEST_CASE("reset/memory", "All memory should be 0 after a reset") {
+    galaxy::saturn::dcpu cpu;
+    cpu.ram.fill(0xf00);
+
+    cpu.reset();
+
     bool all_zero = true;
 
     for (int i = 0; i < cpu.ram.size(); i++) {
@@ -110,22 +143,62 @@ TEST_CASE("opcodes/mli", "like MUL, but treat b, a as signed") {
     REQUIRE(cpu.EX == 0xffff);
 }
 
-/// not implemented yet
-
 TEST_CASE("opcodes/div", "sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0, sets b and EX to 0 instead. (treats b, a as unsigned)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1231;
+    std::vector<std::uint16_t> codez = {0x7c06, 0x000f};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x0136);
+    REQUIRE(cpu.EX == 0x7777);
+
+    cpu.reset();
+
+    cpu.A = 0x15;
+    codez = {0x7c06, 0xffff};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0015);
+
+    cpu.reset();
+
+    cpu.A = 0x23;
+    codez = {0x7c06, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0);
 }
 
 TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1231;
+    std::vector<std::uint16_t> codez = {0x7c07, 0x000f};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x0136);
+    REQUIRE(cpu.EX == 0x7777);
+
+    cpu.reset();
+
+    cpu.A = 0x15;
+    codez = {0x7c07, 0xffff};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xffeb);
+    REQUIRE(cpu.EX == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0x23;
+    codez = {0x7c07, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0);
 }
 
 TEST_CASE("opcodes/mod", "sets b to b%a. if a==0, sets b to 0 instead.") {
