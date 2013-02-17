@@ -323,15 +323,51 @@ TEST_CASE("opcodes/shl", "sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff") {
 
 TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0;
+    std::vector<std::uint16_t> codez = {0x7c10, 0x0000, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c10, 0x0000, 0x7c01, 0x0000};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c10, 0x0f00, 0x7c01, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
 }
 
 TEST_CASE("opcodes/ifc", "performs next instruction only if (b&a)==0") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0;
+    std::vector<std::uint16_t> codez = {0x7c11, 0x0000, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c11, 0x0000, 0x7c01, 0x0000};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c11, 0x0f00, 0x7c01, 0x0};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
@@ -339,7 +375,17 @@ TEST_CASE("opcodes/ifc", "performs next instruction only if (b&a)==0") {
 
 TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1234;
+    std::vector<std::uint16_t> codez = {0x7c12, 0x1234, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c12, 0x0f00, 0x7c01, 0x0};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
@@ -347,10 +393,20 @@ TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
 
 TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x1234;
+    std::vector<std::uint16_t> codez = {0x7c13, 0x1234, 0x7c01, 0xdead};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x1234);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c13, 0x0f00, 0x7c01, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
 }
 
 TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
