@@ -290,26 +290,35 @@ TEST_CASE("opcodes/xor", "sets b to b^a") {
 
 TEST_CASE("opcodes/shr", "sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff (logical shift)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xdead;
+    std::vector<std::uint16_t> codez = {0x7c0d, 0x0004};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0x0dea);
+    REQUIRE(cpu.EX == 0xd000);
 }
 
 TEST_CASE("opcodes/asr", "sets b to b>>a, sets EX to ((b<<16)>>>a)&0xffff (arithmetic shift) (treats b as signed)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xdead;
+    std::vector<std::uint16_t> codez = {0x7c0e, 0x0004};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0xfdea);
+    REQUIRE(cpu.EX == 0xd000);
 }
 
 TEST_CASE("opcodes/shl", "sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0xdead;
+    std::vector<std::uint16_t> codez = {0x7c0f, 0x0004};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
-    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.A == 0xead0);
+    REQUIRE(cpu.EX == 0x000d);
 }
 
 TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
