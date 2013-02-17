@@ -411,7 +411,17 @@ TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
 
 TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0f000;
+    std::vector<std::uint16_t> codez = {0x7c14, 0xfffe, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0f000);
+
+    cpu.reset();
+
+    cpu.A = 0xfffe;
+    codez = {0x7c14, 0x0f00, 0x7c01, 0xdead};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
@@ -419,23 +429,53 @@ TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
 
 TEST_CASE("opcodes/ifa", "performs next instruction only if b>a (signed)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0f00;
+    std::vector<std::uint16_t> codez = {0x7c15, 0xfffe, 0x7c01, 0xdead};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
+
+    cpu.reset();
+
+    cpu.A = 0xfffe;
+    codez = {0x7c15, 0x0f00, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xfffe);
 }
 
 TEST_CASE("opcodes/ifl", "performs next instruction only if b<a") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0f00;
+    std::vector<std::uint16_t> codez = {0x7c16, 0xfffe, 0x7c01, 0xdead};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
+
+    cpu.reset();
+
+    cpu.A = 0xfffe;
+    codez = {0x7c16, 0x0f00, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xfffe);
 }
 
 TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
     galaxy::saturn::dcpu cpu;
-    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+
+    cpu.A = 0x0f00;
+    std::vector<std::uint16_t> codez = {0x7c17, 0xfffe, 0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0f00);
+
+    cpu.reset();
+
+    cpu.A = 0xfffe;
+    codez = {0x7c17, 0x0f00, 0x7c01, 0xdead};
     cpu.flash(codez.begin(), codez.end());
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
