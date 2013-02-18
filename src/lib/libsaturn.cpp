@@ -31,6 +31,11 @@ file named "LICENSE-LGPL.txt".
 #include <queue>
 #include <vector>
 
+
+
+
+#include <iostream>
+
 void galaxy::saturn::dcpu::cycle()
 {
 
@@ -476,12 +481,12 @@ void galaxy::saturn::dcpu::cycle()
          */
         case 0x1a:
             sleep_cycles += 3;
+            set_value(b, b_value + a_value + EX);
             if(b_value + a_value + EX > 0xffff) {
                 EX = 0x0001;
             } else {
                 EX = 0x0000;
             }
-            set_value(b, b_value + a_value + EX);
             break;
 
         /**
@@ -491,14 +496,14 @@ void galaxy::saturn::dcpu::cycle()
          */
         case 0x1b:
             sleep_cycles += 3;
+            set_value(b, b_value - a_value + EX);
             if(b_value + EX < a_value) {
                 EX = 0xffff;
-            } else if(b_value - a_value + EX > 0xffff) {
+            } else if(b_value + EX > 0xffff + a_value) {
                 EX = 0x0001;
             } else {
                 EX = 0x0000;
             }
-            set_value(b, b_value - a_value + EX);
             break;
 
         /**
@@ -510,6 +515,7 @@ void galaxy::saturn::dcpu::cycle()
             set_value(b, a_value);
             I++;
             J++;
+            break;
 
         /**
          * STD - 2 cycles
