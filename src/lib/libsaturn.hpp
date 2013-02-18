@@ -37,7 +37,6 @@ namespace galaxy {
          */
         class dcpu {
         protected:
-            bool interrupt_queue_enabled;
             bool queue_interrupts;
             std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
@@ -64,7 +63,7 @@ namespace galaxy {
             int sleep_cycles;
 
             /// initialize the CPU to default values
-            dcpu()  :   interrupt_queue_enabled(false), queue_interrupts(false),
+            dcpu()  :   queue_interrupts(false),
                         A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0),
                         sleep_cycles(0)

@@ -31,11 +31,6 @@ file named "LICENSE-LGPL.txt".
 #include <queue>
 #include <vector>
 
-
-
-
-#include <iostream>
-
 void galaxy::saturn::dcpu::cycle()
 {
 
@@ -131,7 +126,7 @@ void galaxy::saturn::dcpu::cycle()
                 case 0x0b:
                     sleep_cycles += 3;
 
-                    interrupt_queue_enabled = false;
+                    queue_interrupts = false;
                     A = ram[SP++];
                     PC = ram[SP++];
 
@@ -558,7 +553,7 @@ void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
     if (queue_interrupts) {
         interrupt_queue.push(message);
     } else if (IA != 0) {
-        interrupt_queue_enabled = true;
+        queue_interrupts = true;
 
          ram[--SP] = PC;
          ram[--SP] = A;
@@ -753,7 +748,6 @@ void galaxy::saturn::dcpu::reset()
 {
     A = B = C = X = Y = Z = I = J = PC = SP = EX = IA = 0;
     ram.fill(0);
-    interrupt_queue_enabled = false;
     queue_interrupts = false;
     sleep_cycles = 0;
 }
