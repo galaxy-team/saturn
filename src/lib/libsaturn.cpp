@@ -69,10 +69,12 @@ void galaxy::saturn::dcpu::cycle()
          */
 
         uint16_t PC_old = PC, SP_old = SP;
+        int sleep_cycles_old = sleep_cycles;
         b_value = get_value(b);
-	s_b = b_value;
+        s_b = b_value;
         PC = PC_old;
         SP = SP_old;
+        sleep_cycles = sleep_cycles_old;
     }
 
     switch (opcode) {

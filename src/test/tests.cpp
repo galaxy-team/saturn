@@ -4,12 +4,15 @@
 #include "test_device.hpp"
 
 /// runs the cpu until it encounters an invalid opcode
-void execute(galaxy::saturn::dcpu& cpu) {
+int execute(galaxy::saturn::dcpu& cpu) {
+    int cycles = 0;
     try {
         while (true) {
             cpu.cycle();
+            cycles++;
         }
     } catch(std::exception& e) {}
+    return cycles;
 }
 
 void check_registers(galaxy::saturn::dcpu& cpu) {
@@ -685,4 +688,81 @@ TEST_CASE("opcodes/hwi", "sends an interrupt to hardware a") {
     execute(cpu);
 
     REQUIRE(dev.count_interrupts == 0x1);
+}
+
+TEST_CASE("values/registers", "check registers") {
+    galaxy::saturn::dcpu cpu;
+    std::vector<std::uint16_t> codez = {0x7C01, 0xDEAD, 0x7C21, 0xDEAD, 0x7C41, 0xDEAD, 0x7C61, 0xDEAD, 0x7C81, 0xDEAD, 0x7CA1, 0xDEAD, 0x7CC1, 0xDEAD, 0x7CE1, 0xDEAD};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.B == 0xdead);
+    REQUIRE(cpu.C == 0xdead);
+    REQUIRE(cpu.X == 0xdead);
+    REQUIRE(cpu.Y == 0xdead);
+    REQUIRE(cpu.Z == 0xdead);
+    REQUIRE(cpu.I == 0xdead);
+    REQUIRE(cpu.J == 0xdead);
+    REQUIRE(cycles == 16);
+}
+
+TEST_CASE("values/register-pointers", "check pointers in registers") {
+    galaxy::saturn::dcpu cpu;
+
+    cpu.A = 0x0fff;
+    cpu.B = 0x1000;
+    cpu.C = 0x1001;
+    cpu.X = 0x1002;
+    cpu.Y = 0x1003;
+    cpu.Z = 0x1004;
+    cpu.I = 0x1005;
+    cpu.J = 0x1006;
+    std::vector<std::uint16_t> codez = {0x7E01, 0xDEAD, 0x0001, 0x7E21, 0xDEAD, 0x0001, 0x7E41, 0xDEAD, 0x0001, 0x7E61, 0xDEAD, 0x0001, 0x7E81, 0xDEAD, 0x0001, 0x7EA1, 0xDEAD, 0x0001, 0x7EC1, 0xDEAD, 0x0001, 0x7EE1, 0xDEAD, 0x0001};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.ram[0x1000] == 0xdead);
+    REQUIRE(cpu.ram[0x1001] == 0xdead);
+    REQUIRE(cpu.ram[0x1002] == 0xdead);
+    REQUIRE(cpu.ram[0x1003] == 0xdead);
+    REQUIRE(cpu.ram[0x1004] == 0xdead);
+    REQUIRE(cpu.ram[0x1005] == 0xdead);
+    REQUIRE(cpu.ram[0x1006] == 0xdead);
+    REQUIRE(cpu.ram[0x1007] == 0xdead);
+    REQUIRE(cycles == 24);
+}
+
+TEST_CASE("values/register-nextword", "check [register + next word]") {
+    galaxy::saturn::dcpu cpu;
+
+    cpu.A = 0x1000;
+    cpu.B = 0x1001;
+    cpu.C = 0x1002;
+    cpu.X = 0x1003;
+    cpu.Y = 0x1004;
+    cpu.Z = 0x1005;
+    cpu.I = 0x1006;
+    cpu.J = 0x1007;
+    std::vector<std::uint16_t> codez = {0x7D01, 0xDEAD, 0x7D21, 0xDEAD, 0x7D41, 0xDEAD, 0x7D61, 0xDEAD, 0x7D81, 0xDEAD, 0x7DA1, 0xDEAD, 0x7DC1, 0xDEAD, 0x7DE1, 0xDEAD};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.ram[0x1000] == 0xdead);
+    REQUIRE(cpu.ram[0x1001] == 0xdead);
+    REQUIRE(cpu.ram[0x1002] == 0xdead);
+    REQUIRE(cpu.ram[0x1003] == 0xdead);
+    REQUIRE(cpu.ram[0x1004] == 0xdead);
+    REQUIRE(cpu.ram[0x1005] == 0xdead);
+    REQUIRE(cpu.ram[0x1006] == 0xdead);
+    REQUIRE(cpu.ram[0x1007] == 0xdead);
+    REQUIRE(cycles == 16);
+}
+
+TEST_CASE("values/stack", "check stack") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7f01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.SP == 0xffff);
+    REQUIRE(cpu.ram[cpu.SP] == 0xdead);
+    REQUIRE(cycles == 2);
 }
