@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "test_device.hpp"
 #include <libsaturn.hpp>
 
 /// runs the cpu until it encounters an invalid opcode
@@ -46,6 +47,11 @@ TEST_CASE("defaults/registers", "All registers should initially be set to 0") {
 TEST_CASE("defaults/memory", "All memory should initially be set to 0") {
     galaxy::saturn::dcpu cpu;
     check_memory(cpu);
+}
+
+TEST_CASE("defaults/interrupt_queue", "The interrupt queue should initially be disabled") {
+    galaxy::saturn::dcpu cpu;
+    REQUIRE_FALSE(cpu.interrupt_queue_enabled());
 }
 
 TEST_CASE("reset/registers", "All registers should be 0 after a reset") {
@@ -609,10 +615,31 @@ TEST_CASE("opcodes/ias", "sets IA to a") {
 
 TEST_CASE("opcodes/rfi", "disables interrupt queueing, pops A from the stack, then pops PC from the stack") {
     galaxy::saturn::dcpu cpu;
+
+    cpu.ram[--cpu.SP] = 0xdeac;
+    cpu.ram[--cpu.SP] = 0xfade;
+    std::vector<std::uint16_t> codez = {0x7d60, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xfade);
+    REQUIRE(cpu.PC == 0xdead);
+    REQUIRE_FALSE(cpu.interrupt_queue_enabled());
 }
 
 TEST_CASE("opcodes/iaq", "if a is nonzero, interrupts will be added to the queue instead of triggered. if a is zero, interrupts will be triggered as normal again") {
     galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7d80, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.interrupt_queue_enabled());
+
+    cpu.reset();
+
+    codez = {0x7d80, 0x0};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE_FALSE(cpu.interrupt_queue_enabled());
 }
 
 TEST_CASE("opcodes/hwn", "sets a to number of connected hardware devices") {
