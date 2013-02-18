@@ -736,10 +736,11 @@ void galaxy::saturn::dcpu::set_value(std::uint16_t address, std::uint16_t value)
 }
 
 // maybe this should just return void
-galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(std::unique_ptr<device> hw)
+galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(device* hw)
 {
-    devices.push_back(std::move(hw));
+    devices.push_back(std::move(std::unique_ptr<device>(hw)));
     hw->cpu = this;
+
     return *hw;
 }
 

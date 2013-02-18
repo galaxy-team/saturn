@@ -35,6 +35,7 @@ IF (TEST)
 
     add_executable(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/test_device.cpp
     )
     target_link_libraries(tests libsaturn)
 

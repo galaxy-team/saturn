@@ -79,8 +79,8 @@ namespace galaxy {
              */
             void interrupt(std::uint16_t);
 
-            /// attach a hardware device to the CPU. steals the unique_ptr, and so returns a reference so you can still use it after attaching it.
-            device& attach_device(std::unique_ptr<device>);
+            /// attach a hardware device to the CPU. converts the pointer to a unique_ptr, and so returns a reference so you can still use it after attaching it.
+            device& attach_device(device*);
 
             template<class Iterator, class=
             typename std::enable_if<std::is_same<typename std::iterator_traits<Iterator>::value_type, uint16_t>::value>::type>

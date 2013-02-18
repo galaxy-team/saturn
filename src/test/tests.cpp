@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "test_device.hpp"
 #include <libsaturn.hpp>
+#include "test_device.hpp"
 
 /// runs the cpu until it encounters an invalid opcode
 void execute(galaxy::saturn::dcpu& cpu) {
@@ -644,12 +644,45 @@ TEST_CASE("opcodes/iaq", "if a is nonzero, interrupts will be added to the queue
 
 TEST_CASE("opcodes/hwn", "sets a to number of connected hardware devices") {
     galaxy::saturn::dcpu cpu;
+
+    for (int i = 0; i < 10; i++) {
+        cpu.attach_device(new test_device());
+    }
+
+    std::vector<std::uint16_t> codez = {0x0200};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 10);
 }
 
-TEST_CASE("opcodes/hwq", "sets A, B, C, X, Y registers to information about hardware a | A(B<<16) is a 32 bit word identifying the hardware id | C is the hardware version") {
+TEST_CASE("opcodes/hwq", "sets A, B, C, X, Y registers to information about hardware a | A(B<<16) is a 32 bit word identifying the hardware id | C is the hardware version | X+(Y<<16) is a 32 bit word identifying the manufacturer") {
     galaxy::saturn::dcpu cpu;
+
+    test_device& dev = static_cast<test_device&>(cpu.attach_device(new test_device()));
+    dev.id = 0x12345678;
+    dev.manufacturer = 0xfadedead;
+    dev.version = 0x0f00;
+
+    std::vector<std::uint16_t> codez = {0x7e20, 0x0000};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+
+    REQUIRE(cpu.B == 0x1234);
+    REQUIRE(cpu.A == 0x5678);
+
+    REQUIRE(cpu.C == 0x0f00);
+
+    REQUIRE(cpu.Y == 0xfade);
+    REQUIRE(cpu.X == 0xdead);
 }
 
 TEST_CASE("opcodes/hwi", "sends an interrupt to hardware a") {
     galaxy::saturn::dcpu cpu;
+
+    test_device& dev = static_cast<test_device&>(cpu.attach_device(new test_device()));
+    std::vector<std::uint16_t> codez = {0x7e40, 0x0000};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+
+    REQUIRE(dev.count_interrupts == 0x1);
 }
