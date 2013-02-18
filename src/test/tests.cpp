@@ -765,4 +765,93 @@ TEST_CASE("values/stack", "check stack") {
     REQUIRE(cpu.SP == 0xffff);
     REQUIRE(cpu.ram[cpu.SP] == 0xdead);
     REQUIRE(cycles == 2);
+
+    cpu.reset();
+
+    cpu.ram[--cpu.SP] = 0xdead;
+    codez = {0x6001};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.SP == 0x0);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cycles == 1);
+
+    cpu.reset();
+
+    cpu.ram[--cpu.SP] = 0xdead;
+    codez = {0x6401};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.SP == 0xffff);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cycles == 1);
+
+    cpu.reset();
+
+    cpu.ram[--cpu.SP] = 0xdead;
+    cpu.ram[--cpu.SP] = 0xfade;
+    cpu.ram[--cpu.SP] = 0xcafe;
+    codez = {0x6801, 0x0002};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.SP == 0xfffd);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cycles == 2);
+}
+
+TEST_CASE("values/special", "check special memory locations") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7f61, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.SP == 0xdead);
+    REQUIRE(cycles == 2);
+
+    cpu.reset();
+
+    codez = {0x7f81, 0xdeac};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.PC == 0xdead);
+    REQUIRE(cycles == 2);
+
+    cpu.reset();
+
+    codez = {0x7fa1, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.EX == 0xdead);
+    REQUIRE(cycles == 2);
+}
+
+
+TEST_CASE("values/next-word-pointer", "check next word pointer addressing") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7fc1, 0xdead, 0x8000};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.ram[0x8000] == 0xdead);
+    REQUIRE(cycles == 3);
+}
+
+TEST_CASE("values/next-word-literal", "check next word literals") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7c01, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cycles == 2);
+}
+
+TEST_CASE("values/short-literals", "check short form literals") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0xd801};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.A == 0x15);
+    REQUIRE(cycles == 1);
 }
