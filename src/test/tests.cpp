@@ -575,6 +575,7 @@ TEST_CASE("opcodes/int", "triggers a software interrupt with message a") {
     execute(cpu);
     REQUIRE(cpu.A == 0x0);
     REQUIRE(cpu.PC == 0x3);
+    REQUIRE_FALSE(cpu.interrupt_queue_enabled());
 
     cpu.reset();
 
@@ -584,6 +585,7 @@ TEST_CASE("opcodes/int", "triggers a software interrupt with message a") {
     execute(cpu);
     REQUIRE(cpu.A == 0xdead);
     REQUIRE(cpu.PC == 0x0f01);
+    REQUIRE(cpu.interrupt_queue_enabled());
 }
 
 TEST_CASE("opcodes/iag", "sets a to IA") {

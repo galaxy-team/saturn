@@ -751,3 +751,7 @@ void galaxy::saturn::dcpu::reset()
     queue_interrupts = false;
     sleep_cycles = 0;
 }
+
+bool galaxy::saturn::dcpu::interrupt_queue_enabled() {
+    return queue_interrupts;
+}

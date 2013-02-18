@@ -92,6 +92,9 @@ namespace galaxy {
             /// Reset memory and registers
             void reset();
 
+            /// return queue_interrupts
+            bool interrupt_queue_enabled();
+
         };
     }
 }
