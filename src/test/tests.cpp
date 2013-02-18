@@ -556,3 +556,71 @@ TEST_CASE("opcodes/std", "sets b to a, then decreases I and J by 1") {
     REQUIRE(cpu.I == 0xffff);
     REQUIRE(cpu.J == 0xffff);
 }
+
+TEST_CASE("opcodes/jsr", "pushes the address of the next instruction to the stack, then sets PC to a") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7c20, 0xdeac};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.PC == 0xdead);
+    REQUIRE(cpu.ram[cpu.SP] == 0x2);
+}
+
+TEST_CASE("opcodes/int", "triggers a software interrupt with message a") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7d00, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.PC == 0x3);
+
+    cpu.reset();
+
+    cpu.IA = 0x0f00;
+    codez = {0x7d00, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+    REQUIRE(cpu.PC == 0x0f01);
+}
+
+TEST_CASE("opcodes/iag", "sets a to IA") {
+    galaxy::saturn::dcpu cpu;
+
+    cpu.IA = 0xdead;
+    std::vector<std::uint16_t> codez = {0x0120};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.A == 0xdead);
+}
+
+TEST_CASE("opcodes/ias", "sets IA to a") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7d40, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+    execute(cpu);
+    REQUIRE(cpu.IA == 0xdead);
+}
+
+TEST_CASE("opcodes/rfi", "disables interrupt queueing, pops A from the stack, then pops PC from the stack") {
+    galaxy::saturn::dcpu cpu;
+}
+
+TEST_CASE("opcodes/iaq", "if a is nonzero, interrupts will be added to the queue instead of triggered. if a is zero, interrupts will be triggered as normal again") {
+    galaxy::saturn::dcpu cpu;
+}
+
+TEST_CASE("opcodes/hwn", "sets a to number of connected hardware devices") {
+    galaxy::saturn::dcpu cpu;
+}
+
+TEST_CASE("opcodes/hwq", "sets A, B, C, X, Y registers to information about hardware a | A(B<<16) is a 32 bit word identifying the hardware id | C is the hardware version") {
+    galaxy::saturn::dcpu cpu;
+}
+
+TEST_CASE("opcodes/hwi", "sends an interrupt to hardware a") {
+    galaxy::saturn::dcpu cpu;
+}

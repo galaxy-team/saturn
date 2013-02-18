@@ -70,7 +70,7 @@ void galaxy::saturn::dcpu::cycle()
          * before get_value(b). This is because nearly all of the basic
          * opcodes call set_value(b, blah), thus changing PC and SP again.
          * The only basic opcodes that don't call set_value(b, blah) are
-         * the conditionals, so they need to call get_valye(b) again.
+         * the conditionals, so they need to call get_value(b) again.
          */
 
         uint16_t PC_old = PC, SP_old = SP;
@@ -84,7 +84,7 @@ void galaxy::saturn::dcpu::cycle()
 
         /// special instruction
         case 0x00:
-            switch (b_value) {
+            switch (b) {
                 /**
                  * JSR - 3 cycles
                  * pushes the address of the next instruction to the stack,
@@ -558,7 +558,7 @@ void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
     if (queue_interrupts) {
         interrupt_queue.push(message);
     } else if (IA != 0) {
-         interrupt_queue_enabled = true;
+        interrupt_queue_enabled = true;
 
          ram[--SP] = PC;
          ram[--SP] = A;
