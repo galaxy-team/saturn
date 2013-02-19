@@ -44,6 +44,8 @@ void galaxy::saturn::dcpu::cycle()
         interrupt_queue.pop();
         return;
     }
+    // guard against random PC jumps by adding interrupts to queue while executing instruction
+    bool prev_queue_interrupts = queue_interrupts;
 
     bool skip = false;
 
@@ -530,6 +532,7 @@ void galaxy::saturn::dcpu::cycle()
     }
 
     if (skip) {
+        // guard against random PC jumps by adding interrupts to queue while skipping
         bool prev_queue_interrupts = queue_interrupts;
         queue_interrupts = true;
 
@@ -559,6 +562,8 @@ void galaxy::saturn::dcpu::cycle()
      * normal cycle counts in opcodes
      */
     sleep_cycles--;
+
+    queue_interrupts = prev_queue_interrupts;
 }
 
 void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
