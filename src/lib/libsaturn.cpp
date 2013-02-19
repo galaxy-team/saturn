@@ -530,16 +530,23 @@ void galaxy::saturn::dcpu::cycle()
     }
 
     if (skip) {
-	PC++;
-        get_value(a);
-        get_value(b);
-        sleep_cycles++;
-        while (ram[PC] >= 0x10 && ram[PC] <= 0x17) {
-            PC++;
+
+        do {
+
+            // there's probably a more elegant way to ensure this takes a single cycle
+            int sleep_cycles_old = sleep_cycles;
+
+            instruction = ram[PC++];
+            opcode = instruction & 0x1f;
+
+            b = (instruction >> 5) & 0x1f;
+            a = (instruction >> 10) & 0x3f;
+
             get_value(a);
             get_value(b);
-            sleep_cycles++;
-        }
+            sleep_cycles = sleep_cycles_old + 1;
+
+        } while (opcode >= 0x10 && opcode <= 0x17);
     }
 
     /**

@@ -363,7 +363,7 @@ TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
     cpu.flash(codez.begin(), codez.end());
     int cycles = execute(cpu);
     REQUIRE(cpu.A == 0x0);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 
     cpu.reset();
 
@@ -372,7 +372,7 @@ TEST_CASE("opcodes/ifb", "performs next instruction only if (b&a)!=0") {
     cpu.flash(codez.begin(), codez.end());
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 
     cpu.reset();
 
@@ -410,7 +410,7 @@ TEST_CASE("opcodes/ifc", "performs next instruction only if (b&a)==0") {
     cpu.flash(codez.begin(), codez.end());
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 }
 
 TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
@@ -430,7 +430,7 @@ TEST_CASE("opcodes/ife", "performs next instruction only if b==a") {
     cpu.flash(codez.begin(), codez.end());
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0xdead);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 }
 
 TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
@@ -441,7 +441,7 @@ TEST_CASE("opcodes/ifn", "performs next instruction only if b!=a") {
     cpu.flash(codez.begin(), codez.end());
     int cycles = execute(cpu);
     REQUIRE(cpu.A == 0x1234);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 
     cpu.reset();
 
@@ -461,7 +461,7 @@ TEST_CASE("opcodes/ifg", "performs next instruction only if b>a") {
     cpu.flash(codez.begin(), codez.end());
     int cycles = execute(cpu);
     REQUIRE(cpu.A == 0x0f000);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 
     cpu.reset();
 
@@ -490,7 +490,7 @@ TEST_CASE("opcodes/ifa", "performs next instruction only if b>a (signed)") {
     cpu.flash(codez.begin(), codez.end());
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0xfffe);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 }
 
 TEST_CASE("opcodes/ifl", "performs next instruction only if b<a") {
@@ -510,7 +510,7 @@ TEST_CASE("opcodes/ifl", "performs next instruction only if b<a") {
     cpu.flash(codez.begin(), codez.end());
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0xfffe);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 }
 
 TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
@@ -521,7 +521,7 @@ TEST_CASE("opcodes/ifu", "performs next instruction only if b<a (signed)") {
     cpu.flash(codez.begin(), codez.end());
     int cycles = execute(cpu);
     REQUIRE(cpu.A == 0x0f00);
-    REQUIRE(cycles == 5);
+    REQUIRE(cycles == 4);
 
     cpu.reset();
 
@@ -915,4 +915,14 @@ TEST_CASE("values/short-literals", "check short form literals") {
     int cycles = execute(cpu);
     REQUIRE(cpu.A == 0x15);
     REQUIRE(cycles == 1);
+}
+
+TEST_CASE("conditionals/skipping", "check conditional skipping") {
+    galaxy::saturn::dcpu cpu;
+
+    std::vector<std::uint16_t> codez = {0x7c12, 0xdead, 0x7c32, 0xdead, 0x7c01, 0x0f00};
+    cpu.flash(codez.begin(), codez.end());
+    int cycles = execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cycles == 5);
 }
