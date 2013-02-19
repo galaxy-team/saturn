@@ -530,6 +530,8 @@ void galaxy::saturn::dcpu::cycle()
     }
 
     if (skip) {
+        bool prev_queue_interrupts = queue_interrupts;
+        queue_interrupts = true;
 
         do {
 
@@ -547,6 +549,8 @@ void galaxy::saturn::dcpu::cycle()
             sleep_cycles = sleep_cycles_old + 1;
 
         } while (opcode >= 0x10 && opcode <= 0x17);
+
+        queue_interrupts = prev_queue_interrupts;
     }
 
     /**
