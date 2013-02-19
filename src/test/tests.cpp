@@ -584,7 +584,17 @@ TEST_CASE("opcodes/sbx", "sets b to b-a+EX, sets EX to 0xFFFF if there is an und
     REQUIRE(cpu.EX == 0xffff);
     REQUIRE(cycles == 3);
 
-    // TODO: overflow test?
+    cpu.reset();
+
+    cpu.A = 0xffff;
+    cpu.B = 0x0;
+    cpu.EX = 0x1;
+    codez = {0x041b};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+    REQUIRE(cpu.A == 0x0);
+    REQUIRE(cpu.EX == 0x0001);
+    REQUIRE(cycles == 3);
 }
 
 TEST_CASE("opcodes/sti", "sets b to a, then increases I and J by 1") {
