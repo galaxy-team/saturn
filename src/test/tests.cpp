@@ -13,7 +13,7 @@ int execute(galaxy::saturn::dcpu& cpu) {
             cpu.cycle();
             cycles++;
         }
-    } catch(galaxy::saturn::invalid_opcode& e) {}
+    } catch(...) {}
     return cycles;
 }
 
