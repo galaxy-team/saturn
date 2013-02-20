@@ -20,8 +20,9 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#include "libsaturn.hpp"
-#include "device.hpp"
+#include <libsaturn.hpp>
+#include <device.hpp>
+#include <invalid_opcode.hpp>
 
 #include <cstdint>
 
@@ -206,7 +207,7 @@ void galaxy::saturn::dcpu::cycle()
 
                 /// invalid opcode
                 default:
-                    throw std::exception(); // not sure if that's proper C++
+                    throw new galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
             }
             break;
 
@@ -533,7 +534,7 @@ void galaxy::saturn::dcpu::cycle()
 
         /// invalid opcode
         default:
-            throw new std::exception(); // not sure if that's proper C++
+            throw new galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
     }
 
     if (skip) {
