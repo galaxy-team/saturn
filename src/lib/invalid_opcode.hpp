@@ -23,14 +23,17 @@ file named "LICENSE-LGPL.txt".
 #ifndef INVALID_OPCODE_HPP
 #define INVALID_OPCODE_HPP
 
+#include <stdexcept>
+
 namespace galaxy {
     namespace saturn {
         /**
          * throw when the DCPU attempts to execute an invalid opcode
          */
-        class invalid_opcode : std::runtime_error {
-            public:
-                invalid_opcode(const std::string& msg) : runtime_error(msg) {}
+        class invalid_opcode : public std::runtime_error {
+        public:
+            explicit invalid_opcode(const std::string& what_arg) : std::runtime_error(what_arg) {}
+            explicit invalid_opcode(const char* what_arg) : std::runtime_error(what_arg) {}
         };
     }
 }
