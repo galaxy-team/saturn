@@ -30,11 +30,13 @@ namespace galaxy {
         /**
          * represents a lem1802 hardware device
          */
-        class lem1802 {
+        class lem1802 : device{
           public:
             /// initialize the device to values specified by the spec
-            lem1802()   :   id(0x7349f615), manufacturer(0x1c6c8b36),
-                            version(0x1802), name("LEM1802 - Low Energy Monitor") {}
+            lem1802() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor") {}
+
+            virtual void interrupt();
+            virtual void cycle();
         };
     }
 }

@@ -44,6 +44,14 @@ namespace galaxy {
 
             dcpu* cpu;
 
+            device() {}
+
+            device(std::uint32_t id, std::uint32_t manufacturer, std::uint16_t version, std::string name) :
+                id(id), manufacturer(manufacturer), version(version), name(name) {}
+
+            /// called after each cycle
+            virtual void cycle() = 0;
+
             /// called when a hardware interrupt is sent to the device
             virtual void interrupt() = 0;
         };
