@@ -23,12 +23,13 @@ file named "LICENSE-LGPL.txt".
 #ifndef LIBSATURN_HPP
 #define LIBSATURN_HPP
 
+#include <device.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <queue>
 #include <memory>
 #include <array>
-#include <device.hpp>
 
 namespace galaxy {
     namespace saturn {

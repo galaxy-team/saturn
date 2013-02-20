@@ -23,6 +23,7 @@ file named "LICENSE-LGPL.txt".
 #ifndef CLOCK_HPP
 #define CLOCK_HPP
 
+#include <libsaturn.hpp>
 #include <device.hpp>
 #include <cstdint>
 

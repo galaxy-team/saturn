@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <libsaturn.hpp>
-#include <clock.hpp>
+//#include <clock.hpp>
 #include <invalid_opcode.hpp>
 #include "test_device.hpp"
 
