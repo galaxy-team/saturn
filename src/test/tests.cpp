@@ -936,3 +936,18 @@ TEST_CASE("conditionals/skipping", "check conditional skipping") {
     REQUIRE(cpu.A == 0x0);
     REQUIRE(cycles == 5);
 }
+
+
+TEST_CASE("interrupts/queueing", "check interrupt queueing") {
+    galaxy::saturn::dcpu cpu;
+
+    cpu.IA = 0x1;
+    cpu.interrupt(0x21);
+    cpu.interrupt(0x3f);
+    cpu.interrupt(0x13);
+    cpu.ram[0x1] = 0x0022;
+    cpu.ram[0x2] = 0x7d60;
+    cpu.ram[0x3] = 0x0f00;
+    execute(cpu);
+    REQUIRE(cpu.B == 0x73);
+}
