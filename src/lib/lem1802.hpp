@@ -31,10 +31,15 @@ namespace galaxy {
          * represents a lem1802 hardware device
          */
         class lem1802 {
-          public:
+        public:
+            const std::uint32_t id = 0x7349f615;
+            const std::uint32_t manufacturer = 0x1c6c8b36;
+            const std::uint16_t version = 0x1802;
+            const std::string name = "LEM1802 - Low Energy Monitor";
             /// initialize the device to values specified by the spec
-            lem1802()   :   id(0x7349f615), manufacturer(0x1c6c8b36),
-                            version(0x1802), name("LEM1802 - Low Energy Monitor") {}
-        }
+            lem1802() {}
+        };
     }
 }
+
+#endif

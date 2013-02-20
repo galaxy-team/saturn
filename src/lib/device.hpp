@@ -34,13 +34,11 @@ namespace galaxy {
          * a device represents a DCPU hardware device
          */
         class device {
-
           public:
-
-            std::uint32_t id;
-            std::uint32_t manufacturer;
-            std::uint16_t version;
-            std::string name;
+            const std::uint32_t id;
+            const std::uint32_t manufacturer;
+            const std::uint16_t version;
+            const std::string name;
 
             dcpu* cpu;
 
