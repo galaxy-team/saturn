@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <libsaturn.hpp>
-//#include <clock.hpp>
+#include <clock.hpp>
 #include <invalid_opcode.hpp>
 #include "test_device.hpp"
 
@@ -958,4 +958,67 @@ TEST_CASE("interrupts/queueing", "check interrupt queueing") {
     cpu.ram[0x3] = 0x0f00;
     execute(cpu);
     REQUIRE(cpu.B == 0x73);
+}
+
+TEST_CASE("hardware/cycles", "a device's cycle() method must be called once per cycle") {
+    galaxy::saturn::dcpu cpu;
+
+    test_device& dev = static_cast<test_device&>(cpu.attach_device(new test_device()));
+    std::vector<std::uint16_t> codez = {0x7f81, 0x0000};
+    cpu.flash(codez.begin(), codez.end());
+
+    for (int i = 0; i < 0xfade; i++) {
+        cpu.cycle();
+    }
+
+    REQUIRE(dev.count_cycles == 0xfade);
+}
+
+TEST_CASE("hardware/clock", "test clock implementation") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::clock& clock = static_cast<galaxy::saturn::clock&>(cpu.attach_device(new galaxy::saturn::clock()));
+
+    REQUIRE(clock.clock_speed == 100000);
+
+    cpu.A = 0;
+    cpu.B = 120;
+    clock.interrupt();
+
+    // call clock.cycle() for 10 seconds
+    for (int i = 0; i < 1000000; i++) {
+        clock.cycle();
+    }
+
+    cpu.A = 1;
+    clock.interrupt();
+
+    REQUIRE(cpu.C == 5);
+
+    cpu.A = 0;
+    cpu.B = 60;
+    clock.interrupt();
+
+    cpu.A = 1;
+    clock.interrupt();
+
+    REQUIRE(cpu.C == 0);
+
+    std::cout << "====" << std::endl;
+
+    cpu.A = 2;
+    cpu.B = 0x3;
+    clock.interrupt();
+
+    cpu.IA = 0x2;
+    cpu.I = 0x0;
+    std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+
+    for (int i = 0; i < 300001; i++) {
+        cpu.cycle();
+    }
+
+    std::cout << "====" << std::endl;
+
+    REQUIRE(cpu.I == 9);
 }

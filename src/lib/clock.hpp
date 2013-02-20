@@ -29,13 +29,14 @@ file named "LICENSE-LGPL.txt".
 
 namespace galaxy {
     namespace saturn {
+        class device;
         /**
          * represents the hardware clock
          */
-        class clock : device{
+        class clock : public device{
             protected:
-                /// the clock ticks at 60/period times per second
-                std::uint16_t period;
+                /// number of cycles per tick
+                std::uint32_t cycles_per_tick;
 
                 /// stores the number of ticks since the period was set
                 std::uint16_t ticks;
@@ -44,14 +45,14 @@ namespace galaxy {
                 std::uint16_t interrupt_message;
 
                 /// stores the number of cycles since last tick
-                int cycles;
+                std::uint32_t cycles;
 
             public:
                 /// clock speed of the dcpu (perhaps this should be protected and constant? depends on if the client should be able to change it)
                 int clock_speed;
 
                 /// initialize the device to values specified by the spec
-                clock() : device(0x12d0b402, 0x0, 0x1, "Generic Clock (compatible)"), period(0x0), ticks(0x1),
+                clock() : device(0x12d0b402, 0x0, 0x1, "Generic Clock (compatible)"), cycles_per_tick(0x0), ticks(0x1),
                     interrupt_message(0x0), cycles(0), clock_speed(100000) {}
 
                 virtual void interrupt();

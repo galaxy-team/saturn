@@ -23,6 +23,7 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <device.hpp>
 #include <clock.hpp>
+#include <iostream>
 
 void galaxy::saturn::clock::interrupt()
 {
@@ -32,8 +33,10 @@ void galaxy::saturn::clock::interrupt()
          * If B is 0, the clock is turned off.
          */
         case 0:
-            period = cpu->B;
+            cycles_per_tick = (cpu->B * clock_speed) / 60;
+            std::cout << "Cycles per tick set to 0x" << std::hex << cycles_per_tick << std::endl;
             ticks = 0;
+            cycles = 0;
             break;
 
         /**
@@ -48,22 +51,24 @@ void galaxy::saturn::clock::interrupt()
          * disable interrupts
          */
         case 2:
-            if (cpu->B != 0) {
-                interrupt_message = cpu->B;
-
-            } else {
-                interrupt_message = 0x0;
-            }
+            std::cout << "Received interrupt change request 0x" << std::hex << cpu->B << std::endl;
+            interrupt_message = cpu->B;
+            std::cout << "Set interrupt_message to 0x" << std::hex << interrupt_message << std::endl;
     }
 }
 
 void galaxy::saturn::clock::cycle()
 {
-    if (cycles++ >= ((period / 60) / (1 / clock_speed))) {
-        cycles = 0;
-        ticks++;
-        if (interrupt_message != 0) {
-            cpu->interrupt(interrupt_message);
+    if (cycles_per_tick != 0) {
+        cycles++;
+        if (cycles >= cycles_per_tick) {
+            cycles = 0;
+            ticks++;
+            std::cout << "Interrupt message is 0x" << std::hex << interrupt_message << std::endl;
+            if (interrupt_message != 0) {
+                std::cout << "Triggering interrupt" << std::endl;
+                cpu->interrupt(interrupt_message);
+            }
         }
     }
 }

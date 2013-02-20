@@ -5,11 +5,12 @@
 
 class test_device : public galaxy::saturn::device {
     public:
+        int count_cycles;
         int count_interrupts;
 
-        test_device() : count_interrupts(0) {}
+        test_device() : count_cycles(0), count_interrupts(0) {}
 
-        virtual void cycle() {}
+        virtual void cycle();
         virtual void interrupt();
 };
 
