@@ -207,7 +207,7 @@ void galaxy::saturn::dcpu::cycle()
 
                 /// invalid opcode
                 default:
-                    throw new galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
+                    throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
             }
             break;
 
@@ -534,7 +534,7 @@ void galaxy::saturn::dcpu::cycle()
 
         /// invalid opcode
         default:
-            throw new galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
+            throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
     }
 
     if (skip) {
