@@ -28,7 +28,7 @@ file named "LICENSE-LGPL.txt".
 #include <queue>
 #include <memory>
 #include <array>
-#include "device.hpp"
+#include <device.hpp>
 
 namespace galaxy {
     namespace saturn {
@@ -38,6 +38,9 @@ namespace galaxy {
         class dcpu {
         protected:
             bool queue_interrupts;
+
+            /// if guard_interrupts is true, a cycle is executing and interrupts should not be triggered until the next cycle
+            bool guard_interrupts;
             std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
 
@@ -63,7 +66,7 @@ namespace galaxy {
             int sleep_cycles;
 
             /// initialize the CPU to default values
-            dcpu()  :   queue_interrupts(false),
+            dcpu()  :   guard_interrupts(false), queue_interrupts(false),
                         A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0),
                         sleep_cycles(0)

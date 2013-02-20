@@ -44,8 +44,9 @@ void galaxy::saturn::dcpu::cycle()
         interrupt_queue.pop();
         return;
     }
-    // guard against random PC jumps by adding interrupts to queue while executing instruction
-    bool prev_queue_interrupts = queue_interrupts;
+
+    // executing a cycle, guard against interrupts
+    guard_interrupts = true;
 
     bool skip = false;
 
@@ -101,7 +102,11 @@ void galaxy::saturn::dcpu::cycle()
                  */
                 case 0x08:
                     sleep_cycles += 4;
+
+                    // we're about to trigger an interrupt, so stop guarding against them
+                    guard_interrupts = false;
                     interrupt(a_value);
+
                     break;
 
                 /**
@@ -532,9 +537,6 @@ void galaxy::saturn::dcpu::cycle()
     }
 
     if (skip) {
-        // guard against random PC jumps by adding interrupts to queue while skipping
-        bool prev_queue_interrupts = queue_interrupts;
-        queue_interrupts = true;
 
         do {
 
@@ -553,22 +555,22 @@ void galaxy::saturn::dcpu::cycle()
 
         } while (opcode >= 0x10 && opcode <= 0x17);
 
-        queue_interrupts = prev_queue_interrupts;
     }
 
-    /**
+    /*
      * a cycle has been executed
      * NOTE: this means we can use
      * normal cycle counts in opcodes
      */
     sleep_cycles--;
 
-    queue_interrupts = prev_queue_interrupts;
+    // the cycle is finished executing, trigger interrupts normally
+    guard_interrupts = false;
 }
 
 void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
 {
-    if (queue_interrupts) {
+    if (queue_interrupts || guard_interrupts) {
         interrupt_queue.push(message);
     } else if (IA != 0) {
         queue_interrupts = true;
