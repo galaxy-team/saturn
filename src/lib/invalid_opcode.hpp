@@ -30,7 +30,9 @@ namespace galaxy {
         /**
          * throw when the DCPU attempts to execute an invalid opcode
          */
-        class invalid_opcode : public std::runtime_error {};
+        class invalid_opcode : public std::runtime_error {
+            invalid_opcode(const std::string& what_str) : runtime_error(what_str) {}
+        };
     }
 }
 
