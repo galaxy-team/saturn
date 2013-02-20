@@ -23,7 +23,6 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <device.hpp>
 #include <clock.hpp>
-#include <iostream>
 
 void galaxy::saturn::clock::interrupt()
 {
@@ -34,7 +33,6 @@ void galaxy::saturn::clock::interrupt()
          */
         case 0:
             cycles_per_tick = (cpu->B * clock_speed) / 60;
-            std::cout << "Cycles per tick set to 0x" << std::hex << cycles_per_tick << std::endl;
             ticks = 0;
             cycles = 0;
             break;
@@ -51,9 +49,7 @@ void galaxy::saturn::clock::interrupt()
          * disable interrupts
          */
         case 2:
-            std::cout << "Received interrupt change request 0x" << std::hex << cpu->B << std::endl;
             interrupt_message = cpu->B;
-            std::cout << "Set interrupt_message to 0x" << std::hex << interrupt_message << std::endl;
     }
 }
 
@@ -64,9 +60,7 @@ void galaxy::saturn::clock::cycle()
         if (cycles >= cycles_per_tick) {
             cycles = 0;
             ticks++;
-            std::cout << "Interrupt message is 0x" << std::hex << interrupt_message << std::endl;
             if (interrupt_message != 0) {
-                std::cout << "Triggering interrupt" << std::endl;
                 cpu->interrupt(interrupt_message);
             }
         }

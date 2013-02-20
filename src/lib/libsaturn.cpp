@@ -32,12 +32,6 @@ file named "LICENSE-LGPL.txt".
 #include <queue>
 #include <vector>
 
-
-#include <iostream>
-
-
-
-
 void galaxy::saturn::dcpu::cycle()
 {
 
@@ -583,7 +577,6 @@ void galaxy::saturn::dcpu::cycle()
 
 void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
 {
-    std::cout << "dcpu interrupt request received" << std::endl;
     if (queue_interrupts || guard_interrupts) {
         interrupt_queue.push(message);
     } else if (IA != 0) {
