@@ -15,13 +15,14 @@ set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
 
 # ensure the linker can find libsaturn
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device)
 
 # create a standalone library file for integration
 add_library (libsaturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libsaturn.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/clock.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/clock.cpp
 )
-# ensure that the output file for libsaturn only contains one lib
+# ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
 
 # build the assembler frontend executable
