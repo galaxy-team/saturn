@@ -20,23 +20,31 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#ifndef LEM1802_HPP
-#define LEM1802_HPP
+#ifndef CLOCK_HPP
+#define CLOCK_HPP
 
 #include <device.hpp>
+#include <cstdint>
 
 namespace galaxy {
     namespace saturn {
         /**
-         * represents a lem1802 hardware device
+         * represents the hardware clock
          */
-        class lem1802 : device{
-          public:
-            /// initialize the device to values specified by the spec
-            lem1802() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor") {}
+        class clock : device{
+            protected:
+                /// the clock ticks at 60/period times per second
+                std::uint16_t period;
 
-            virtual void interrupt();
-            virtual void cycle();
+                /// stores the number of ticks
+                std::uint16_t ticks;
+
+            public:
+                /// initialize the device to values specified by the spec
+                clock() : device(0x12d0b402, 0x0, 0x1, "Generic Clock (compatible)"), period(0x0) {}
+
+                virtual void interrupt();
+                virtual void cycle();
         };
     }
 }

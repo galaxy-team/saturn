@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <libsaturn.hpp>
+#include <clock.hpp>
+#include <invalid_opcode.hpp>
 #include "test_device.hpp"
 
 /// runs the cpu until it encounters an invalid opcode
@@ -11,7 +13,7 @@ int execute(galaxy::saturn::dcpu& cpu) {
             cpu.cycle();
             cycles++;
         }
-    } catch(std::exception& e) {}
+    } catch(galaxy::saturn::invalid_opcode& e) {}
     return cycles;
 }
 
@@ -80,6 +82,12 @@ TEST_CASE("reset/memory", "All memory should be 0 after a reset") {
     }
 
     REQUIRE(all_zero);
+}
+
+TEST_CASE("opcodes/invalid", "a runtime error should be thrown on invalid opcode") {
+    galaxy::saturn::dcpu cpu;
+
+    REQUIRE_THROWS_AS(cpu.cycle(), galaxy::saturn::invalid_opcode);
 }
 
 TEST_CASE("opcodes/set", "sets b to a") {

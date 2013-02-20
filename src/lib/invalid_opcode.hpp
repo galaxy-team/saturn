@@ -20,23 +20,17 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#ifndef LEM1802_HPP
-#define LEM1802_HPP
-
-#include <device.hpp>
+#ifndef INVALID_OPCODE_HPP
+#define INVALID_OPCODE_HPP
 
 namespace galaxy {
     namespace saturn {
         /**
-         * represents a lem1802 hardware device
+         * throw when the DCPU attempts to execute an invalid opcode
          */
-        class lem1802 : device{
-          public:
-            /// initialize the device to values specified by the spec
-            lem1802() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor") {}
-
-            virtual void interrupt();
-            virtual void cycle();
+        class invalid_opcode : std::runtime_error {
+            public:
+                invalid_opcode(const std::string& msg) : runtime_error(msg) {}
         };
     }
 }

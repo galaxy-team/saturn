@@ -9,7 +9,8 @@ class test_device : public galaxy::saturn::device {
 
         test_device() : count_interrupts(0) {}
 
-        void interrupt();
+        virtual void cycle() {}
+        virtual void interrupt();
 };
 
 #endif // TEST_DEVICE_HPP
