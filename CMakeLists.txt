@@ -19,6 +19,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/)
 # create a standalone library file for integration
 add_library (libsaturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libsaturn.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/clock.cpp
 )
 # ensure that the output file for libsaturn only contains one lib
 set_target_properties(libsaturn PROPERTIES PREFIX "")
