@@ -23,6 +23,7 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <device.hpp>
 #include <invalid_opcode.hpp>
+#include <queue_overflow.hpp>
 
 #include <cstdint>
 
@@ -579,6 +580,11 @@ void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
 {
     if (queue_interrupts || guard_interrupts) {
         interrupt_queue.push(message);
+
+        if (interrupt_queue.size() > 256) {
+            throw galaxy::saturn::queue_overflow("the dcpu is on fire");
+        }
+
     } else if (IA != 0) {
         queue_interrupts = true;
 

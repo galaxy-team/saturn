@@ -3,6 +3,7 @@
 #include <libsaturn.hpp>
 #include <clock.hpp>
 #include <invalid_opcode.hpp>
+#include <queue_overflow.hpp>
 #include "test_device.hpp"
 
 /// runs the cpu until it encounters an invalid opcode
@@ -945,7 +946,6 @@ TEST_CASE("conditionals/skipping", "check conditional skipping") {
     REQUIRE(cycles == 5);
 }
 
-
 TEST_CASE("interrupts/queueing", "check interrupt queueing") {
     galaxy::saturn::dcpu cpu;
 
@@ -958,6 +958,19 @@ TEST_CASE("interrupts/queueing", "check interrupt queueing") {
     cpu.ram[0x3] = 0x0f00;
     execute(cpu);
     REQUIRE(cpu.B == 0x73);
+}
+
+TEST_CASE("interrupts/overflow", "an exception should be thrown on interrupt queue overflow") {
+    galaxy::saturn::dcpu cpu;
+
+    cpu.IA = 0x1;
+
+    // the first interrupt triggered is not added to the queue, so trigger 257 instead of 256
+    for (int i = 0; i < 257; i++) {
+        cpu.interrupt(0xfab);
+    }
+
+    REQUIRE_THROWS_AS(cpu.interrupt(0xf00), galaxy::saturn::queue_overflow);
 }
 
 TEST_CASE("hardware/cycles", "a device's cycle() method must be called once per cycle") {
@@ -1003,8 +1016,6 @@ TEST_CASE("hardware/clock", "test clock implementation") {
 
     REQUIRE(cpu.C == 0);
 
-    std::cout << "====" << std::endl;
-
     cpu.A = 2;
     cpu.B = 0x3;
     clock.interrupt();
@@ -1017,8 +1028,6 @@ TEST_CASE("hardware/clock", "test clock implementation") {
     for (int i = 0; i < 300001; i++) {
         cpu.cycle();
     }
-
-    std::cout << "====" << std::endl;
 
     REQUIRE(cpu.I == 9);
 }
