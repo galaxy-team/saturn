@@ -64,15 +64,13 @@ void galaxy::saturn::dcpu::cycle()
     std::uint16_t b = (instruction >> 5) & 0x1f;
     std::uint16_t a = (instruction >> 10) & 0x3f;
 
-    std::uint16_t* a_ref = get_reference(a, true);
-    std::uint16_t a_value = *a_ref;
+    std::uint16_t& a_value = get_reference(a, true);
 
     std::int16_t a_signed = a_value;
 
     if (opcode != 0x00) {
 
-        std::uint16_t* b_ref = get_reference(b, false);
-        std::uint16_t b_value = *b_ref;
+        std::uint16_t& b_value = get_reference(b, false);
         std::int16_t b_signed = b_value;
 
         switch (opcode){
@@ -82,7 +80,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x01:
                 sleep_cycles++;
-                *b_ref = a_value;
+                b_value = a_value;
                 break;
 
             /**
@@ -99,7 +97,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0x0000;
                 }
 
-                *b_ref = b_value + a_value;
+                b_value = b_value + a_value;
                 break;
 
             /**
@@ -116,7 +114,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0x0000;
                 }
 
-                *b_ref = b_value - a_value;
+                b_value = b_value - a_value;
                 break;
 
             /**
@@ -128,7 +126,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 2;
 
                 EX = ((b_value * a_value) >> 16) & 0xffff;
-                *b_ref = b_value * a_value;
+                b_value = b_value * a_value;
                 break;
 
             /**
@@ -139,7 +137,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 2;
 
                 EX = ((b_signed * a_signed) >> 16) & 0xffff;
-                *b_ref = b_signed * a_signed;
+                b_value = b_signed * a_signed;
                 break;
 
             /**
@@ -152,10 +150,10 @@ void galaxy::saturn::dcpu::cycle()
 
                 if (a_value == 0) {
                     EX = 0;
-                    *b_ref = 0;
+                    b_value = 0;
                 } else {
                     EX = ((b_value << 16) / a_value) & 0xffff;
-                    *b_ref = b_value / a_value;
+                    b_value = b_value / a_value;
                 }
                 break;
 
@@ -168,10 +166,10 @@ void galaxy::saturn::dcpu::cycle()
 
                 if (a_value == 0) {
                     EX = 0;
-                    *b_ref = 0;
+                    b_value = 0;
                 } else {
                     EX = ((b_signed << 16) / a_signed) & 0xffff;
-                    *b_ref = b_signed / a_signed;
+                    b_value = b_signed / a_signed;
                 }
                 break;
 
@@ -183,9 +181,9 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 3;
 
                 if (a_value == 0) {
-                    *b_ref = 0;
+                    b_value = 0;
                 } else {
-                    *b_ref = b_value % a_value;
+                    b_value = b_value % a_value;
                 }
                 break;
 
@@ -197,9 +195,9 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 3;
 
                 if (a_value == 0) {
-                    *b_ref = 0;
+                    b_value = 0;
                 } else {
-                    *b_ref = b_signed % a_signed;
+                    b_value = b_signed % a_signed;
                 }
                 break;
 
@@ -209,7 +207,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0a:
                 sleep_cycles++;
-                *b_ref = b_value & a_value;
+                b_value = b_value & a_value;
                 break;
 
             /**
@@ -218,7 +216,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0b:
                 sleep_cycles++;
-                *b_ref = b_value | a_value;
+                b_value = b_value | a_value;
                 break;
 
             /**
@@ -227,7 +225,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0c:
                 sleep_cycles++;
-                *b_ref = b_value ^ a_value;
+                b_value = b_value ^ a_value;
                 break;
 
             /**
@@ -238,7 +236,7 @@ void galaxy::saturn::dcpu::cycle()
             case 0x0d:
                 sleep_cycles++;
                 EX = ((b_value << 16) >> a_value) & 0xffff;
-                *b_ref = b_value >> a_value;
+                b_value = b_value >> a_value;
                 break;
 
             /**
@@ -250,7 +248,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles++;
 
                 EX = ((b_signed << 16) >> a_value) & 0xffff;
-                *b_ref = b_signed >> a_value;
+                b_value = b_signed >> a_value;
                 break;
 
             /**
@@ -260,7 +258,7 @@ void galaxy::saturn::dcpu::cycle()
             case 0x0f:
                 sleep_cycles++;
                 EX = ((b_value << a_value) >> 16) & 0xffff;
-                *b_ref = b_value << a_value;
+                b_value = b_value << a_value;
                 break;
 
             /// conditional statements can take more cycles due to chaining
@@ -343,11 +341,14 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x1a:
                 sleep_cycles += 3;
-                *b_ref = b_value + a_value + EX;
-                if(b_value + a_value + EX > 0xffff) {
-                    EX = 0x0001;
-                } else {
-                    EX = 0x0000;
+                {
+                    std::uint16_t b_old = b_value;
+                    b_value = b_value + a_value + EX;
+                    if(b_old + a_value + EX > 0xffff) {
+                        EX = 0x0001;
+                    } else {
+                        EX = 0x0000;
+                    }
                 }
                 break;
 
@@ -358,13 +359,16 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x1b:
                 sleep_cycles += 3;
-                *b_ref = b_value - a_value + EX;
-                if(b_value + EX < a_value) {
-                    EX = 0xffff;
-                } else if(b_value + EX > 0xffff + a_value) {
-                    EX = 0x0001;
-                } else {
-                    EX = 0x0000;
+                {
+                    std::uint16_t b_old = b_value;
+                    b_value = b_value - a_value + EX;
+                    if(b_old + EX < a_value) {
+                        EX = 0xffff;
+                    } else if(b_old + EX > 0xffff + a_value) {
+                        EX = 0x0001;
+                    } else {
+                        EX = 0x0000;
+                    }
                 }
                 break;
 
@@ -374,7 +378,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x1e:
                 sleep_cycles += 2;
-                *b_ref = a_value;
+                b_value = a_value;
                 I++;
                 J++;
                 break;
@@ -384,7 +388,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x1f:
                 sleep_cycles += 2;
-                *b_ref = a_value;
+                b_value = a_value;
                 I--;
                 J--;
                 break;
@@ -426,7 +430,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x09:
                 sleep_cycles++;
-                *a_ref = IA;
+                a_value = IA;
                 break;
 
             /**
@@ -474,7 +478,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x10:
                 sleep_cycles += 2;
-                *a_ref = devices.size();
+                a_value = devices.size();
                 break;
 
             /**
@@ -573,33 +577,33 @@ void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
      }
 }
 
-std::uint16_t* galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_value)
+std::uint16_t& galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_value)
 {
     switch (val) {
 
         case 0x0:
-            return &A;
+            return A;
 
         case 0x01:
-            return &B;
+            return B;
 
         case 0x02:
-            return &C;
+            return C;
 
         case 0x03:
-            return &X;
+            return X;
 
         case 0x04:
-            return &Y;
+            return Y;
 
         case 0x05:
-            return &Z;
+            return Z;
 
         case 0x06:
-            return &I;
+            return I;
 
         case 0x07:
-            return &J;
+            return J;
 
         case 0x08:
         case 0x09:
@@ -609,7 +613,7 @@ std::uint16_t* galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_val
         case 0x0d:
         case 0x0e:
         case 0x0f:
-            return &ram[*get_reference(val - 0x08, a_value)];
+            return ram[get_reference(val - 0x08, a_value)];
 
         case 0x10:
         case 0x11:
@@ -620,42 +624,42 @@ std::uint16_t* galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_val
         case 0x16:
         case 0x17:
             sleep_cycles++;
-            return &ram[*get_reference(val - 0x10, a_value) + ram[PC++]];
+            return ram[get_reference(val - 0x10, a_value) + ram[PC++]];
 
         case 0x18:
             if (a_value) {
-                return &ram[SP++];
+                return ram[SP++];
             } else {
-                return &ram[--SP];
+                return ram[--SP];
             }
 
         case 0x19:
-            return &ram[SP];
+            return ram[SP];
 
         case 0x1a:
             sleep_cycles++;
-            return &ram[SP + ram[PC++]];
+            return ram[SP + ram[PC++]];
 
         case 0x1b:
-            return &SP;
+            return SP;
 
         case 0x1c:
-            return &PC;
+            return PC;
 
         case 0x1d:
-            return &EX;
+            return EX;
 
         case 0x1e:
             sleep_cycles++;
-            return &ram[ram[PC++]];
+            return ram[ram[PC++]];
 
         case 0x1f:
             sleep_cycles++;
-            return &ram[PC++];
+            return ram[PC++];
 
         default:
             literal_value = val - 0x21;
-            return &literal_value;
+            return literal_value;
     }
 }
 

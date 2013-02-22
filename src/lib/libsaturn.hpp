@@ -53,7 +53,7 @@ namespace galaxy {
              * value as being the "a" value in the instruction;
              * otherwise, it will treat it as being the "b" value
              */
-            std::uint16_t* get_reference(std::uint16_t, bool);
+            std::uint16_t& get_reference(std::uint16_t, bool);
 
         public:
             std::array<std::uint16_t, 0x10000> ram;
