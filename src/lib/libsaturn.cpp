@@ -97,7 +97,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0x0000;
                 }
 
-                b_value = b_value + a_value;
+                b_value += a_value;
                 break;
 
             /**
@@ -114,7 +114,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0x0000;
                 }
 
-                b_value = b_value - a_value;
+                b_value -= a_value;
                 break;
 
             /**
@@ -126,7 +126,8 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 2;
 
                 EX = ((b_value * a_value) >> 16) & 0xffff;
-                b_value = b_value * a_value;
+
+                b_value *= a_value;
                 break;
 
             /**
@@ -137,6 +138,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 2;
 
                 EX = ((b_signed * a_signed) >> 16) & 0xffff;
+
                 b_value = b_signed * a_signed;
                 break;
 
@@ -153,7 +155,7 @@ void galaxy::saturn::dcpu::cycle()
                     b_value = 0;
                 } else {
                     EX = ((b_value << 16) / a_value) & 0xffff;
-                    b_value = b_value / a_value;
+                    b_value /= a_value;
                 }
                 break;
 
@@ -183,7 +185,7 @@ void galaxy::saturn::dcpu::cycle()
                 if (a_value == 0) {
                     b_value = 0;
                 } else {
-                    b_value = b_value % a_value;
+                    b_value %= a_value;
                 }
                 break;
 
@@ -207,7 +209,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0a:
                 sleep_cycles++;
-                b_value = b_value & a_value;
+                b_value &= a_value;
                 break;
 
             /**
@@ -216,7 +218,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0b:
                 sleep_cycles++;
-                b_value = b_value | a_value;
+                b_value |= a_value;
                 break;
 
             /**
@@ -225,7 +227,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x0c:
                 sleep_cycles++;
-                b_value = b_value ^ a_value;
+                b_value ^= a_value;
                 break;
 
             /**
@@ -236,7 +238,7 @@ void galaxy::saturn::dcpu::cycle()
             case 0x0d:
                 sleep_cycles++;
                 EX = ((b_value << 16) >> a_value) & 0xffff;
-                b_value = b_value >> a_value;
+                b_value >>= a_value;
                 break;
 
             /**
@@ -258,7 +260,7 @@ void galaxy::saturn::dcpu::cycle()
             case 0x0f:
                 sleep_cycles++;
                 EX = ((b_value << a_value) >> 16) & 0xffff;
-                b_value = b_value << a_value;
+                b_value <<= a_value;
                 break;
 
             /// conditional statements can take more cycles due to chaining
@@ -343,7 +345,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 3;
                 {
                     std::uint16_t b_old = b_value;
-                    b_value = b_value + a_value + EX;
+                    b_value += a_value + EX;
                     if(b_old + a_value + EX > 0xffff) {
                         EX = 0x0001;
                     } else {
@@ -361,7 +363,7 @@ void galaxy::saturn::dcpu::cycle()
                 sleep_cycles += 3;
                 {
                     std::uint16_t b_old = b_value;
-                    b_value = b_value - a_value + EX;
+                    b_value -= a_value - EX;
                     if(b_old + EX < a_value) {
                         EX = 0xffff;
                     } else if(b_old + EX > 0xffff + a_value) {
