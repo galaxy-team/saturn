@@ -2,6 +2,7 @@
 #include "catch.hpp"
 #include <libsaturn.hpp>
 #include <clock.hpp>
+#include <lem1802.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 #include "test_device.hpp"
@@ -991,7 +992,7 @@ TEST_CASE("hardware/clock", "test clock implementation") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::clock& clock = static_cast<galaxy::saturn::clock&>(cpu.attach_device(new galaxy::saturn::clock()));
 
-    REQUIRE(clock.clock_speed == 100000);
+    REQUIRE(cpu.clock_speed == 100000);
 
     cpu.A = 0;
     cpu.B = 120;

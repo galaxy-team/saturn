@@ -21,6 +21,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device)
 add_library (libsaturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libsaturn.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/clock.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/lem1802.cpp
 )
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")

@@ -32,7 +32,7 @@ void galaxy::saturn::clock::interrupt()
          * If B is 0, the clock is turned off.
          */
         case 0:
-            cycles_per_tick = (cpu->B * clock_speed) / 60;
+            cycles_per_tick = (cpu->B * cpu->clock_speed) / 60;
             ticks = 0;
             cycles = 0;
             break;

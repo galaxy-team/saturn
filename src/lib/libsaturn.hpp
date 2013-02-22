@@ -66,11 +66,14 @@ namespace galaxy {
              */
             int sleep_cycles;
 
+            /// clock speed of the dcpu
+            int clock_speed;
+
             /// initialize the CPU to default values
             dcpu()  :   guard_interrupts(false), queue_interrupts(false),
                         A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0),
-                        sleep_cycles(0)
+                        sleep_cycles(0), clock_speed(100000)
             {
                 ram.fill(0);
             }

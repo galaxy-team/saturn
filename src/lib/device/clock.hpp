@@ -48,12 +48,9 @@ namespace galaxy {
                 std::uint32_t cycles;
 
             public:
-                /// clock speed of the dcpu (perhaps this should be protected and constant? depends on if the client should be able to change it)
-                int clock_speed;
-
                 /// initialize the device to values specified by the spec
                 clock() : device(0x12d0b402, 0x0, 0x1, "Generic Clock (compatible)"), cycles_per_tick(0x0), ticks(0x1),
-                    interrupt_message(0x0), cycles(0), clock_speed(100000) {}
+                    interrupt_message(0x0), cycles(0) {}
 
                 virtual void interrupt();
                 virtual void cycle();
