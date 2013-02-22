@@ -66,12 +66,9 @@ void galaxy::saturn::dcpu::cycle()
 
     std::uint16_t& a_value = get_reference(a, true);
 
-    std::int16_t a_signed = a_value;
-
     if (opcode != 0x00) {
 
         std::uint16_t& b_value = get_reference(b, false);
-        std::int16_t b_signed = b_value;
 
         switch (opcode){
             /**
@@ -137,9 +134,9 @@ void galaxy::saturn::dcpu::cycle()
             case 0x05:
                 sleep_cycles += 2;
 
-                EX = ((b_signed * a_signed) >> 16) & 0xffff;
+                EX = ((static_cast<std::int16_t>(b_value) * static_cast<std::int16_t>(a_value)) >> 16) & 0xffff;
 
-                b_value = b_signed * a_signed;
+                b_value = static_cast<std::int16_t>(b_value) * static_cast<std::int16_t>(a_value);
                 break;
 
             /**
@@ -170,8 +167,8 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0;
                     b_value = 0;
                 } else {
-                    EX = ((b_signed << 16) / a_signed) & 0xffff;
-                    b_value = b_signed / a_signed;
+                    EX = ((static_cast<std::int16_t>(b_value) << 16) / static_cast<std::int16_t>(a_value)) & 0xffff;
+                    b_value = static_cast<std::int16_t>(b_value) / static_cast<std::int16_t>(a_value);
                 }
                 break;
 
@@ -199,7 +196,7 @@ void galaxy::saturn::dcpu::cycle()
                 if (a_value == 0) {
                     b_value = 0;
                 } else {
-                    b_value = b_signed % a_signed;
+                    b_value = static_cast<std::int16_t>(b_value) % static_cast<std::int16_t>(a_value);
                 }
                 break;
 
@@ -249,8 +246,8 @@ void galaxy::saturn::dcpu::cycle()
             case 0x0e:
                 sleep_cycles++;
 
-                EX = ((b_signed << 16) >> a_value) & 0xffff;
-                b_value = b_signed >> a_value;
+                EX = ((static_cast<std::int16_t>(b_value) << 16) >> a_value) & 0xffff;
+                b_value = static_cast<std::int16_t>(b_value) >> a_value;
                 break;
 
             /**
@@ -315,7 +312,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x15:
                 sleep_cycles += 2;
-                skip = !(b_signed > a_signed);
+                skip = !(static_cast<std::int16_t>(b_value) > static_cast<std::int16_t>(a_value));
                 break;
 
             /**
@@ -333,7 +330,7 @@ void galaxy::saturn::dcpu::cycle()
              */
             case 0x17:
                 sleep_cycles += 2;
-                skip = !(b_signed < a_signed);
+                skip = !(static_cast<std::int16_t>(b_value) < static_cast<std::int16_t>(a_value));
                 break;
 
             /**
