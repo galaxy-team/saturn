@@ -62,8 +62,13 @@ void galaxy::saturn::lem1802::interrupt()
          * processed.
          */
         case 0:
+            if (state == DISCONNECTED && cpu->B != 0x0) {
+                state = STARTING_UP;
+                cycles = 0;
+            } else if (cpu->B == 0x0) {
+                state = DISCONNECTED;
+            }
             vram_pointer = cpu->B;
-            monitor_updated = true;
             break;
 
         /**
@@ -73,7 +78,6 @@ void galaxy::saturn::lem1802::interrupt()
          */
         case 1:
             fram_pointer = cpu->B;
-            monitor_updated = true;
             break;
 
         /**
@@ -83,7 +87,6 @@ void galaxy::saturn::lem1802::interrupt()
          */
         case 2:
             pram_pointer = cpu->B;
-            monitor_updated = true;
             break;
 
         /**
@@ -92,7 +95,6 @@ void galaxy::saturn::lem1802::interrupt()
          */
         case 3:
             border_color = cpu->B & 0xf;
-            monitor_updated = true;
             break;
 
         /**
@@ -136,15 +138,16 @@ void galaxy::saturn::lem1802::interrupt()
 void galaxy::saturn::lem1802::cycle()
 {
     if (cycles >= cpu->clock_speed) {
-        cycles = 0;
-        blink_on = !blink_on;
-        monitor_updated = true;
+        if (state == ACTIVATED) {
+            cycles = 0;
+            blink_on = !blink_on;
+        } else if (state == STARTING_UP) {
+            state = ACTIVATED;
+        }
     }
 }
 
-bool galaxy::saturn::lem1802::updated()
+bool galaxy::saturn::lem1802::activated()
 {
-    bool updated_old = monitor_updated;
-    monitor_updated = false;
-    return updated_old;
+    return state == ACTIVATED;
 }
