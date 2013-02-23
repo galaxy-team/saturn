@@ -145,6 +145,7 @@ void galaxy::saturn::lem1802::cycle()
             state = ACTIVATED;
         }
     }
+    cycles++;
 }
 
 bool galaxy::saturn::lem1802::activated()
