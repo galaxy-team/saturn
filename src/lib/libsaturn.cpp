@@ -151,7 +151,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0;
                     b_value = 0;
                 } else {
-                    EX = ((b_value << 16) / a_value) & 0xffff;
+                    EX = ((static_cast<std::uint32_t>(b_value) << 16) / a_value) & 0xffff;
                     b_value /= a_value;
                 }
                 break;
@@ -167,7 +167,7 @@ void galaxy::saturn::dcpu::cycle()
                     EX = 0;
                     b_value = 0;
                 } else {
-                    EX = ((static_cast<std::int16_t>(b_value) << 16) / static_cast<std::int16_t>(a_value)) & 0xffff;
+                    EX = ((static_cast<std::int64_t>(b_value) << 16) / static_cast<std::int16_t>(a_value)) & 0xffff;
                     b_value = static_cast<std::int16_t>(b_value) / static_cast<std::int16_t>(a_value);
                 }
                 break;
