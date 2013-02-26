@@ -199,6 +199,17 @@ TEST_CASE("opcodes/div", "sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0,
     REQUIRE(cpu.A == 0x0);
     REQUIRE(cpu.EX == 0x0);
     REQUIRE(cycles == 4);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c06, 0x00df};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+
+    REQUIRE(cpu.A == 0xff);
+    REQUIRE(cpu.EX == 0xa0b7);
+    REQUIRE(cycles == 4);
 }
 
 TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0") {
@@ -230,6 +241,17 @@ TEST_CASE("opcodes/dvi", "like DIV, but treat b, a as signed. Rounds towards 0")
     cycles = execute(cpu);
     REQUIRE(cpu.A == 0x0);
     REQUIRE(cpu.EX == 0x0);
+    REQUIRE(cycles == 4);
+
+    cpu.reset();
+
+    cpu.A = 0xdead;
+    codez = {0x7c07, 0x00df};
+    cpu.flash(codez.begin(), codez.end());
+    cycles = execute(cpu);
+
+    REQUIRE(cpu.A == 0xffda);
+    REQUIRE(cpu.EX == 0xa0b7);
     REQUIRE(cycles == 4);
 }
 
