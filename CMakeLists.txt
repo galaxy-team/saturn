@@ -28,13 +28,16 @@ add_library (libsaturn
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
 
-#add_executable(saturn
-#    src/main.cpp
-#)
-
 find_package(SFML)
 
-# if testing has been enabled, build the tests and run them! :D
+add_executable(saturn
+    src/main.cpp
+)
+add_dependencies(saturn
+    SFML
+)
+
+## if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
 IF (TEST)
     ENABLE_TESTING()
