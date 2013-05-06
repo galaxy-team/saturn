@@ -5,6 +5,8 @@ project(saturn)
 #set(VERBOSE, ON)
 #SET(DEBUG, ON)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeScripts")
+
 # set some output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -26,10 +28,11 @@ add_library (libsaturn
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
 
-# build the assembler frontend executable
 #add_executable(saturn
 #    src/main.cpp
 #)
+
+find_package(SFML)
 
 # if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
@@ -44,19 +47,4 @@ IF (TEST)
 
     ADD_TEST(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests "Unit tests")
 ENDIF(TEST)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
