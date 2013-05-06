@@ -64,484 +64,464 @@ void galaxy::saturn::dcpu::cycle()
     std::uint16_t b = (instruction >> 5) & 0x1f;
     std::uint16_t a = (instruction >> 10) & 0x3f;
 
-    std::uint16_t a_value = get_value(a);
-    std::uint16_t b_value;
-
-    std::int16_t s_a = a_value;
-    std::int16_t s_b;
+    std::uint16_t& a_value = get_reference(a, true);
 
     if (opcode != 0x00) {
-        /*
-         * NOTE: this reverts PC and SP to their original state
-         * before get_value(b). This is because nearly all of the basic
-         * opcodes call set_value(b, blah), thus changing PC and SP again.
-         * The only basic opcodes that don't call set_value(b, blah) are
-         * the conditionals, so they need to call get_value(b) again.
-         */
 
-        uint16_t PC_old = PC, SP_old = SP;
-        int sleep_cycles_old = sleep_cycles;
-        b_value = get_value(b);
-        s_b = b_value;
-        PC = PC_old;
-        SP = SP_old;
-        sleep_cycles = sleep_cycles_old;
-    }
+        std::uint16_t& b_value = get_reference(b, false);
 
-    switch (opcode) {
+        switch (opcode){
+            /**
+             * SET - 1 cycle
+             * sets b to a
+             */
+            case 0x01:
+                sleep_cycles++;
+                b_value = a_value;
+                break;
 
-        /// special instruction
-        case 0x00:
-            switch (b) {
-                /**
-                 * JSR - 3 cycles
-                 * pushes the address of the next instruction to the stack,
-                 * then sets PC to a
-                 */
-                case 0x01:
-                    sleep_cycles += 3;
-                    ram[--SP] = PC;
-                    PC = a_value;
-                    break;
+            /**
+             * ADD - 2 cycles
+             * sets b to b+a, sets EX to 0x0001 if there's an overflow,
+             * 0x0 otherwise
+             */
+            case 0x02:
+                sleep_cycles += 2;
 
-                /**
-                 * INT - 4 cycles
-                 * triggers a software interrupt with message a
-                 */
-                case 0x08:
-                    sleep_cycles += 4;
+                if (b_value + a_value > 0xffff) {
+                    EX = 0x0001;
+                } else {
+                    EX = 0x0000;
+                }
 
-                    // we're about to trigger an interrupt, so stop guarding against them
-                    guard_interrupts = false;
-                    interrupt(a_value);
+                b_value += a_value;
+                break;
 
-                    break;
+            /**
+             * SUB - 2 cycles
+             * sets b to b-a, sets EX to 0xffff if there's an underflow,
+             * 0x0 otherwise
+             */
+            case 0x03:
+                sleep_cycles += 2;
 
-                /**
-                 * IAG - 1 cycle
-                 * sets a to IA
-                 */
-                case 0x09:
-                    sleep_cycles++;
-                    set_value(a, IA);
-                    break;
+                if(b_value < a_value) {
+                    EX = 0xffff;
+                } else {
+                    EX = 0x0000;
+                }
 
-                /**
-                 * IAS - 1 cycle
-                 * sets IA to a
-                 */
-                case 0x0a:
-                    sleep_cycles++;
-                    IA = a_value;
-                    break;
+                b_value -= a_value;
+                break;
 
-                /**
-                 * RFI - 3 cycles
-                 * disables interrupt queueing, pops A from the stack, then
-                 * pops PC from the stack
-                 */
-                case 0x0b:
-                    sleep_cycles += 3;
+            /**
+             * MUL - 2 cycles
+             * sets b to b*a, sets EX to ((b*a)>>16)&0xffff (treats b,
+             * a as unsigned
+             */
+            case 0x04:
+                sleep_cycles += 2;
 
-                    queue_interrupts = false;
-                    A = ram[SP++];
-                    PC = ram[SP++];
+                EX = ((b_value * a_value) >> 16) & 0xffff;
 
-                    break;
+                b_value *= a_value;
+                break;
 
-                /**
-                 * IAQ - 2 cycles
-                 * if a is nonzero, interrupts will be added to the queue
-                 * instead of triggered. if a is zero, interrupts will be
-                 * triggered as normal again.
-                 */
-                case 0x0c:
-                    sleep_cycles += 2;
+            /**
+             * MLI - 2 cycles
+             * like MUL, but treat b, a as signed
+             */
+            case 0x05:
+                sleep_cycles += 2;
 
-                    if (a_value != 0) {
-                        queue_interrupts = true;
+                EX = ((static_cast<std::int16_t>(b_value) * static_cast<std::int16_t>(a_value)) >> 16) & 0xffff;
+
+                b_value = static_cast<std::int16_t>(b_value) * static_cast<std::int16_t>(a_value);
+                break;
+
+            /**
+             * DIV - 3 cycles
+             * sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0,
+             * sets b and EX to 0 instead. (treats b, a as unsigned)
+             */
+            case 0x06:
+                sleep_cycles += 3;
+
+                if (a_value == 0) {
+                    EX = 0;
+                    b_value = 0;
+                } else {
+                    EX = ((static_cast<std::uint32_t>(b_value) << 16) / a_value) & 0xffff;
+                    b_value /= a_value;
+                }
+                break;
+
+            /**
+             * DVI - 3 cycles
+             * like DIV, but treat b, a as signed. Rounds towards 0
+             */
+            case 0x07:
+                sleep_cycles += 3;
+
+                if (a_value == 0) {
+                    EX = 0;
+                    b_value = 0;
+                } else {
+                    EX = ((static_cast<std::int64_t>(b_value) << 16) / static_cast<std::int16_t>(a_value)) & 0xffff;
+                    b_value = static_cast<std::int16_t>(b_value) / static_cast<std::int16_t>(a_value);
+                }
+                break;
+
+            /**
+             * MOD - 3 cycles
+             * sets b to b%a. if a==0, sets b to 0 instead.
+             */
+            case 0x08:
+                sleep_cycles += 3;
+
+                if (a_value == 0) {
+                    b_value = 0;
+                } else {
+                    b_value %= a_value;
+                }
+                break;
+
+            /**
+             * MDI - 3 cycles
+             * like MOD, but treat b, a as signed. (MDI -7, 16 == -7)
+             */
+            case 0x09:
+                sleep_cycles += 3;
+
+                if (a_value == 0) {
+                    b_value = 0;
+                } else {
+                    b_value = static_cast<std::int16_t>(b_value) % static_cast<std::int16_t>(a_value);
+                }
+                break;
+
+            /**
+             * AND - 1 cycle
+             * sets b to b & a
+             */
+            case 0x0a:
+                sleep_cycles++;
+                b_value &= a_value;
+                break;
+
+            /**
+             * BOR - 1 cycle
+             * sets b to b|a
+             */
+            case 0x0b:
+                sleep_cycles++;
+                b_value |= a_value;
+                break;
+
+            /**
+             * XOR - 1 cycle
+             * sets b to b^a
+             */
+            case 0x0c:
+                sleep_cycles++;
+                b_value ^= a_value;
+                break;
+
+            /**
+             * SHR - 1 cycle
+             * sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff
+             * (logical shift)
+             */
+            case 0x0d:
+                sleep_cycles++;
+                EX = ((b_value << 16) >> a_value) & 0xffff;
+                b_value >>= a_value;
+                break;
+
+            /**
+             * ASR - 1 cycle
+             * sets b to b>>a, sets EX to ((b<<16)>>>a)&0xffff
+             * (arithmetic shift) (treats b as signed)
+             */
+            case 0x0e:
+                sleep_cycles++;
+
+                EX = ((static_cast<std::int16_t>(b_value) << 16) >> a_value) & 0xffff;
+                b_value = static_cast<std::int16_t>(b_value) >> a_value;
+                break;
+
+            /**
+             * SHL - 1 cycle
+             * sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff
+             */
+            case 0x0f:
+                sleep_cycles++;
+                EX = ((b_value << a_value) >> 16) & 0xffff;
+                b_value <<= a_value;
+                break;
+
+            /// conditional statements can take more cycles due to chaining
+
+            /**
+             * IFB - 2 cycles
+             * performs next instruction only if (b&a)!=0
+             */
+            case 0x10:
+                sleep_cycles += 2;
+                skip = !((b_value & a_value) != 0);
+                break;
+
+            /**
+             * IFC - 2 cycles
+             * performs next instruction only if (b&a)==0
+             */
+            case 0x11:
+                sleep_cycles +=2;
+                skip = !((b_value & a_value) == 0);
+                break;
+
+            /**
+             * IFE - 2 cycles
+             * performs next instruction only if b==a
+             */
+            case 0x12:
+                sleep_cycles += 2;
+                skip = !(b_value == a_value);
+                break;
+
+            /**
+             * IFN - 2 cycles
+             * performs next instruction only if b!=a
+             */
+            case 0x13:
+                sleep_cycles += 2;
+                skip = !(b_value != a_value);
+                break;
+
+            /**
+             * IFG - 2 cycles
+             * performs next instruction only if b>a
+             */
+            case 0x14:
+                sleep_cycles += 2;
+                skip = !(b_value > a_value);
+                break;
+            /**
+             * IFA - 2 cycles
+             * performs next instruction only if b>a (signed)
+             */
+            case 0x15:
+                sleep_cycles += 2;
+                skip = !(static_cast<std::int16_t>(b_value) > static_cast<std::int16_t>(a_value));
+                break;
+
+            /**
+             * IFL - 2 cycles
+             * performs next instruction only if b<a
+             */
+            case 0x16:
+                sleep_cycles += 2;
+                skip = !(b_value < a_value);
+                break;
+
+            /**
+             * IFU - 2 cycles
+             * performs next instruction only if b<a (signed)
+             */
+            case 0x17:
+                sleep_cycles += 2;
+                skip = !(static_cast<std::int16_t>(b_value) < static_cast<std::int16_t>(a_value));
+                break;
+
+            /**
+             * ADX - 3 cycles
+             * sets b to b+a+EX, sets EX to 0x0001 if there is an overflow,
+             * 0x0 otherwise
+             */
+            case 0x1a:
+                sleep_cycles += 3;
+                {
+                    std::uint16_t b_old = b_value;
+                    b_value += a_value + EX;
+                    if(b_old + a_value + EX > 0xffff) {
+                        EX = 0x0001;
                     } else {
-                        queue_interrupts = false;
+                        EX = 0x0000;
                     }
-                    break;
+                }
+                break;
 
-                /**
-                 * HWN - 2 cycles
-                 * sets a to number of connected hardware devices
-                 */
-                case 0x10:
-                    sleep_cycles += 2;
-                    set_value(a, devices.size());
-                    break;
-
-                /**
-                 * HWQ - 4 cycles
-                 * sets A, B, C, X, Y registers to information about hardware a
-                 * A+(B<<16) is a 32 bit word identifying the hardware id
-                 * C is the hardware version
-                 * X+(Y<<16> is a 32 bit word identifying the manufacturer
-                 */
-                case 0x11:
-                    sleep_cycles += 4;
-
-                    if (a_value < devices.size()) {
-
-                        B = devices[a_value]->id >> 16;
-                        A = devices[a_value]->id & 0xffff;
-
-                        C = devices[a_value]->version;
-
-                        Y = devices[a_value]->manufacturer >> 16;
-                        X = devices[a_value]->manufacturer & 0xffff;
+            /**
+             * SBX - 3 cycles
+             * sets b to b-a+EX, sets EX to 0xffff if there is an underflow,
+             * 0x0001 if there's an overflow, 0x0 otherwise
+             */
+            case 0x1b:
+                sleep_cycles += 3;
+                {
+                    std::uint16_t b_old = b_value;
+                    b_value -= a_value - EX;
+                    if(b_old + EX < a_value) {
+                        EX = 0xffff;
+                    } else if(b_old + EX > 0xffff + a_value) {
+                        EX = 0x0001;
+                    } else {
+                        EX = 0x0000;
                     }
+                }
+                break;
 
-                    break;
+            /**
+             * STI - 2 cycles
+             * sets b to a, then increases I and J by 1
+             */
+            case 0x1e:
+                sleep_cycles += 2;
+                b_value = a_value;
+                I++;
+                J++;
+                break;
 
-                /**
-                 * HWI - 4 cycles
-                 * sends an interrupt to hardware a
-                 * NOTE: the hardware may take more cycles to
-                 * process the interrupt
-                 */
-                case 0x12:
-                    sleep_cycles += 4;
+            /**
+             * STD - 2 cycles
+             */
+            case 0x1f:
+                sleep_cycles += 2;
+                b_value = a_value;
+                I--;
+                J--;
+                break;
 
-                    if (a_value < devices.size()) {
-                        devices[a_value]->interrupt();
-                    }
+            /// invalid opcode
+            default:
+                throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
+        }
 
-                    break;
+    } else {
+        switch (b) {
+            /**
+             * JSR - 3 cycles
+             * pushes the address of the next instruction to the stack,
+             * then sets PC to a
+             */
+            case 0x01:
+                sleep_cycles += 3;
+                ram[--SP] = PC;
+                PC = a_value;
+                break;
 
-                /// invalid opcode
-                default:
-                    throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
-            }
-            break;
+            /**
+             * INT - 4 cycles
+             * triggers a software interrupt with message a
+             */
+            case 0x08:
+                sleep_cycles += 4;
 
-        /**
-         * SET - 1 cycle
-         * sets b to a
-         */
-        case 0x01:
-            sleep_cycles++;
-            set_value(b, a_value);
-            break;
+                // we're about to trigger an interrupt, so stop guarding against them
+                guard_interrupts = false;
+                interrupt(a_value);
 
-        /**
-         * ADD - 2 cycles
-         * sets b to b+a, sets EX to 0x0001 if there's an overflow,
-         * 0x0 otherwise
-         */
-        case 0x02:
-            sleep_cycles += 2;
+                break;
 
-            if (b_value + a_value > 0xffff) {
-                EX = 0x0001;
-            } else {
-                EX = 0x0000;
-            }
+            /**
+             * IAG - 1 cycle
+             * sets a to IA
+             */
+            case 0x09:
+                sleep_cycles++;
+                a_value = IA;
+                break;
 
-            set_value(b, b_value + a_value);
-            break;
+            /**
+             * IAS - 1 cycle
+             * sets IA to a
+             */
+            case 0x0a:
+                sleep_cycles++;
+                IA = a_value;
+                break;
 
-        /**
-         * SUB - 2 cycles
-         * sets b to b-a, sets EX to 0xffff if there's an underflow,
-         * 0x0 otherwise
-         */
-        case 0x03:
-            sleep_cycles += 2;
+            /**
+             * RFI - 3 cycles
+             * disables interrupt queueing, pops A from the stack, then
+             * pops PC from the stack
+             */
+            case 0x0b:
+                sleep_cycles += 3;
 
-            if(b_value < a_value) {
-                EX = 0xffff;
-            } else {
-                EX = 0x0000;
-            }
+                queue_interrupts = false;
+                A = ram[SP++];
+                PC = ram[SP++];
 
-            set_value(b, b_value - a_value);
-            break;
+                break;
 
-        /**
-         * MUL - 2 cycles
-         * sets b to b*a, sets EX to ((b*a)>>16)&0xffff (treats b,
-         * a as unsigned
-         */
-        case 0x04:
-            sleep_cycles += 2;
+            /**
+             * IAQ - 2 cycles
+             * if a is nonzero, interrupts will be added to the queue
+             * instead of triggered. if a is zero, interrupts will be
+             * triggered as normal again.
+             */
+            case 0x0c:
+                sleep_cycles += 2;
 
-            EX = ((b_value * a_value) >> 16) & 0xffff;
-            set_value(b, b_value * a_value);
-            break;
+                if (a_value != 0) {
+                    queue_interrupts = true;
+                } else {
+                    queue_interrupts = false;
+                }
+                break;
 
-        /**
-         * MLI - 2 cycles
-         * like MUL, but treat b, a as signed
-         */
-        case 0x05:
-            sleep_cycles += 2;
+            /**
+             * HWN - 2 cycles
+             * sets a to number of connected hardware devices
+             */
+            case 0x10:
+                sleep_cycles += 2;
+                a_value = devices.size();
+                break;
 
-            EX = ((s_b * s_a) >> 16) & 0xffff;
-            set_value(b, s_b * s_a);
-            break;
+            /**
+             * HWQ - 4 cycles
+             * sets A, B, C, X, Y registers to information about hardware a
+             * A+(B<<16) is a 32 bit word identifying the hardware id
+             * C is the hardware version
+             * X+(Y<<16> is a 32 bit word identifying the manufacturer
+             */
+            case 0x11:
+                sleep_cycles += 4;
 
-        /**
-         * DIV - 3 cycles
-         * sets b to b/a, sets EX to ((b<<16)/a)&0xffff. if a==0,
-         * sets b and EX to 0 instead. (treats b, a as unsigned)
-         */
-        case 0x06:
-            sleep_cycles += 3;
+                if (a_value < devices.size()) {
 
-            if (a_value == 0) {
-                EX = 0;
-                set_value(b, 0);
-            } else {
-                EX = ((b_value << 16) / a_value) & 0xffff;
-                set_value(b, b_value / a_value);
-            }
-            break;
+                    B = devices[a_value]->id >> 16;
+                    A = devices[a_value]->id & 0xffff;
 
-        /**
-         * DVI - 3 cycles
-         * like DIV, but treat b, a as signed. Rounds towards 0
-         */
-        case 0x07:
-            sleep_cycles += 3;
+                    C = devices[a_value]->version;
 
-            if (a_value == 0) {
-                EX = 0;
-                set_value(b, 0);
-            } else {
-                EX = ((s_b << 16) / s_a) & 0xffff;
-                set_value(b, s_b / s_a);
-            }
-            break;
+                    Y = devices[a_value]->manufacturer >> 16;
+                    X = devices[a_value]->manufacturer & 0xffff;
+                }
 
-        /**
-         * MOD - 3 cycles
-         * sets b to b%a. if a==0, sets b to 0 instead.
-         */
-        case 0x08:
-            sleep_cycles += 3;
+                break;
 
-            if (a_value == 0) {
-                set_value(b, 0);
-            } else {
-                set_value(b, b_value % a_value);
-            }
-            break;
+            /**
+             * HWI - 4 cycles
+             * sends an interrupt to hardware a
+             * NOTE: the hardware may take more cycles to
+             * process the interrupt
+             */
+            case 0x12:
+                sleep_cycles += 4;
 
-        /**
-         * MDI - 3 cycles
-         * like MOD, but treat b, a as signed. (MDI -7, 16 == -7)
-         */
-        case 0x09:
-            sleep_cycles += 3;
+                if (a_value < devices.size()) {
+                    devices[a_value]->interrupt();
+                }
 
-            if (a_value == 0) {
-                set_value(b, 0);
-            } else {
-                set_value(b, s_b % s_a);
-            }
-            break;
+                break;
 
-        /**
-         * AND - 1 cycle
-         * sets b to b & a
-         */
-        case 0x0a:
-            sleep_cycles++;
-            set_value(b, b_value & a_value);
-            break;
-
-        /**
-         * BOR - 1 cycle
-         * sets b to b|a
-         */
-        case 0x0b:
-            sleep_cycles++;
-            set_value(b, b_value | a_value);
-            break;
-
-        /**
-         * XOR - 1 cycle
-         * sets b to b^a
-         */
-        case 0x0c:
-            sleep_cycles++;
-            set_value(b, b_value ^ a_value);
-            break;
-
-        /**
-         * SHR - 1 cycle
-         * sets b to b>>>a, sets EX to ((b<<16)>>a)&0xffff
-         * (logical shift)
-         */
-        case 0x0d:
-            sleep_cycles++;
-            EX = ((b_value << 16) >> a_value) & 0xffff;
-            set_value(b, b_value >> a_value);
-            break;
-
-        /**
-         * ASR - 1 cycle
-         * sets b to b>>a, sets EX to ((b<<16)>>>a)&0xffff
-         * (arithmetic shift) (treats b as signed)
-         */
-        case 0x0e:
-            sleep_cycles++;
-
-            EX = ((s_b << 16) >> a_value) & 0xffff;
-            set_value(b, s_b >> a_value);
-            break;
-
-        /**
-         * SHL - 1 cycle
-         * sets b to b<<a, sets EX to ((b<<a)>>16)&0xffff
-         */
-        case 0x0f:
-            sleep_cycles++;
-            EX = ((b_value << a_value) >> 16) & 0xffff;
-            set_value(b, b_value << a_value);
-            break;
-
-        /// conditional statements can take more cycles due to chaining
-
-        /**
-         * IFB - 2 cycles
-         * performs next instruction only if (b&a)!=0
-         */
-        case 0x10:
-            sleep_cycles += 2;
-            skip = !((b_value & a_value) != 0);
-            get_value(b);
-            break;
-
-        /**
-         * IFC - 2 cycles
-         * performs next instruction only if (b&a)==0
-         */
-        case 0x11:
-            sleep_cycles +=2;
-            skip = !((b_value & a_value) == 0);
-            get_value(b);
-            break;
-
-        /**
-         * IFE - 2 cycles
-         * performs next instruction only if b==a
-         */
-        case 0x12:
-            sleep_cycles += 2;
-            skip = !(b_value == a_value);
-            get_value(b);
-            break;
-
-        /**
-         * IFN - 2 cycles
-         * performs next instruction only if b!=a
-         */
-        case 0x13:
-            sleep_cycles += 2;
-            skip = !(b_value != a_value);
-            get_value(b);
-            break;
-
-        /**
-         * IFG - 2 cycles
-         * performs next instruction only if b>a
-         */
-        case 0x14:
-            sleep_cycles += 2;
-            skip = !(b_value > a_value);
-            get_value(b);
-            break;
-        /**
-         * IFA - 2 cycles
-         * performs next instruction only if b>a (signed)
-         */
-        case 0x15:
-            sleep_cycles += 2;
-            skip = !(s_b > s_a);
-            get_value(b);
-            break;
-
-        /**
-         * IFL - 2 cycles
-         * performs next instruction only if b<a
-         */
-        case 0x16:
-            sleep_cycles += 2;
-            skip = !(b_value < a_value);
-            get_value(b);
-            break;
-
-        /**
-         * IFU - 2 cycles
-         * performs next instruction only if b<a (signed)
-         */
-        case 0x17:
-            sleep_cycles += 2;
-            skip = !(s_b < s_a);
-            get_value(b);
-            break;
-
-        /**
-         * ADX - 3 cycles
-         * sets b to b+a+EX, sets EX to 0x0001 if there is an overflow,
-         * 0x0 otherwise
-         */
-        case 0x1a:
-            sleep_cycles += 3;
-            set_value(b, b_value + a_value + EX);
-            if(b_value + a_value + EX > 0xffff) {
-                EX = 0x0001;
-            } else {
-                EX = 0x0000;
-            }
-            break;
-
-        /**
-         * SBX - 3 cycles
-         * sets b to b-a+EX, sets EX to 0xffff if there is an underflow,
-         * 0x0001 if there's an overflow, 0x0 otherwise
-         */
-        case 0x1b:
-            sleep_cycles += 3;
-            set_value(b, b_value - a_value + EX);
-            if(b_value + EX < a_value) {
-                EX = 0xffff;
-            } else if(b_value + EX > 0xffff + a_value) {
-                EX = 0x0001;
-            } else {
-                EX = 0x0000;
-            }
-            break;
-
-        /**
-         * STI - 2 cycles
-         * sets b to a, then increases I and J by 1
-         */
-        case 0x1e:
-            sleep_cycles += 2;
-            set_value(b, a_value);
-            I++;
-            J++;
-            break;
-
-        /**
-         * STD - 2 cycles
-         */
-        case 0x1f:
-            sleep_cycles += 2;
-            set_value(b, a_value);
-            I--;
-            J--;
-            break;
-
-        /// invalid opcode
-        default:
-            throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
+            /// invalid opcode
+            default:
+                throw galaxy::saturn::invalid_opcode("failed to execute invalid opcode");
+        }
     }
 
     if (skip) {
@@ -557,8 +537,8 @@ void galaxy::saturn::dcpu::cycle()
             b = (instruction >> 5) & 0x1f;
             a = (instruction >> 10) & 0x3f;
 
-            get_value(a);
-            get_value(b);
+            get_reference(a, true);
+            get_reference(b, false);
             sleep_cycles = sleep_cycles_old + 1;
 
         } while (opcode >= 0x10 && opcode <= 0x17);
@@ -596,7 +576,7 @@ void galaxy::saturn::dcpu::interrupt(std::uint16_t message)
      }
 }
 
-std::uint16_t galaxy::saturn::dcpu::get_value(std::uint16_t val)
+std::uint16_t& galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_value)
 {
     switch (val) {
 
@@ -632,7 +612,7 @@ std::uint16_t galaxy::saturn::dcpu::get_value(std::uint16_t val)
         case 0x0d:
         case 0x0e:
         case 0x0f:
-            return ram[get_value(val - 0x08)];
+            return ram[get_reference(val - 0x08, a_value)];
 
         case 0x10:
         case 0x11:
@@ -643,10 +623,14 @@ std::uint16_t galaxy::saturn::dcpu::get_value(std::uint16_t val)
         case 0x16:
         case 0x17:
             sleep_cycles++;
-            return ram[get_value(val - 0x10) + ram[PC++]];
+            return ram[get_reference(val - 0x10, a_value) + ram[PC++]];
 
         case 0x18:
-            return ram[SP++];
+            if (a_value) {
+                return ram[SP++];
+            } else {
+                return ram[--SP];
+            }
 
         case 0x19:
             return ram[SP];
@@ -673,98 +657,8 @@ std::uint16_t galaxy::saturn::dcpu::get_value(std::uint16_t val)
             return ram[PC++];
 
         default:
-            return val - 0x21;
-    }
-}
-
-void galaxy::saturn::dcpu::set_value(std::uint16_t address, std::uint16_t value)
-{
-    switch (address) {
-
-        case 0x0:
-            A = value;
-            break;
-
-        case 0x01:
-            B = value;
-            break;
-
-        case 0x02:
-            C = value;
-            break;
-
-        case 0x03:
-            X = value;
-            break;
-
-        case 0x04:
-            Y = value;
-            break;
-
-        case 0x05:
-            Z = value;
-            break;
-
-        case 0x06:
-            I = value;
-            break;
-
-        case 0x07:
-            J = value;
-            break;
-
-        case 0x08:
-        case 0x09:
-        case 0x0a:
-        case 0x0b:
-        case 0x0c:
-        case 0x0d:
-        case 0x0e:
-        case 0x0f:
-            ram[get_value(address - 0x08)] = value;
-            break;
-
-        case 0x10:
-        case 0x11:
-        case 0x12:
-        case 0x13:
-        case 0x14:
-        case 0x15:
-        case 0x16:
-        case 0x17:
-            sleep_cycles++;
-            ram[get_value(address - 0x10) + ram[PC++]] = value;
-            break;
-
-        case 0x18:
-            ram[--SP] = value;
-            break;
-
-        case 0x19:
-            ram[SP] = value;
-            break;
-
-        case 0x1a:
-            sleep_cycles++;
-            ram[SP + ram[PC++]] = value;
-            break;
-
-        case 0x1b:
-            SP = value;
-            break;
-
-        case 0x1c:
-            PC = value;
-            break;
-
-        case 0x1d:
-            EX = value;
-            break;
-
-        case 0x1e:
-            sleep_cycles++;
-            ram[ram[PC++]] = value;
-            break;
+            literal_value = val - 0x21;
+            return literal_value;
     }
 }
 

@@ -45,14 +45,15 @@ namespace galaxy {
             std::vector<std::unique_ptr<device>> devices;
             std::queue<uint16_t> interrupt_queue;
 
-            /// parse the given value and return it
-            std::uint16_t get_value(std::uint16_t);
+            std::uint16_t literal_value;
 
             /**
-             * parse the given address and set it
-             * to the given value
+             * parse the given value and return a reference to it
+             * if the second argument is true, it will treat the
+             * value as being the "a" value in the instruction;
+             * otherwise, it will treat it as being the "b" value
              */
-            void set_value(std::uint16_t, std::uint16_t);
+            std::uint16_t& get_reference(std::uint16_t, bool);
 
         public:
             std::array<std::uint16_t, 0x10000> ram;
@@ -70,7 +71,7 @@ namespace galaxy {
             int clock_speed;
 
             /// initialize the CPU to default values
-            dcpu()  :   guard_interrupts(false), queue_interrupts(false),
+            dcpu()  :   queue_interrupts(false), guard_interrupts(false),
                         A(0), B(0), C(0), X(0), Y(0), Z(0), I(0), J(0),
                         PC(0), SP(0), EX(0), IA(0),
                         sleep_cycles(0), clock_speed(100000)

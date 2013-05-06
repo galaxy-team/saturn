@@ -42,6 +42,14 @@ namespace galaxy {
          */
         class lem1802 : device {
         protected:
+
+            // TODO make this an enum class
+            enum lem_states {
+                DISCONNECTED,
+                STARTING_UP,
+                ACTIVATED
+            };
+
             /// points to the 384-word segment of video ram
             std::uint16_t vram_pointer;
 
@@ -57,8 +65,8 @@ namespace galaxy {
             /// when this is true, cells set to blink will be displayed, when it is false, they won't be displayed
             bool blink_on;
 
-            /// set to true when the monitor has been changed
-            bool monitor_updated;
+            /// holds the current state of the monitor
+            int state;
 
             /// number of cycles since blink was last changed
             std::uint32_t cycles;
@@ -73,13 +81,13 @@ namespace galaxy {
             /// initialize the device to values specified by the spec
             lem1802() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor"),
                         vram_pointer(0), fram_pointer(0), pram_pointer(0), border_color(0),
-                        blink_on(false), monitor_updated(false), cycles(0) {}
+                        blink_on(false), state(DISCONNECTED), cycles(0) {}
 
             virtual void interrupt();
             virtual void cycle();
 
-            /// returns true if the screen has been updated since last called, false otherwise
-            bool updated();
+            /// returns true if the monitor is on
+            bool activated();
         };
     }
 }
