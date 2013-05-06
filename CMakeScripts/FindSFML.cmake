@@ -71,7 +71,7 @@ FOREACH(COMPONENT ${SFML_COMPONENTS})
         PATH_SUFFIXES include SFML
         PATHS ${SFML_INCLUDE_SEARCH_DIR}
     )
-    IF(MSVC)
+  IF(MSVC OR MINGW)
         # In wxWIN we need the root include directory without the "/SFML" at the end... so we have to remove it.
         # This is a oversized "remove 5 chars at the right end of the string" function:
         string(LENGTH ${SFML_${UPPERCOMPONENT}_INCLUDE_DIR} STRING_SIZE)

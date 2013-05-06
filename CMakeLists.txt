@@ -34,7 +34,7 @@ include_directories(${SFML_INCLUDE_DIR})
 add_executable(saturn
     src/main.cpp
 )
-target_link_libraries(saturn ${SFML_LIBRARIES})
+target_link_libraries(saturn ${SFML_LIBRARY})
 
 ## if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
