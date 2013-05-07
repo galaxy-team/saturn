@@ -30,6 +30,7 @@ set_target_properties(libsaturn PROPERTIES PREFIX "")
 
 find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
+#set(SFML_STATIC True)
 
 add_executable(saturn
     src/main.cpp
