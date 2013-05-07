@@ -139,11 +139,11 @@ void galaxy::saturn::lem1802::cycle()
 {
     if (cycles >= cpu->clock_speed) {
         if (state == ACTIVATED) {
-            cycles = 0;
             blink_on = !blink_on;
         } else if (state == STARTING_UP) {
             state = ACTIVATED;
         }
+        cycles = 0;
     }
     cycles++;
 }
@@ -151,4 +151,75 @@ void galaxy::saturn::lem1802::cycle()
 bool galaxy::saturn::lem1802::activated()
 {
     return state == ACTIVATED;
+}
+
+std::array<std::array<galaxy::saturn::pixel, 128>, 96> galaxy::saturn::lem1802::image()
+{
+    std::array<std::array<galaxy::saturn::pixel, 128>, 96> image;
+
+    if (state != ACTIVATED)
+        return image;
+
+    for (int i = 0; i < 384; i++) {
+        std::uint16_t cell = cpu->ram[(vram_pointer + i) % 0xffff];
+
+        bool blink = (cell >> 7) & 0x1;
+        if (blink && !blink_on)
+            continue;
+
+        std::uint16_t character_code = cell & 0x7f;
+        if (character_code == 0)
+            continue;
+
+        std::uint8_t background_palette = (cell >> 8) & 0xf;
+        std::uint8_t foreground_palette = (cell >> 12) & 0xf;
+
+        std::uint32_t character;
+
+        if (fram_pointer != 0) {
+            character = cpu->ram[(fram_pointer + (character_code * 2)) % 0xff] << 16
+                      | cpu->ram[(fram_pointer + (character_code * 2) + 1) % 0xff];
+        } else {
+            character = static_cast<std::uint32_t>(default_font[(character_code * 2) % 0xff]) << 16
+                      | default_font[((character_code * 2) + 1) % 0xff];
+        }
+
+        std::uint16_t background;
+        std::uint16_t foreground;
+
+        if (pram_pointer != 0) {
+            background = cpu->ram[(pram_pointer + background_palette) % 0xffff];
+            foreground = cpu->ram[(pram_pointer + foreground_palette) % 0xffff];
+        } else {
+            background = default_palette[background_palette % 0xffff];
+            foreground = default_palette[foreground_palette % 0xffff];
+        }
+
+        // note: scale all colors by 0x11 times
+
+        galaxy::saturn::pixel bg_pixel;
+        bg_pixel.r = ((background >> 8) & 0xf) * 0x11;
+        bg_pixel.g = ((background >> 4) & 0xf) * 0x11;
+        bg_pixel.b = (background & 0xf) * 0x11;
+
+        galaxy::saturn::pixel fg_pixel;
+        fg_pixel.r = ((foreground >> 8) & 0xf) * 0x11;
+        fg_pixel.g = ((foreground >> 4) & 0xf) * 0x11;
+        fg_pixel.b = (foreground & 0xf) * 0x11;
+
+        int j = 0;
+
+        for (int x = 3; x >= 0; x--) {
+            for (int y = 0; y < 8; y++) {
+                if (character >> j & 0x1) {
+                    image[i * 8 + y][i * 4 + x] = fg_pixel;
+                } else {
+                    image[i * 8 + y][i * 4 + x] = bg_pixel;
+                }
+                j++;
+            }
+        }
+    }
+
+    return image;
 }

@@ -34,13 +34,15 @@ namespace galaxy {
          * represents a single pixel
          */
         struct pixel {
+            pixel() : r{0x0}, g(0x0), b(0x0) {}
+            pixel(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
             std::uint8_t r, g, b;
         };
 
         /**
          * represents a lem1802 hardware device
          */
-        class lem1802 : device {
+        class lem1802 : public device {
         protected:
 
             // TODO make this an enum class
@@ -88,6 +90,8 @@ namespace galaxy {
 
             /// returns true if the monitor is on
             bool activated();
+
+            std::array<std::array<pixel, 128>, 96> image();
         };
     }
 }
