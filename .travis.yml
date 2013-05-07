@@ -4,7 +4,6 @@ install:
     - "sudo apt-add-repository -y \"deb http://ubuntu.mirror.cambrium.nl/ubuntu/ raring main\""
     - "sudo apt-add-repository -y \"deb http://ppa.launchpad.net/sonkun/sfml-stable/ubuntu raring main\""
     - "sudo apt-get update"
-    - "sudo apt-cache showpkg libsfml-dev"
     - "sudo apt-get install gcc g++ build-essential libsfml-dev"
 
 # check submodules are available
