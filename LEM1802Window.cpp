@@ -24,5 +24,24 @@ file named "LICENSE.txt".
 
 void LEM1802Window::update()
 {
-    //pass
+    std::array<std::array<galaxy::saturn::pixel, 128>, 96> image = lem.image();
+
+    sf::Uint8* pixels = new sf::Uint8[128 * 96 * 4];
+
+    for (int y = 0; y < image.size(); y++) {
+        for (int x = 0; x < image[y].size(); x++) {
+            pixels[(y * 128 + x) * 4] = image[y][x].r;
+            pixels[(y * 128 + x) * 4 + 1] = image[y][x].g;
+            pixels[(y * 128 + x) * 4 + 2] = image[y][x].b;
+            pixels[(y * 128 + x) * 4 + 3] = 255;
+        }
+    }
+
+    screen_texture.update(pixels);
+
+    clear();
+    draw(screen);
+    display();
+
+    delete[] pixels;
 }
