@@ -22,6 +22,7 @@ file named "LICENSE.txt".
 
 #include <libsaturn.hpp>
 #include <lem1802.hpp>
+#include <clock.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 
@@ -63,6 +64,7 @@ int main(int argc, char** argv)
     delete[] buffer;
 
     galaxy::saturn::lem1802& lem = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
+    cpu.attach_device(new galaxy::saturn::clock());
 
     LEM1802Window lem_window(lem);
 
