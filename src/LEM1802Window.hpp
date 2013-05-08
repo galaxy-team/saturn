@@ -32,6 +32,8 @@ class LEM1802Window : public sf::RenderWindow {
             screen_texture.loadFromImage(screen_image);
             screen.setTexture(screen_texture);
             screen.setScale(sf::Vector2f(4.f, 4.f));
+
+            setVerticalSyncEnabled(true);
         }
         void update();
     private:
