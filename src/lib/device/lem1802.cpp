@@ -212,9 +212,9 @@ std::array<std::array<galaxy::saturn::pixel, 128>, 96> galaxy::saturn::lem1802::
         for (int x = 3; x >= 0; x--) {
             for (int y = 0; y < 8; y++) {
                 if (character >> j & 0x1) {
-                    image[i * 8 + y][i * 4 + x] = fg_pixel;
+                    image[(i / 32) * 8 + y][i * 4 + x] = fg_pixel;
                 } else {
-                    image[i * 8 + y][i * 4 + x] = bg_pixel;
+                    image[(i / 32) * 8 + y][i * 4 + x] = bg_pixel;
                 }
                 j++;
             }
