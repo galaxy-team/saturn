@@ -24,7 +24,7 @@ file named "LICENSE.txt".
 
 #include <SFML/Graphics.hpp>
 
-class LEM1802Window : public RenderWindow {
+class LEM1802Window : public sf::RenderWindow {
     public:
         LEM1802Window(galaxy::saturn::lem1802& lem) : super(sf::VideoMode(512, 384), "Saturn"), lem(lem) {}
         void update();
