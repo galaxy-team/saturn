@@ -39,4 +39,4 @@ class LEM1802Window : public sf::RenderWindow {
         sf::Image screen_image;
         sf::Texture screen_texture;
         sf::Sprite screen;
-}
+};
