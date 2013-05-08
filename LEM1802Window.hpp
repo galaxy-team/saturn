@@ -26,8 +26,17 @@ file named "LICENSE.txt".
 
 class LEM1802Window : public sf::RenderWindow {
     public:
-        LEM1802Window(galaxy::saturn::lem1802& lem) : super(sf::VideoMode(512, 384), "Saturn"), lem(lem) {}
+        LEM1802Window(galaxy::saturn::lem1802& lem) : super(sf::VideoMode(512, 384), "Saturn"), lem(lem)
+        {
+            screen_image.create(128, 96, sf::Color(0, 0, 255));
+            screen_texture.loadFromImage(screen_image);
+            screen.setTexture(screen_texture);
+            screen.setScale(sf::Vector2f(4.f, 4.f));
+        }
         void update();
     private:
         galaxy::saturn::lem1802& lem;
+        sf::Image screen_image;
+        sf::Texture screen_texture;
+        sf::Sprite screen;
 }
