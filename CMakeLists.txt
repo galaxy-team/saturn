@@ -33,7 +33,8 @@ include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
 add_executable(saturn
-    src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LEM1802.cpp
 )
 target_link_libraries(saturn libsaturn)
 target_link_libraries(saturn ${SFML_LIBRARY})
