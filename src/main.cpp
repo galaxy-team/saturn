@@ -25,20 +25,11 @@ file named "LICENSE.txt".
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 
+#include "LEM1802Window.hpp"
 #include <SFML/Graphics.hpp>
 
 #include <fstream>
 #include <iostream>
-
-void print_ram(galaxy::saturn::dcpu& cpu)
-{
-    for (auto it = cpu.ram.begin(); it != cpu.ram.end(); ++it) {
-        std::cout << "0x" << std::hex << *it << " ";
-        if (*it == 0x0)
-            break;
-    }
-    std::cout << std::endl << std::endl;
-}
 
 int main(int argc, char** argv)
 {
@@ -71,21 +62,9 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
-    print_ram(cpu);
-
     galaxy::saturn::lem1802& lem = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
 
-    sf::RenderWindow window(sf::VideoMode(512, 384), "Saturn");
-    sf::Image screen_image;
-    screen_image.create(128, 96, sf::Color(0, 0, 255));
-
-    sf::Texture screen_texture;
-    screen_texture.loadFromImage(screen_image);
-
-    sf::Sprite screen;
-    screen.setTexture(screen_texture);
-    screen.setScale(sf::Vector2f(4.f, 4.f));
-
+    LEM1802Window lem_window(lem);
 
     sf::Clock clock;
 
@@ -95,7 +74,7 @@ int main(int argc, char** argv)
     while (running)
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (lem_window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 running = false;
@@ -115,27 +94,8 @@ int main(int argc, char** argv)
             running = false;
         }
 
-        std::array<std::array<galaxy::saturn::pixel, 128>, 96> image = lem.image();
+        lem_window.update();
 
-        sf::Uint8* pixels = new sf::Uint8[128 * 96 * 4];
-
-        for (int y = 0; y < image.size(); y++) {
-            for (int x = 0; x < image[y].size(); x++) {
-                pixels[(y * 128 + x) * 4] = image[y][x].r;
-                pixels[(y * 128 + x) * 4 + 1] = image[y][x].g;
-                pixels[(y * 128 + x) * 4 + 2] = image[y][x].b;
-                pixels[(y * 128 + x) * 4 + 3] = 255;
-            }
-        }
-
-        screen_texture.update(pixels);
-        //screen.setTexture(screen_texture);
-
-        window.clear();
-        window.draw(screen);
-        window.display();
-
-        delete[] pixels;
     }
 
     return 0;
