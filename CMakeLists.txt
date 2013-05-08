@@ -28,16 +28,21 @@ add_library (libsaturn
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
 
+# setup sfml
 find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
+# add the primary executable
 add_executable(saturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LEM1802Window.cpp
 )
-target_link_libraries(saturn libsaturn)
-target_link_libraries(saturn ${SFML_LIBRARY})
+
+# and link with the required libraries
+target_link_libraries(saturn
+    libsaturn
+    ${SFML_LIBRARY})
 
 ## if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
