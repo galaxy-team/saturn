@@ -33,7 +33,7 @@ class LEM1802Window : public sf::RenderWindow {
             screen.setTexture(screen_texture);
             screen.setScale(sf::Vector2f(4.f, 4.f));
 
-            setVerticalSyncEnabled(true);
+            setFramerateLimit(30);
         }
         void update();
     private:
