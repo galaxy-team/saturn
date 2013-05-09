@@ -30,6 +30,6 @@ void galaxy::saturn::keyboard::interrupt()
     }
 }
 
-void galaxy::saturn::clock::cycle()
+void galaxy::saturn::keyboard::cycle()
 {
 }

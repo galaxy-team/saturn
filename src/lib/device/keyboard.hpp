@@ -36,7 +36,7 @@ namespace galaxy {
         class keyboard : public device{
             public:
                 /// initialize the device to values specified by the spec
-                clock() : device(0x30cf7406, 0x0, 0x1, "Generic Keyboard (compatible)") {}
+                keyboard() : device(0x30cf7406, 0x0, 0x1, "Generic Keyboard (compatible)") {}
 
                 virtual void interrupt();
                 virtual void cycle();
