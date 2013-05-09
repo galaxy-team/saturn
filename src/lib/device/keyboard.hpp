@@ -57,7 +57,7 @@ namespace galaxy {
 
                 /// These are the ONLY keys valid for a Generic Keyboard
                 static const std::uint16_t KEY_BACKSPACE = 0x10;
-                static const std::uint16_t KEY_ENTER = 0x11;
+                static const std::uint16_t KEY_RETURN = 0x11;
                 static const std::uint16_t KEY_INSERT = 0x12;
                 static const std::uint16_t KEY_DELETE = 0x13;
                 /// 0x20-0x7f: ASCII characters

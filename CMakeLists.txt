@@ -44,6 +44,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/optparse/)
 add_executable(saturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LEM1802Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/keyboard_adaptor.cpp
 )
 
 # and link with the required libraries

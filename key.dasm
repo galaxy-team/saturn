@@ -1,0 +1,51 @@
+    HWN I
+devloop:
+    SUB I, 1
+    HWQ I
+    IFE B, 0x7349
+        IFE A, 0xf615
+            SET [monitor], I
+    IFE B, 0x30cf
+        IFE A, 0x7406
+            SET [keyboard], I
+    IFG I, 0
+        SET PC, devloop
+
+SET A, 0x0
+SET B, 0x8000
+HWI [monitor]
+
+SET I, 0
+SET J, 0
+
+print:
+    SET [0x8000 + I], 0xf000 | 0x80 | 0x1f
+    SET A, 1
+    HWI [keyboard]
+    IFE C, 0
+        SET PC, print
+
+    SET [0x8000 + I], C
+    SET J, 0xf000
+    SET C, I
+    SHL C, 0xC
+    SUB J, C
+    XOR [0x8000 + I], J
+    ADD I, 1
+
+    ; set border color
+    SET A, 3
+    SET B, Z
+    HWI [monitor]
+    ADD Z, 1
+
+    SET PC, print
+
+end:
+    SET PC, end
+
+monitor:
+    .dat 0x0
+
+keyboard:
+    .dat 0x0

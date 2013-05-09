@@ -23,10 +23,12 @@ file named "LICENSE.txt".
 #include <libsaturn.hpp>
 #include <lem1802.hpp>
 #include <clock.hpp>
+#include <keyboard.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 
 #include "LEM1802Window.hpp"
+#include "keyboard_adaptor.hpp"
 #include <SFML/Graphics.hpp>
 #include "OptionParser.h"
 
@@ -96,6 +98,7 @@ int main(int argc, char** argv)
     }
 
     cpu.attach_device(new galaxy::saturn::clock());
+    keyboard_adaptor keyboard (static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard())));
 
     sf::Clock clock;
 
@@ -110,6 +113,10 @@ int main(int argc, char** argv)
             {
                 if (event.type == sf::Event::Closed)
                     running = false;
+                else if (event.type == sf::Event::KeyPressed)
+                    keyboard.key_press(event.key);
+                else if (event.type == sf::Event::KeyReleased)
+                    keyboard.key_release(event.key);
             }
         }
 
