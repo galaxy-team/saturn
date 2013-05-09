@@ -28,6 +28,7 @@ file named "LICENSE.txt".
 
 #include "LEM1802Window.hpp"
 #include <SFML/Graphics.hpp>
+#include "OptionParser.h"
 
 #include <fstream>
 #include <iostream>
@@ -35,17 +36,29 @@ file named "LICENSE.txt".
 
 int main(int argc, char** argv)
 {
-    // temporary parameter parsing
-    if (argc != 2) {
-        std::cerr << "Error: Invalid usage. Usage is `saturn <binary>` or somesuch" << std::endl;
+    // setup the command line argument parser
+    optparse::OptionParser parser = optparse::OptionParser()
+        .description("Saturn, Galaxy's emulator")
+        .usage("usage: %prog [options] <binary>");
+
+    // parse the buggers - Dom
+    optparse::Values options = parser.parse_args(argc, argv);
+    std::vector<std::string> args = parser.args();
+
+    if (args.empty())
+    {
+        // if no positional (required) arguments were provided, print help and exit
+        parser.print_help();
         return -1;
     }
 
+    std::basic_string<char> binary_filename = args[0];
+
     std::ifstream file;
-    file.open(argv[1], std::ios::in | std::ios::binary | std::ios::ate);
+    file.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
 
     if (!file.is_open()) {
-        std::cerr << "Error: could not open file \"" << argv[1] << "\"" << std::endl;
+        std::cerr << "Error: could not open file \"" << binary_filename << "\"" << std::endl;
         return -1;
     }
 
