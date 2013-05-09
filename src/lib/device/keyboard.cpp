@@ -37,7 +37,8 @@ void galaxy::saturn::keyboard::interrupt()
          * Store next key typed in C register, or 0 if the buffer is empty
          */
         case 1:
-            cpu->C = buffer.pop_front();
+            cpu->C = buffer.front();
+            buffer.pop_front();
             break;
 
         /**
