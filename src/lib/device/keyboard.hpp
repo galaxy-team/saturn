@@ -27,7 +27,7 @@ file named "LICENSE-LGPL.txt".
 #include <device.hpp>
 #include <cstdint>
 #include <deque>
-#include <unordered_map>
+#include <set>
 
 namespace galaxy {
     namespace saturn {
@@ -43,6 +43,9 @@ namespace galaxy {
                 virtual void interrupt();
                 virtual void cycle();
 
+                void press(std::uint16_t key);
+                void release(std::uint16_t key);
+
                 static const std::uint16_t backspace = 0x10;
                 static const std::uint16_t enter = 0x11;
                 static const std::uint16_t insert = 0x12;
@@ -56,6 +59,7 @@ namespace galaxy {
 
             private:
                 std::deque<std::uint16_t> buffer;
+                std::set<std::uint16_t> pressed;
         };
     }
 }
