@@ -41,6 +41,11 @@ int main(int argc, char** argv)
         .description("Saturn, Galaxy's emulator")
         .usage("usage: %prog [options] <binary>");
 
+    parser.add_option("-n", "--num_lems")
+        .dest("num_lems")
+        .type("int")
+        .help("Specify number of attached LEM1802's");
+
     // parse the buggers - Dom
     optparse::Values options = parser.parse_args(argc, argv);
     std::vector<std::string> args = parser.args();
@@ -53,6 +58,14 @@ int main(int argc, char** argv)
     }
 
     std::basic_string<char> binary_filename = args[0];
+
+    int num_lems;
+    if (options.get("num_lems") != ""){
+         num_lems = (int)options.get("num_lems");
+    } else {
+         num_lems = 1;
+    }
+       
 
     std::ifstream file;
     file.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
@@ -77,9 +90,7 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
-    // TODO: set this from command line argument
-    int num_lems = 1;
-
+    
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
     for (int i = 0; i < num_lems; i++) {
         std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
