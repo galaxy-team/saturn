@@ -41,6 +41,7 @@ namespace galaxy {
                 keyboard() : device(0x30cf7406, 0x0, 0x1, "Generic Keyboard (compatible)"), interrupt_message(0) {}
 
                 virtual void interrupt();
+                virtual void cycle();
 
                 /**
                  * Call when a key has been pressed down

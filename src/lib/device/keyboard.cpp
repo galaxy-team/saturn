@@ -37,8 +37,12 @@ void galaxy::saturn::keyboard::interrupt()
          * Store next key typed in C register, or 0 if the buffer is empty
          */
         case 1:
-            cpu->C = buffer.front();
-            buffer.pop_front();
+            if (!buffer.empty()) {
+                cpu->C = buffer.front();
+                buffer.pop_front();
+            } else {
+                cpu->C = 0;
+            }
             break;
 
         /**
@@ -58,6 +62,11 @@ void galaxy::saturn::keyboard::interrupt()
         case 3:
             interrupt_message = cpu->B;
     }
+}
+
+void galaxy::saturn::keyboard::cycle()
+{
+    return;
 }
 
 void galaxy::saturn::keyboard::press(std::uint16_t key)
