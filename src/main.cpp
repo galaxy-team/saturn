@@ -59,13 +59,11 @@ int main(int argc, char** argv)
 
     std::basic_string<char> binary_filename = args[0];
 
-    int num_lems;
-    if (options.get("num_lems") != ""){
+    int num_lems = 1;
+    if ((int)options.get("num_lems") != 0){
          num_lems = (int)options.get("num_lems");
-    } else {
-         num_lems = 1;
     }
-       
+
 
     std::ifstream file;
     file.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
@@ -90,7 +88,7 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
-    
+
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
     for (int i = 0; i < num_lems; i++) {
         std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
