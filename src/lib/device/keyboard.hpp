@@ -38,10 +38,9 @@ namespace galaxy {
         class keyboard : public device{
             public:
                 /// initialize the device to values specified by the spec
-                keyboard() : device(0x30cf7406, 0x0, 0x1, "Generic Keyboard (compatible)") {}
+                keyboard() : device(0x30cf7406, 0x0, 0x1, "Generic Keyboard (compatible)"), interrupt_message(0) {}
 
                 virtual void interrupt();
-                virtual void cycle();
 
                 void press(std::uint16_t key);
                 void release(std::uint16_t key);
@@ -60,6 +59,7 @@ namespace galaxy {
             private:
                 std::deque<std::uint16_t> buffer;
                 std::set<std::uint16_t> pressed;
+                std::uint16_t interrupt_message;
         };
     }
 }

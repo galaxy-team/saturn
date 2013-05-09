@@ -27,9 +27,34 @@ file named "LICENSE-LGPL.txt".
 void galaxy::saturn::keyboard::interrupt()
 {
     switch(cpu->A) {
-    }
-}
+        /**
+         * Clear keyboard buffer
+         */
+        case 0:
+            buffer.clear();
+            break;
+        /**
+         * Store next key typed in C register, or 0 if the buffer is empty
+         */
+        case 1:
+            cpu->C = buffer.pop_front();
+            break;
 
-void galaxy::saturn::keyboard::cycle()
-{
+        /**
+         * Set C register to 1 if the key specified by the B register is pressed, or
+         * 0 if it's not pressed
+         */
+        case 2:
+            if (pressed.find(cpu->B) != pressed.end())
+                cpu->C = 1;
+            else
+                cpu->C = 0;
+            break;
+        /**
+         * If register B is non-zero, turn on interrupts with message B. If B is zero,
+         * disable interrupts
+         */
+        case 3:
+            interrupt_message = cpu->B;
+    }
 }
