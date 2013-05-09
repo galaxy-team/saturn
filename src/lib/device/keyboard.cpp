@@ -59,3 +59,51 @@ void galaxy::saturn::keyboard::interrupt()
             interrupt_message = cpu->B;
     }
 }
+
+void galaxy::saturn::keyboard::press(std::uint16_t key)
+{
+    int key_type = galaxy::saturn::keyboard::validate_key(key);
+    if (key_type) {
+        pressed.insert(key);
+        if (key_type == 1) { // only non-alphanumeric keys interrupt on keypress
+            if (interrupt_message)
+                cpu->interrupt(interrupt_message);
+        }
+    }
+}
+
+void galaxy::saturn::keyboard::release(std::uint16_t key)
+{
+    int key_type = galaxy::saturn::keyboard::validate_key(key);
+    if (key_type) {
+        pressed.erase(key);
+        if (key_type == 2) { // key is alphanumeric
+            buffer.push_back(key); // key has been pressed and then released; put it in buffer
+        }
+
+        if (interrupt_message) // alphanumeric keys interrupt on type and non-alphanumeric keys itnerrupt on keyup
+            cpu->interrupt(interrupt_message);
+    }
+}
+
+int galaxy::saturn::keyboard::validate_key(std::uint16_t key)
+{
+    if (0x20 <= key && key <= 0x7f)
+        return 2;
+
+    switch (key) {
+        case KEY_BACKSPACE:
+        case KEY_ENTER:
+        case KEY_INSERT:
+        case KEY_DELETE:
+        case KEY_ARROW_UP:
+        case KEY_ARROW_DOWN:
+        case KEY_ARROW_LEFT:
+        case KEY_ARROW_RIGHT:
+        case KEY_SHIFT:
+        case KEY_CONTROL:
+            return 1;
+    }
+
+    return 0;
+}
