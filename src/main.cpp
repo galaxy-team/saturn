@@ -31,6 +31,7 @@ file named "LICENSE.txt".
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 int main(int argc, char** argv)
 {
@@ -63,10 +64,16 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
-    galaxy::saturn::lem1802& lem = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
-    cpu.attach_device(new galaxy::saturn::clock());
+    // TODO: set this from command line argument
+    int num_lems = 1;
 
-    LEM1802Window lem_window(lem);
+    std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
+    for (int i = 0; i < num_lems; i++) {
+        std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
+        lem_windows.push_back(std::move(win));
+    }
+
+    cpu.attach_device(new galaxy::saturn::clock());
 
     sf::Clock clock;
 
@@ -75,11 +82,13 @@ int main(int argc, char** argv)
 
     while (running)
     {
-        sf::Event event;
-        while (lem_window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                running = false;
+        for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it) {
+            sf::Event event;
+            while ((*it)->pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    running = false;
+            }
         }
 
         try {
@@ -96,7 +105,8 @@ int main(int argc, char** argv)
             running = false;
         }
 
-        lem_window.update();
+        for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it)
+            (*it)->update();
 
     }
 
