@@ -24,9 +24,9 @@ file named "LICENSE.txt".
 
 void LEM1802Window::update()
 {
-    std::array<std::array<galaxy::saturn::pixel, 128>, 96> image = lem.image();
+    std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, galaxy::saturn::lem1802::height> image = lem.image();
 
-    sf::Uint8* pixels = new sf::Uint8[128 * 96 * 4];
+    sf::Uint8* pixels = new sf::Uint8[galaxy::saturn::lem1802::width * galaxy::saturn::lem1802::height * 4];
 
     for (int y = 0; y < image.size(); y++) {
         for (int x = 0; x < image[y].size(); x++) {

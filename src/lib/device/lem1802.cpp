@@ -153,14 +153,14 @@ bool galaxy::saturn::lem1802::activated()
     return state == ACTIVATED;
 }
 
-std::array<std::array<galaxy::saturn::pixel, 128>, 96> galaxy::saturn::lem1802::image()
+std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, galaxy::saturn::lem1802::height> galaxy::saturn::lem1802::image()
 {
-    std::array<std::array<galaxy::saturn::pixel, 128>, 96> image;
+    std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, galaxy::saturn::lem1802::height> image;
 
     if (state != ACTIVATED)
         return image;
 
-    for (int i = 0; i < 384; i++) {
+    for (int i = 0; i < galaxy::saturn::lem1802::num_cells_x * galaxy::saturn::lem1802::num_cells_y; i++) {
         std::uint16_t cell = cpu->ram[(vram_pointer + i) % 0xffff];
 
         bool blink = (cell >> 7) & 0x1;
@@ -209,12 +209,15 @@ std::array<std::array<galaxy::saturn::pixel, 128>, 96> galaxy::saturn::lem1802::
 
         int j = 0;
 
-        for (int x = 3; x >= 0; x--) {
-            for (int y = 0; y < 8; y++) {
+        for (int x = galaxy::saturn::lem1802::cell_width - 1; x >= 0; x--) {
+            for (int y = 0; y < galaxy::saturn::lem1802::cell_height; y++) {
+                unsigned int cur_y = (i / galaxy::saturn::lem1802::num_cells_x) * galaxy::saturn::lem1802::cell_height + y + galaxy::saturn::lem1802::border;
+                unsigned int cur_x = i * galaxy::saturn::lem1802::cell_width + x + galaxy::saturn::lem1802::border;
+                galaxy::saturn::pixel& p = image[cur_y][cur_x];
                 if (character >> j & 0x1) {
-                    image[(i / 32) * 8 + y][i * 4 + x] = fg_pixel;
+                    p = fg_pixel;
                 } else {
-                    image[(i / 32) * 8 + y][i * 4 + x] = bg_pixel;
+                    p = bg_pixel;
                 }
                 j++;
             }
