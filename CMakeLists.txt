@@ -34,6 +34,12 @@ find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
+# setup OptionParser
+add_library(optionparser
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/optparse/OptionParser.cpp
+)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/optparse/)
+
 # add the primary executable
 add_executable(saturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
@@ -43,7 +49,9 @@ add_executable(saturn
 # and link with the required libraries
 target_link_libraries(saturn
     libsaturn
-    ${SFML_LIBRARY})
+    ${SFML_LIBRARY}
+    optionparser
+)
 
 ## if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
