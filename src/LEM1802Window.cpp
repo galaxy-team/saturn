@@ -39,7 +39,9 @@ void LEM1802Window::update()
 
     screen_texture.update(pixels);
 
-    clear();
+    galaxy::saturn::pixel border = lem.border();
+
+    clear(sf::Color(border.r, border.g, border.b, 255));
     draw(screen);
     display();
 

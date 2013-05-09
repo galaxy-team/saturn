@@ -97,12 +97,11 @@ namespace galaxy {
             static const unsigned int num_cells_x = 32;
             static const unsigned int num_cells_y = 12;
 
-            static const unsigned int border = 6;
-
-            static const unsigned int width = num_cells_x * cell_width + border * 2;
-            static const unsigned int height = num_cells_y * cell_height + border * 2;
+            static const unsigned int width = num_cells_x * cell_width;
+            static const unsigned int height = num_cells_y * cell_height;
 
             std::array<std::array<pixel, width>, height> image();
+            pixel border();
         };
     }
 }

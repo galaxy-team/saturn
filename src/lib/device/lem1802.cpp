@@ -211,8 +211,8 @@ std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, ga
 
         for (int x = galaxy::saturn::lem1802::cell_width - 1; x >= 0; x--) {
             for (int y = 0; y < galaxy::saturn::lem1802::cell_height; y++) {
-                unsigned int cur_y = (i / galaxy::saturn::lem1802::num_cells_x) * galaxy::saturn::lem1802::cell_height + y + galaxy::saturn::lem1802::border;
-                unsigned int cur_x = i * galaxy::saturn::lem1802::cell_width + x + galaxy::saturn::lem1802::border;
+                unsigned int cur_y = (i / galaxy::saturn::lem1802::num_cells_x) * galaxy::saturn::lem1802::cell_height + y;
+                unsigned int cur_x = i * galaxy::saturn::lem1802::cell_width + x;
                 galaxy::saturn::pixel& p = image[cur_y][cur_x];
                 if (character >> j & 0x1) {
                     p = fg_pixel;
@@ -225,4 +225,22 @@ std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, ga
     }
 
     return image;
+}
+
+galaxy::saturn::pixel galaxy::saturn::lem1802::border()
+{
+    pixel p;
+    std::uint16_t color;
+
+    if (pram_pointer != 0) {
+        color = cpu->ram[(pram_pointer + border_color) % 0xffff];
+    } else {
+        color = default_palette[border_color % 0xffff];
+    }
+
+    p.r = ((color >> 8) & 0xf) * 0x11;
+    p.g = ((color >> 4) & 0xf) * 0x11;
+    p.b = (color & 0xf) * 0x11;
+
+    return p;
 }

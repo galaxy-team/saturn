@@ -21,6 +21,8 @@ SET A, 0
 SET B, 60
 HWI [clock]
 
+SET Z, 0
+
 print:
     IFE [message + I], 0
         SET PC, end
@@ -39,6 +41,13 @@ print:
     SUB J, C
     XOR [0x8000 + I], J
     ADD I, 1
+
+    ; set border color
+    SET A, 3
+    SET B, Z
+    HWI [monitor]
+    ADD Z, 1
+
     SET PC, print
 
 end:
