@@ -24,12 +24,22 @@ print:
     HWI [keyboard]
     IFE C, 0
         SET PC, print
+    IFE C, 0x10
+        SET PC, backspace
+    IFE C, 0x11
+        SET PC, return
+    IFL C, 0x20
+        SET PC, print
+    IFG C, 0x7f
+        SET PC, print
 
     SET [0x8000 + I], C
     SET J, 0xf000
     SET C, I
     SHL C, 0xC
     SUB J, C
+    IFE J, 0
+        SET J, 0x0d00
     XOR [0x8000 + I], J
     ADD I, 1
 
@@ -39,6 +49,22 @@ print:
     HWI [monitor]
     ADD Z, 1
 
+    SET PC, print
+
+backspace:
+    IFE I, 0
+        SET PC, print
+    SET [0x8000 + I], 0
+    SUB I, 1
+    SET PC, print
+
+return:
+    SET [0x8000 + I], 0
+    SET C, I
+    MOD C, 32
+    SET X, 32
+    SUB X, C
+    ADD I, X
     SET PC, print
 
 end:
