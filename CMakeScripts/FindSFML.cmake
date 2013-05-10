@@ -18,6 +18,14 @@ IF(MSVC)
     STRING(REGEX REPLACE "\\\\" "/" SFMLDIR "${SFMLDIR}")
 ENDIF(MSVC)
 
+if (TRAVIS)
+    set(DERP_LIB "/usr/lib")
+    set(DERP_INCLUDE "/usr/include")
+else (TRAVIS)
+    set(DERP_LIB "")
+    set(DERP_INCLUDE "")
+endif (TRAVIS)
+
 SET(SFML_COMPONENTS
     System
     Audio
@@ -32,7 +40,8 @@ SET(SFML_INCLUDE_SEARCH_DIR
     /usr/local/include/SFML
     /usr/include/SFML
     /usr/local/include
-    /usr/include
+#    /usr/include
+    ${DERP_INCLUDE}
     /sw/include/SFML # Fink
     /sw/include
     /opt/local/include/SFML # DarwinPorts
@@ -48,7 +57,8 @@ SET(SFML_INCLUDE_SEARCH_DIR
 SET(SFML_LIBRARY_SEARCH_DIR
     ~/Library/Frameworks
     /Library/Frameworks
-    /usr/local
+#    /usr/local
+    ${DERP_LIB}
     /usr
     /sw
     /opt/local
