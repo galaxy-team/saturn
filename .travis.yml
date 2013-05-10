@@ -6,8 +6,8 @@ install:
     - "sudo apt-get update"
     - "sudo apt-get install gcc g++ build-essential libsfml-dev"
     - "sudo apt-cache policy libsfml-dev"
-    - "ls /usr/lib | grep \"^libsfml*\""
-    - "ls /usr/local/lib | grep \"^libsfml*\""
+#    - "ls /usr/lib | grep \"^libsfml*\""
+#    - "ls /usr/local/lib | grep \"^libsfml*\""
 # check submodules are available
 before_script:
    - "git submodule update --init"

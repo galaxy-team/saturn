@@ -19,11 +19,11 @@ IF(MSVC)
 ENDIF(MSVC)
 
 if (TRAVIS)
-    set(DERP_LIB "/usr/lib")
-    set(DERP_INCLUDE "/usr/include")
-else (TRAVIS)
     set(DERP_LIB "")
     set(DERP_INCLUDE "")
+else (TRAVIS)
+    set(DERP_LIB "/usr/lib")
+    set(DERP_INCLUDE "/usr/include")
 endif (TRAVIS)
 
 SET(SFML_COMPONENTS
