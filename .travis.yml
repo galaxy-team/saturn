@@ -13,7 +13,7 @@ before_script:
    - "git submodule update --init"
    - "gcc --version"
 script:
-   - "cmake . -D TRAVIS=YES"
+   - "cmake -DTRAVIS=YES ."
    - "make"
    - "./bin/tests"
 
