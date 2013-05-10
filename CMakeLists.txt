@@ -35,10 +35,11 @@ include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
 # setup OptionParser
+set(OPTIONPARSER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/optparse/)
 add_library(optionparser
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/optparse/OptionParser.cpp
+    ${OPTIONPARSER_DIR}/OptionParser.cpp
 )
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/optparse/)
+include_directories(${OPTIONPARSER_DIR})
 
 # add the primary executable
 add_executable(saturn
