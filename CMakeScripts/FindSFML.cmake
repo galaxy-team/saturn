@@ -52,7 +52,7 @@ SET(SFML_INCLUDE_SEARCH_DIR
     /opt/csw/include
     /opt/include/SFML
     /opt/include
-    ${SFMLDIR}/include #for wxWIN vc2008(9.0)
+#    ${SFMLDIR}/include #for wxWIN vc2008(9.0)
     ../SFML-2.0/include
 )
 
@@ -61,12 +61,13 @@ SET(SFML_LIBRARY_SEARCH_DIR
     /Library/Frameworks
 #    /usr/local
     ${DERP_LIB}
-    /usr
+    /usr/local/lib
+#    /usr
     /sw
     /opt/local
     /opt/csw
     /opt
-    ${SFMLDIR}/lib/vc2008 #for wxWIN vc2008(9.0)
+#    ${SFMLDIR}/lib/vc2008 #for wxWIN vc2008(9.0)
     ../SFML-2.0/lib
 )
 
