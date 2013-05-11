@@ -57,10 +57,8 @@ namespace galaxy {
 
         public:
            /// initialize the device to values specified by the spec
-/*            m35fd() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor"),
-                        vram_pointer(0), fram_pointer(0), pram_pointer(0), border_color(0),
-                        blink_on(false), state(DISCONNECTED), cycles(0) {}
-*/
+            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"), {}
+
 
             virtual void interrupt();
             virtual void cycle();
