@@ -55,33 +55,6 @@ namespace galaxy {
                                   // try turning off and turning the device on again.
             };
 
-            /// points to the 384-word segment of video ram
-            std::uint16_t vram_pointer;
-
-            /// points to the 256-word segment of font ram ram
-            std::uint16_t fram_pointer;
-
-            /// points to the 16-word segment of palette ram
-            std::uint16_t pram_pointer;
-
-            /// the index of the border color in the palette
-            std::uint8_t border_color;
-
-            /// when this is true, cells set to blink will be displayed, when it is false, they won't be displayed
-            bool blink_on;
-
-            /// holds the current state of the monitor
-            int state;
-
-            /// number of cycles since blink was last changed
-            std::uint32_t cycles;
-
-            /// the default font of the LEM1802
-            static const std::array<std::uint16_t, 256> default_font;
-
-            /// the default palette of the LEM1802
-            static const std::array<std::uint16_t, 16> default_palette;
-
         public:
             /// initialize the device to values specified by the spec
 /*            m35fd() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor"),
