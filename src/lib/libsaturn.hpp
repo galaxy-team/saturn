@@ -103,6 +103,9 @@ namespace galaxy {
             /// return queue_interrupts
             bool interrupt_queue_enabled();
 
+            /// indicated whether or not execution has begun
+            bool execution_has_begun;
+
         };
     }
 }

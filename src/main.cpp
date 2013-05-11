@@ -107,12 +107,12 @@ int main(int argc, char** argv)
 
     std::basic_string<char> cur_disk_image_filename;
     int disk_image_filesize;
-    galaxy::saturn::m35fd m35fd_ref;
+    galaxy::saturn::m35fd& m35fd_ref;
     for (int i = 0; i < num_disks; i++){
         // we don't want to limit the number of floppy disks the user can attach
 
         // create a new floppy, attach it to the cpu, and store a reference
-        m35fd_ref = &cpu.attach_device(new galaxy::saturn::device());
+        m35fd_ref = &cpu.attach_device(*new galaxy::saturn::m35fd());
 
         cur_disk_image_filename = options["disk_image_filename"];
         std::ifstream disk_image;
@@ -124,7 +124,6 @@ int main(int argc, char** argv)
         } 
         
         disk_image.seekg(0, std::ios::beg);
-//        disk_image.read(m35fd_ref.floppy_disk_image, galaxy::saturn::m35fd::FLOPPY_SIZE);
 
         disk_image_filesize = disk_image.tellg();
         char* buffer = new char[disk_image_filesize];

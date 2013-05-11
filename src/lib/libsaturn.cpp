@@ -35,6 +35,8 @@ file named "LICENSE-LGPL.txt".
 
 void galaxy::saturn::dcpu::cycle()
 {
+    if (!execution_has_begun)
+        execution_has_begun  = true;
 
     // call the cycle() method of all devices
     // note: I wanted to use a foreach loop here but couldn't because of unique_ptr business
@@ -665,6 +667,9 @@ std::uint16_t& galaxy::saturn::dcpu::get_reference(std::uint16_t val, bool a_val
 // maybe this should just return void
 galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(device* hw)
 {
+    if (execution_has_begun)
+        throw "attach_device called after executation has begun";
+
     devices.push_back(std::move(std::unique_ptr<device>(hw)));
     hw->cpu = this;
 
