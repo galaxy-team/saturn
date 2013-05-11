@@ -22,15 +22,26 @@ file named "LICENSE.txt".
 
 #include "keyboard_adaptor.hpp"
 
-void keyboard_adaptor::key_press(sf::Event::KeyEvent event) {
+void keyboard_adaptor::key_press(sf::Event::KeyEvent event)
+{
     keyboard.press(event_to_dcpu(event));
 }
 
-void keyboard_adaptor::key_release(sf::Event::KeyEvent event) {
+void keyboard_adaptor::key_release(sf::Event::KeyEvent event)
+{
     keyboard.release(event_to_dcpu(event));
 }
 
-std::uint16_t keyboard_adaptor::event_to_dcpu(sf::Event::KeyEvent key) {
+void keyboard_adaptor::key_type(sf::Event::TextEvent event)
+{
+    if (event.unicode < 0x7f && event.unicode >= 0x20) {
+        keyboard.press(event.unicode);
+        keyboard.release(event.unicode);
+    }
+}
+
+std::uint16_t keyboard_adaptor::event_to_dcpu(sf::Event::KeyEvent key)
+{
     if (key.code >= sf::Keyboard::A && key.code <= sf::Keyboard::Z) {
         // sf::Keyboard::A should be 0 anyway, but do this just in case
         int letter = key.code - sf::Keyboard::A + 65; // 65 == 'A'

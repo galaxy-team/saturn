@@ -29,6 +29,9 @@ class keyboard_adaptor {
         keyboard_adaptor(galaxy::saturn::keyboard& keyboard) : keyboard(keyboard) {}
         void key_press(sf::Event::KeyEvent event);
         void key_release(sf::Event::KeyEvent event);
+
+        /// this function instantaneously presses and releases the key; try to improve this if possible
+        void key_type(sf::Event::TextEvent event);
     private:
         // returns a DCPU key code if valid, 0 otherwise
         std::uint16_t event_to_dcpu(sf::Event::KeyEvent event);
