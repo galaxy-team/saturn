@@ -24,6 +24,7 @@ file named "LICENSE.txt".
 #include <lem1802.hpp>
 #include <clock.hpp>
 #include <keyboard.hpp>
+#include <m35fd.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 
@@ -47,6 +48,11 @@ int main(int argc, char** argv)
         .dest("num_lems")
         .type("int")
         .help("Specify number of attached LEM1802's");
+
+    parser.add_option("-d", "--add-disk")
+        .dest("disk_image_filename")
+        .type("STRING")
+        .help("Provide a floppy disk image");
 
     // parse the buggers - Dom
     optparse::Values options = parser.parse_args(argc, argv);
@@ -89,6 +95,50 @@ int main(int argc, char** argv)
     }
 
     delete[] buffer;
+
+    int num_disks = 0;
+    if (options.get("disk_image_filename")){
+        std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
+        num_disks = 1;
+    } else {
+        std::cout << "No floppy disk image provided" << std::endl;
+    }
+ 
+
+    std::basic_string<char> cur_disk_image_filename;
+    int disk_image_filesize;
+    galaxy::saturn::m35fd m35fd_ref;
+    for (int i = 0; i < num_disks; i++){
+        // we don't want to limit the number of floppy disks the user can attach
+
+        // create a new floppy, attach it to the cpu, and store a reference
+        m35fd_ref = &cpu.attach_device(new galaxy::saturn::device());
+
+        cur_disk_image_filename = options["disk_image_filename"];
+        std::ifstream disk_image;
+        disk_image.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
+        
+        if (!file.is_open()) {
+            std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
+            return -1;
+        } 
+        
+        disk_image.seekg(0, std::ios::beg);
+//        disk_image.read(m35fd_ref.floppy_disk_image, galaxy::saturn::m35fd::FLOPPY_SIZE);
+
+        disk_image_filesize = disk_image.tellg();
+        char* buffer = new char[disk_image_filesize];
+        disk_image.read(buffer, galaxy::saturn::m35fd::FLOPPY_SIZE);
+
+        for (int i = 0; i < (size / 2) && i < galaxy::saturn::m35fd::FLOPPY_SIZE; i++) {
+            m35fd_ref.floppy_disk_image[i] = (buffer[i * 2]) << 0x8;
+            m35fd_ref.floppy_disk_image[i] ^= buffer[i * 2 + 1] & 0xff;
+        }
+
+        disk_image.close();
+        std::cout << "\"" << cur_disk_image_filename << "\" read.";
+    }
+    
 
 
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
