@@ -30,7 +30,7 @@ void galaxy::saturn::m35fd::interrupt()
     switch(cpu->A) {
         /**
          * Poll device;
-         * Sets B to the current state (see below) and C to the last error
+         * Sets B to the current state and C to the last error
          * since the last device poll.
          */
         case 0:

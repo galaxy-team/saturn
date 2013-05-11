@@ -55,6 +55,8 @@ namespace galaxy {
                                   // try turning off and turning the device on again.
             };
 
+	   FILE *file;
+
         public:
             /// initialize the device to values specified by the spec
 /*            m35fd() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor"),

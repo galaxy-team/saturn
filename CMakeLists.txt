@@ -20,11 +20,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device)
 
 # create a standalone library file for integration
+set(SATURN_LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/)
 add_library (libsaturn
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libsaturn.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/clock.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/keyboard.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device/lem1802.cpp
+    ${SATURN_LIB_SRC}/libsaturn.cpp
+    ${SATURN_LIB_SRC}/device/clock.cpp
+    ${SATURN_LIB_SRC}/device/keyboard.cpp
+    ${SATURN_LIB_SRC}/device/lem1802.cpp
+    ${SATURN_LIB_SRC}/device/m35fd.cpp   
 )
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
