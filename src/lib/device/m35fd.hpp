@@ -33,10 +33,10 @@ namespace galaxy {
         /**
          * represents a m35fd hardware device
          */
-        class M35FD : public device {
+        class m35fd : public device {
         protected:
 
-            // TODO make these an enum class'
+            // TODO make these enum class'
             enum fd_states {
                 STATE_NO_MEDIA, // There's no floppy in the drive.
                 STATE_READY,    // The drive is ready to accept commands.
@@ -55,16 +55,18 @@ namespace galaxy {
                                   // try turning off and turning the device on again.
             };
 
-	   FILE *file;
-
         public:
-            /// initialize the device to values specified by the spec
+           /// initialize the device to values specified by the spec
 /*            m35fd() : device(0x7349f615, 0x1c6c8b36, 0x1802, "LEM1802 - Low Energy Monitor"),
                         vram_pointer(0), fram_pointer(0), pram_pointer(0), border_color(0),
                         blink_on(false), state(DISCONNECTED), cycles(0) {}
 */
+
             virtual void interrupt();
             virtual void cycle();
+ 
+            const static int FLOPPY_SIZE = 737280;
+            std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
         };
     }
 }

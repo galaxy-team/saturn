@@ -73,3 +73,6 @@ void galaxy::saturn::m35fd::interrupt()
     }
 }
 
+void galaxy::saturn::m35fd::cycle()
+{
+}
