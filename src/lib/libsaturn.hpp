@@ -106,6 +106,10 @@ namespace galaxy {
             /// indicated whether or not execution has begun
             bool execution_has_begun;
 
+            class device_modification_during_execution_error : public std::exception {
+                public:
+                    device_modification_during_execution_error(const std::string& message) : std::exception() {};
+            };
         };
     }
 }
