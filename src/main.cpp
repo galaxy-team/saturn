@@ -103,26 +103,25 @@ int main(int argc, char** argv)
     } else {
         std::cout << "No floppy disk image provided" << std::endl;
     }
- 
 
-    std::basic_string<char> cur_disk_image_filename;
-    int disk_image_filesize;
-    galaxy::saturn::m35fd& m35fd_ref;
+    std::vector<galaxy::saturn::m35fd*> floppy_drives;
     for (int i = 0; i < num_disks; i++){
+        std::basic_string<char> cur_disk_image_filename;
+        int disk_image_filesize;
         // we don't want to limit the number of floppy disks the user can attach
 
         // create a new floppy, attach it to the cpu, and store a reference
-        m35fd_ref = &cpu.attach_device(*new galaxy::saturn::m35fd());
+        galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
         cur_disk_image_filename = options["disk_image_filename"];
         std::ifstream disk_image;
         disk_image.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
-        
+
         if (!file.is_open()) {
             std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
             return -1;
-        } 
-        
+        }
+
         disk_image.seekg(0, std::ios::beg);
 
         disk_image_filesize = disk_image.tellg();
@@ -136,8 +135,9 @@ int main(int argc, char** argv)
 
         disk_image.close();
         std::cout << "\"" << cur_disk_image_filename << "\" read.";
+        floppy_drives.push_back(&m35fd_ref);
     }
-    
+
 
 
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
