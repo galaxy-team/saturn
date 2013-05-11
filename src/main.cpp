@@ -162,6 +162,8 @@ int main(int argc, char** argv)
             {
                 if (event.type == sf::Event::Closed)
                     running = false;
+                else if (event.type == sf::Event::TextEntered)
+                    keyboard.key_type(event.text);
                 else if (event.type == sf::Event::KeyPressed)
                     keyboard.key_press(event.key);
                 else if (event.type == sf::Event::KeyReleased)
