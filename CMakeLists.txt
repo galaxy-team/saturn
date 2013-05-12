@@ -26,7 +26,7 @@ add_library (libsaturn
     ${SATURN_LIB_SRC}/device/clock.cpp
     ${SATURN_LIB_SRC}/device/keyboard.cpp
     ${SATURN_LIB_SRC}/device/lem1802.cpp
-    ${SATURN_LIB_SRC}/device/m35fd.cpp   
+    ${SATURN_LIB_SRC}/device/m35fd.cpp
 )
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
@@ -37,7 +37,7 @@ include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
 # setup OptionParser
-set(OPTIONPARSER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/optparse/)
+set(OPTIONPARSER_DIR ${THIRD-PARTY}/optparse/)
 add_library(optionparser
     ${OPTIONPARSER_DIR}/OptionParser.cpp
 )
