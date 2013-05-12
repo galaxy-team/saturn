@@ -120,6 +120,8 @@ int main(int argc, char** argv)
         galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
         cur_disk_image_filename = options["disk_image_filename"];
+//        cur_disk_image_filename = fullpath(cur_disk_image_filename);
+        std::cout << "Opening \"" << cur_disk_image_filename << "\"" << std::endl;
         std::ifstream disk_image;
         disk_image.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
 

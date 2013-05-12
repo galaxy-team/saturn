@@ -38,21 +38,21 @@ namespace galaxy {
 
             // TODO make these enum class'
             enum fd_states {
-                STATE_NO_MEDIA, // There's no floppy in the drive.
-                STATE_READY,    // The drive is ready to accept commands.
-                STATE_READY_WP, // Same as ready, except the floppy is write protected.
-                STATE_BUSY      // The drive is busy either reading or writing a sector.
+                STATE_NO_MEDIA = 0x0000, // There's no floppy in the drive.
+                STATE_READY    = 0x0001, // The drive is ready to accept commands.
+                STATE_READY_WP = 0x0002, // Same as ready, except the floppy is write protected.
+                STATE_BUSY     = 0x0003 // The drive is busy either reading or writing a sector.
             };
 
             enum error_codes {
-                ERROR_NONE,       // There's been no error since the last poll.
-                ERROR_BUSY,       // Drive is busy performing an action.
-                ERROR_NO_MEDIA,   // Attempted to read or write with no floppy inserted.
-                ERROR_PROTECTED,  // Attempted to write to write protected floppy.
-                ERROR_EJECT,      // The floppy was removed while reading or writing.
-                ERROR_BAD_SECTOR, // The requested sector is broken, the data on it is lost.
-                ERROR_BROKEN      // There's some major software or hardware problem,
-                                  // try turning off and turning the device on again.
+                ERROR_NONE        = 0x0000, // There's been no error since the last poll.
+                ERROR_BUSY        = 0x0001, // Drive is busy performing an action.
+                ERROR_NO_MEDIA    = 0x0002, // Attempted to read or write with no floppy inserted.
+                ERROR_PROTECTED   = 0x0003, // Attempted to write to write protected floppy.
+                ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
+                ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
+                ERROR_BROKEN      = 0xfffff // There's some major software or hardware problem,
+                                            // try turning off and turning the device on again.
             };
 
         public:
