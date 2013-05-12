@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     // once i figure out how to read in multiple arguments, these code block will be re-written
     // figure out how many floppy disks need to be created
     int num_disks = 0;
-    if ((const char *)options.get("disk_image_filename")){
+    if (static_cast<const char*>(options.get("disk_image_filename"))){
         std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
         num_disks = 1;
     } else {
