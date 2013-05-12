@@ -65,14 +65,16 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    // the binary filename is the first of the positional arguments
     std::basic_string<char> binary_filename = args[0];
 
+    // grab the number of LEM1802's the user wants to have attached
     int num_lems = 1;
     if ((int)options.get("num_lems") != 0){
          num_lems = (int)options.get("num_lems");
     }
 
-
+    // read in the binary file, create the dcpu instance, and flash it with the binary
     std::ifstream file;
     file.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -96,8 +98,11 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
+
+    // once i figure out how to read in multiple arguments, these code block will be re-written
+    // figure out how many floppy disks need to be created
     int num_disks = 0;
-    if (options.get("disk_image_filename")){
+    if ((const char *)options.get("disk_image_filename")){
         std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
         num_disks = 1;
     } else {
@@ -105,10 +110,11 @@ int main(int argc, char** argv)
     }
 
     std::vector<galaxy::saturn::m35fd*> floppy_drives;
+    std::basic_string<char> cur_disk_image_filename;
+    int disk_image_filesize;
+
     for (int i = 0; i < num_disks; i++){
-        std::basic_string<char> cur_disk_image_filename;
-        int disk_image_filesize;
-        // we don't want to limit the number of floppy disks the user can attach
+        // we don't want to limit the number of floppy disks the user can attach, so we loop
 
         // create a new floppy, attach it to the cpu, and store a reference
         galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));

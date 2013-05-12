@@ -1,4 +1,5 @@
 language: cpp
+
 # install dependencies
 install:
     - "sudo apt-add-repository -y \"deb http://ubuntu.mirror.cambrium.nl/ubuntu/ raring main\""
@@ -17,6 +18,8 @@ install:
 before_script:
    - "git submodule update --init"
    - "gcc --version"
+
+# do the building
 script:
    - "cmake ."
    - "make"
