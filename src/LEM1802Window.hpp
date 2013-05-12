@@ -28,7 +28,7 @@ class LEM1802Window : public sf::RenderWindow {
     public:
         LEM1802Window(galaxy::saturn::lem1802& lem) : RenderWindow(sf::VideoMode((galaxy::saturn::lem1802::width + border * 2) * 4, (galaxy::saturn::lem1802::height + border * 2) * 4), "Saturn"), lem(lem)
         {
-            screen_image.create(128, 96, sf::Color(0, 0, 255));
+            screen_image.create(galaxy::saturn::lem1802::width, galaxy::saturn::lem1802::height, sf::Color(0, 0, 255));
             screen_texture.loadFromImage(screen_image);
             screen.setTexture(screen_texture);
             screen.setScale(sf::Vector2f(4.f, 4.f));

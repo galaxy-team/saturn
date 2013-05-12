@@ -211,7 +211,7 @@ std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, ga
 
         for (int x = galaxy::saturn::lem1802::cell_width - 1; x >= 0; x--) {
             for (int y = 0; y < galaxy::saturn::lem1802::cell_height; y++) {
-                unsigned int cur_y = (i / galaxy::saturn::lem1802::num_cells_x) * galaxy::saturn::lem1802::cell_height + y;
+                unsigned int cur_y = (i / galaxy::saturn::lem1802::num_cells_x) * (galaxy::saturn::lem1802::cell_height - 1) + y;
                 unsigned int cur_x = i * galaxy::saturn::lem1802::cell_width + x;
                 galaxy::saturn::pixel& p = image[cur_y][cur_x];
                 if (character >> j & 0x1) {
