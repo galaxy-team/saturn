@@ -36,6 +36,8 @@ find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
+set(THIRD-PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
+
 # setup OptionParser
 set(OPTIONPARSER_DIR ${THIRD-PARTY}/optparse/)
 add_library(optionparser
