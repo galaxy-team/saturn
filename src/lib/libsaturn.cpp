@@ -670,7 +670,7 @@ galaxy::saturn::device& galaxy::saturn::dcpu::attach_device(device* hw)
 {
     if (execution_has_begun)
     {
-        throw galaxy::saturn::dcpu::device_modification_during_execution_error("attach_device called after executation has begun");
+        throw galaxy::saturn::dcpu::DeviceModificationAfterCycleError("attach_device called after executation has begun");
     }
 
     devices.push_back(std::move(std::unique_ptr<device>(hw)));

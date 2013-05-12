@@ -104,11 +104,13 @@ namespace galaxy {
             bool interrupt_queue_enabled();
 
             /// indicated whether or not execution has begun
-            bool execution_has_begun;
+            bool execution_has_begun = false;
 
-            class device_modification_during_execution_error : public std::exception {
+            class DeviceModificationAfterCycleError : public std::exception {
                 public:
-                    device_modification_during_execution_error(const std::string& message) : std::exception() {};
+                    DeviceModificationAfterCycleError(const std::string& message) : std::exception() {
+                        const char* what() throw();
+                    };
             };
         };
     }
