@@ -69,11 +69,11 @@ void galaxy::saturn::m35fd::interrupt()
                 int sector_num = cpu->X;
                 int read_to = cpu->Y;
 
-                int floppy_point_from_which_to_read = sector_num * SECTOR_SIZE;
+                int read_from = sector_num * SECTOR_SIZE;
  
                 for (int i=0; i < SECTOR_SIZE; i++){
-                    //cpu->ram[]
-                    // TODO: do we have to do fancy 16bit unpacking and re-packing here?
+                    cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
+                    // TODO: implement protection against writing outside the bounds of the ram
                 }
                 cpu->B = 1;
             } else {
@@ -90,12 +90,27 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial writes.
          */
         case 3:
-            if (current_state == STATE_READY){
-                if (!is_read_only){
+            if (current_state == STATE_READY) {
+                if (!is_read_only) {
                     last_error_since_poll = ERROR_PROTECTED;
                 } else {
-                    cpu->B = 1;
-                    // TODO: implement writing
+                    int sector_num = cpu->X;
+                    int read_from = cpu->Y;
+
+                    if (!0 <= sector_num <= SECTOR_NUM) {
+                        // make sure that the user is not assuming there are more sectors than there are
+                        cpu->B = 0;
+                    } else if (!0 <= read_from <= 0x10000) {
+                        // ensure the user is not trying to read from outside the ram?
+                        cpu->B = 0;
+                    } else {
+                        int read_to = sector_num * SECTOR_SIZE;
+
+                        for (int i=0; i < SECTOR_SIZE; i++){
+                            floppy_disk_image[read_to + i] = cpu->ram[read_from + i];
+                        }
+                        cpu->B = 1;
+                    }
                 }
             } else {
                 cpu->B = 0;
