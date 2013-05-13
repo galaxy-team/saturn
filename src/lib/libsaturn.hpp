@@ -56,7 +56,8 @@ namespace galaxy {
             std::uint16_t& get_reference(std::uint16_t, bool);
 
         public:
-            std::array<std::uint16_t, 0x10000> ram;
+            const static int RAM_SIZE = 0x10000;
+            std::array<std::uint16_t, RAM_SIZE> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
 
             /**

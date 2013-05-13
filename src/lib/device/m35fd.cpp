@@ -66,16 +66,24 @@ void galaxy::saturn::m35fd::interrupt()
             // TODO: implement track seek delay of 2.4ms per track
 
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
-                int sector_num = cpu->X;
+                int sector = cpu->X;
                 int read_to = cpu->Y;
 
-                int read_from = sector_num * SECTOR_SIZE;
+                if (!0 <= sector <= SECTOR_NUM) {
+                    // ensure the user is not trying to read from outside the floppy disk image
+                    cpu->B = 0;
+                } else if (!0 <= read_to <= cpu->RAM_SIZE) {
+                    // ensure the user is not trying to read from outside the ram
+                    cpu->B = 0;
+                } else {
+                    int read_from = sector * SECTOR_SIZE;
  
-                for (int i=0; i < SECTOR_SIZE; i++){
-                    cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
-                    // TODO: implement protection against writing outside the bounds of the ram
+                    for (int i=0; i < SECTOR_SIZE; i++){
+                        cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
+                        // TODO: implement protection against writing outside the bounds of the ram
+                    }
+                    cpu->B = 1;
                 }
-                cpu->B = 1;
             } else {
                 cpu->B = 0;
                 // TODO; what does the spec mean by partial reads?
@@ -100,7 +108,7 @@ void galaxy::saturn::m35fd::interrupt()
                     if (!0 <= sector_num <= SECTOR_NUM) {
                         // make sure that the user is not assuming there are more sectors than there are
                         cpu->B = 0;
-                    } else if (!0 <= read_from <= 0x10000) {
+                    } else if (!0 <= read_from <= cpu->RAM_SIZE) {
                         // ensure the user is not trying to read from outside the ram?
                         cpu->B = 0;
                     } else {
