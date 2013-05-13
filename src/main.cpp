@@ -28,6 +28,7 @@ file named "LICENSE.txt".
 #include <m35fd.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
+//#include <utilities.hpp>
 
 /* implementation specific */
 #include "LEM1802Window.hpp"
@@ -141,17 +142,28 @@ int main(int argc, char** argv)
  
         disk_image_filesize = disk_image.tellg();
         std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
+
+        // create an appropriately sized buffer and read into it
         char* buffer = new char[disk_image_filesize];
         disk_image.read(buffer, galaxy::saturn::m35fd::FLOPPY_SIZE);
 
+        // read from the buffer into the floppy disk data array
         for (int i = 0; i < (size / 2) && i < disk_image_filesize; i++) {
             m35fd_ref.floppy_disk_image[i] = (buffer[i * 2]) << 0x8;
             m35fd_ref.floppy_disk_image[i] ^= buffer[i * 2 + 1] & 0xff;
         }
 
+        // wipe the buffer clean, close the file
         delete[] buffer;
-
         disk_image.close();
+
+        // if the file is read only, mark the floppy as such.
+        // TODO: determine is this should be configurable via some other method
+/*        if (file_utils.is_read_only(cur_disk_image_filename)) {
+            m35fd_ref.is_read_only = true;
+        } else {
+            m35fd_ref.is_read_only = false;
+        }*/
     }
 
     // create the LEM1802 windows

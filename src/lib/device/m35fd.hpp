@@ -65,7 +65,7 @@ namespace galaxy {
             int SECTOR_PER_TRACK = 18;
 
         public:
-           /// initialize the device to values specified by the spec
+            /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
 
