@@ -74,8 +74,8 @@ namespace galaxy {
  
             const static int FLOPPY_SIZE = 737280;
             std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
-            int disk_loaded = false;
-            int is_read_only = false;
+            bool disk_loaded = false;
+            bool is_read_only = false;
         };
     }
 }
