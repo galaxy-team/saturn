@@ -69,24 +69,23 @@ void galaxy::saturn::m35fd::interrupt()
                 int sector = cpu->X;
                 int read_to = cpu->Y;
 
-                if (!0 <= sector <= SECTOR_NUM) {
+                if (0 <= sector && sector <= SECTOR_NUM) {
                     // ensure the user is not trying to read from outside the floppy disk image
                     cpu->B = 0;
-                } else if (!0 <= read_to <= cpu->RAM_SIZE) {
+                } else if (0 <= read_to && read_to <= cpu->RAM_SIZE) {
                     // ensure the user is not trying to read from outside the ram
                     cpu->B = 0;
                 } else {
+                    // if everything seems to be in order...
                     int read_from = sector * SECTOR_SIZE;
  
                     for (int i=0; i < SECTOR_SIZE; i++){
                         cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
-                        // TODO: implement protection against writing outside the bounds of the ram
                     }
                     cpu->B = 1;
                 }
             } else {
                 cpu->B = 0;
-                // TODO; what does the spec mean by partial reads?
             }
             break;
 
@@ -100,19 +99,22 @@ void galaxy::saturn::m35fd::interrupt()
         case 3:
             if (current_state == STATE_READY) {
                 if (!is_read_only) {
+                    // the drive is set to be read only, error out
                     last_error_since_poll = ERROR_PROTECTED;
+                    cpu->B = 0;
                 } else {
-                    int sector_num = cpu->X;
+                    int sector = cpu->X;
                     int read_from = cpu->Y;
 
-                    if (!0 <= sector_num <= SECTOR_NUM) {
+                    if (0 <= sector && sector <= SECTOR_NUM) {
                         // make sure that the user is not assuming there are more sectors than there are
                         cpu->B = 0;
-                    } else if (!0 <= read_from <= cpu->RAM_SIZE) {
+                    } else if (0 <= read_from && read_from <= cpu->RAM_SIZE) {
                         // ensure the user is not trying to read from outside the ram?
                         cpu->B = 0;
                     } else {
-                        int read_to = sector_num * SECTOR_SIZE;
+                        // if everything seems to be in order...
+                        int read_to = sector * SECTOR_SIZE;
 
                         for (int i=0; i < SECTOR_SIZE; i++){
                             floppy_disk_image[read_to + i] = cpu->ram[read_from + i];
@@ -122,7 +124,6 @@ void galaxy::saturn::m35fd::interrupt()
                 }
             } else {
                 cpu->B = 0;
-                // TODO: once again, what does the spec mean by partial writes?
             }
             break;
     }

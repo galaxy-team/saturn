@@ -58,11 +58,11 @@ namespace galaxy {
             int last_error_since_poll = ERROR_NONE;
             int current_state;
 
-            int SECTOR_SIZE = 512;
-            int SECTOR_NUM = 1440;
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
 
-            int TRACKS = 80;
-            int SECTOR_PER_TRACK = 18;
+            const static int TRACKS = 80;
+            const static int SECTOR_PER_TRACK = 18;
 
         public:
             /// initialize the device to values specified by the spec
