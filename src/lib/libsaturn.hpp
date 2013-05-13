@@ -106,6 +106,7 @@ namespace galaxy {
             /// indicated whether or not execution has begun
             bool execution_has_begun = false;
 
+            /// fairly self explanatory
             class device_modification_after_cycle_error : public std::exception {
                 public:
                     device_modification_after_cycle_error(const std::string& message) : std::exception() {

@@ -55,6 +55,15 @@ namespace galaxy {
                                             // try turning off and turning the device on again.
             };
 
+            int last_error_since_poll = ERROR_NONE;
+            int current_state;
+
+            int SECTOR_SIZE = 512;
+            int SECTOR_NUM = 1440;
+
+            int TRACKS = 80;
+            int SECTOR_PER_TRACK = 18;
+
         public:
            /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
@@ -65,6 +74,7 @@ namespace galaxy {
  
             const static int FLOPPY_SIZE = 737280;
             std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
+            int disk_loaded = false;
         };
     }
 }

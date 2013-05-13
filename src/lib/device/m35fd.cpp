@@ -34,7 +34,8 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-            // TODO 
+            cpu->C = last_error_since_poll;
+            cpu->B = current_state;
             break;
 
         /**
@@ -45,7 +46,12 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-            // TODO
+            // this will work, right?
+            if (cpu->X != 0) {
+                // set interupt message to X
+            } else {
+                // disable interupts
+            }
             break;
 
         /**
@@ -57,7 +63,23 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial reads.
          */
         case 2:
-            // TODO
+            // TODO: implement track seek delay of 2.4ms per track
+
+            if (current_state == STATE_READY || current_state == STATE_READY_WP){
+                int sector_num = cpu->X;
+                int read_to = cpu->Y;
+
+                int floppy_point_from_which_to_read = sector_num * SECTOR_SIZE;
+ 
+                for (int i=0; i < SECTOR_SIZE; i++){
+                    //cpu->ram[]
+                    // TODO: do we have to do fancy 16bit unpacking and re-packing here?
+                }
+                cpu->B = 1;
+            } else {
+                cpu->B = 0;
+                // TODO; what does the spec mean by partial reads?
+            }
             break;
 
         /**
@@ -68,7 +90,17 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial writes.
          */
         case 3:
-            // TODO
+            if (current_state == STATE_READY){
+                if (!is_read_only){
+                    last_error_since_poll = ERROR_PROTECTED;
+                } else {
+                    cpu->B = 1;
+                    // TODO: implement writing
+                }
+            } else {
+                cpu->B = 0;
+                // TODO: once again, what does the spec mean by partial writes?
+            }
             break;
     }
 }
