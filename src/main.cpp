@@ -105,71 +105,78 @@ int main(int argc, char** argv)
     delete[] buffer;
 
 
-    // once i figure out how to read in multiple arguments, these code block will be re-written
+    // once i figure out how to read in multiple arguments, these code blocks will be re-written
     // figure out how many floppy disks need to be created
-    int num_disks = 0;
+    std::vector<std::string> floppy_disk_image_filenames;
     if (options["disk_image_filename"] != ""){
         std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
-        num_disks = 1;
-    } else {
-        std::cout << "No floppy disk image provided" << std::endl;
+        floppy_disk_image_filenames.push_back(
+             options["disk_image_filename"]);
+
     }
 
-    std::vector<galaxy::saturn::m35fd*> floppy_drives;
     std::basic_string<char> cur_disk_image_filename;
     int disk_image_filesize;
+    std::ifstream disk_image;
 
-    for (int i = 0; i < num_disks; i++){
+    for (std::vector<int>::size_type i = 0; i != floppy_disk_image_filenames.size(); i++){
+     
         // we don't want to limit the number of floppy disks the user can attach, so we loop
 
-        // create a new floppy, attach it to the cpu, and store a reference
+        // create a new floppy drive, attach it to the cpu, and store a reference
         galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-        cur_disk_image_filename = options["disk_image_filename"];
-        //cur_disk_image_filename = boost::filesystem::get_absolute(cur_disk_image_filename, boost::filesystem::get_cwd());
-        std::cout << "Opening \"" << cur_disk_image_filename << "\"" << std::endl;
-        std::ifstream disk_image;
-        disk_image.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
+     //   cur_disk_image_filename = options["disk_image_filename"];
+        cur_disk_image_filename = floppy_disk_image_filenames[i];
+        // we should probably make sure the filename is absolute here
+        disk_image.open(binary_filename, std::ios::in | std::ios::binary);
 
-        if (!file.is_open()) {
+        // ensure the file is actually open :P
+        if (!(disk_image.good() && disk_image.is_open())) {
             std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
             return -1;
         }
 
-        disk_image.seekg(0, std::ios::beg);
-
+        disk_image.seekg(0, std::ios::end);
+ 
         disk_image_filesize = disk_image.tellg();
+        std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
         char* buffer = new char[disk_image_filesize];
         disk_image.read(buffer, galaxy::saturn::m35fd::FLOPPY_SIZE);
 
-        for (int i = 0; i < (size / 2) && i < galaxy::saturn::m35fd::FLOPPY_SIZE; i++) {
+        for (int i = 0; i < (size / 2) && i < disk_image_filesize; i++) {
             m35fd_ref.floppy_disk_image[i] = (buffer[i * 2]) << 0x8;
             m35fd_ref.floppy_disk_image[i] ^= buffer[i * 2 + 1] & 0xff;
         }
 
+        delete[] buffer;
+
         disk_image.close();
-        std::cout << "\"" << cur_disk_image_filename << "\" read.";
-        floppy_drives.push_back(&m35fd_ref);
     }
 
-
-
+    // create the LEM1802 windows
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
     for (int i = 0; i < num_lems; i++) {
         std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
         lem_windows.push_back(std::move(win));
     }
-
+ 
+    // attach the clock
     cpu.attach_device(new galaxy::saturn::clock());
+  
+    // attack the keyboard
     keyboard_adaptor keyboard (static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard())));
 
+    // initialise the timing clock
     sf::Clock clock;
 
 
     bool running = true;
-
+ 
+    // start the main loop
     while (running)
     {
+        // we check for events on each window
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it) {
             sf::Event event;
             while ((*it)->pollEvent(event))
@@ -185,6 +192,7 @@ int main(int argc, char** argv)
             }
         }
 
+        // and compute however many cycles we must to keep in time
         try {
             sf::Int32 msec = clock.getElapsedTime().asMilliseconds();
             clock.restart();
@@ -199,6 +207,7 @@ int main(int argc, char** argv)
             running = false;
         }
 
+        // update all the windows with their appropriate contents
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it)
             (*it)->update();
 
