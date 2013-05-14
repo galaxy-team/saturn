@@ -107,7 +107,6 @@ int main(int argc, char** argv)
 
 
     // once i figure out how to read in multiple arguments, these code blocks will be re-written
-    // figure out how many floppy disks need to be created
     std::vector<std::string> floppy_disk_image_filenames;
     if (options["disk_image_filename"] != ""){
         std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
@@ -118,7 +117,6 @@ int main(int argc, char** argv)
 
     std::basic_string<char> cur_disk_image_filename;
     int disk_image_filesize;
-    std::ifstream disk_image;
 
     for (std::vector<int>::size_type i = 0; i != floppy_disk_image_filenames.size(); i++){
      
@@ -127,8 +125,9 @@ int main(int argc, char** argv)
         // create a new floppy drive, attach it to the cpu, and store a reference
         galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-     //   cur_disk_image_filename = options["disk_image_filename"];
         cur_disk_image_filename = floppy_disk_image_filenames[i];
+
+        std::ifstream disk_image;
         // we should probably make sure the filename is absolute here
         disk_image.open(binary_filename, std::ios::in | std::ios::binary);
 

@@ -65,7 +65,6 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial reads.
          */
         case 2:
-
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
                 int sector = cpu->X;
                 int read_to = cpu->Y;
