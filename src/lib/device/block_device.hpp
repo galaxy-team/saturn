@@ -7,8 +7,8 @@ namespace galaxy {
             class block_device {
             protected:
             public:
-                int write_image(std::ofstream file_obj);
-                int read_image(std::ifstream file_obj);                
+                void write_image(std::ofstream file_obj);
+                void read_image(std::ifstream file_obj);
             }
         }
     }
