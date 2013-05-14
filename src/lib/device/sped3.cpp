@@ -26,6 +26,25 @@ file named "LICENSE-LGPL.txt".
 void galaxy::saturn::sped3::interrupt()
 {
     switch(cpu->A) {
+        /**
+         * Poll device. Sets B to the current state (see below) and C to the last error
+         * since the last device poll.
+         */
+        case 0:
+            break;
+
+        /**
+         * Map region. Sets the memory map offset to X, and the total number of vertices
+         * to render to Y. See below for the encoding information.
+         */
+        case 1:
+            break;
+
+        /**
+         * Rotate device. Sets the target rotation for the device to X%360 degrees.
+         */
+        case 2:
+            break;
     }
 }
 

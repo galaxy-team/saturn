@@ -42,6 +42,21 @@ namespace galaxy {
 
                 virtual void interrupt();
                 virtual void cycle();
+
+                /// No vertices queued up, device is in stand-by
+                const static int STATE_NO_DATA = 0x0000;
+
+                /// The device is projecting lines
+                const static int STATE_RUNNING = 0x0001;
+
+                /// The device is projecting lines and turning
+                const static int STATE_TURNING = 0x0002;
+
+                /// There's been no error since the last poll.
+                const static int ERROR_NONE = 0x0000;
+
+                /// There's been some major software or hardware problem, try turning off and turning on the device again.
+                const static int ERROR_BROKEN = 0xffff;
         };
     }
 }
