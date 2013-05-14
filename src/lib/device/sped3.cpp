@@ -31,6 +31,10 @@ void galaxy::saturn::sped3::interrupt()
          * since the last device poll.
          */
         case 0:
+            cpu->B = state;
+            cpu->C = error;
+
+            error = ERROR_NONE;
             break;
 
         /**

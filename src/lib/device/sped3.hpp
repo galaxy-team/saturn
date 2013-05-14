@@ -35,28 +35,32 @@ namespace galaxy {
          */
         class sped3 : public device{
             protected:
-
+                std::uint16_t memory_map_offset;
+                std::uint16_t num_vertices;
+                std::uint16_t state;
+                std::uint16_t error;
             public:
                 /// initialize the device to values specified by the spec
-                sped3() : device(0x42babf3c, 0x1eb37e91, 0x0003, "Mackapar Suspended Particle Exciter Display, Rev 3 (SPED-3)") {}
+                sped3() : device(0x42babf3c, 0x1eb37e91, 0x0003, "Mackapar Suspended Particle Exciter Display, Rev 3 (SPED-3)"),
+                          memory_map_offset(0), num_vertices(0) {}
 
                 virtual void interrupt();
                 virtual void cycle();
 
                 /// No vertices queued up, device is in stand-by
-                const static int STATE_NO_DATA = 0x0000;
+                const static std::uint16_t STATE_NO_DATA = 0x0000;
 
                 /// The device is projecting lines
-                const static int STATE_RUNNING = 0x0001;
+                const static std::uint16_t STATE_RUNNING = 0x0001;
 
                 /// The device is projecting lines and turning
-                const static int STATE_TURNING = 0x0002;
+                const static std::uint16_t STATE_TURNING = 0x0002;
 
                 /// There's been no error since the last poll.
-                const static int ERROR_NONE = 0x0000;
+                const static std::uint16_t ERROR_NONE = 0x0000;
 
                 /// There's been some major software or hardware problem, try turning off and turning on the device again.
-                const static int ERROR_BROKEN = 0xffff;
+                const static std::uint16_t ERROR_BROKEN = 0xffff;
         };
     }
 }
