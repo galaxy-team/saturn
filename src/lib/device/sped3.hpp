@@ -39,7 +39,7 @@ namespace galaxy {
                 std::uint16_t num_vertices;
 
                 std::uint16_t target_rotation;
-                std::uint16_t current_rotation;
+                double current_rotation;
 
                 std::uint16_t state;
                 std::uint16_t error;
@@ -53,19 +53,22 @@ namespace galaxy {
                 virtual void cycle();
 
                 /// No vertices queued up, device is in stand-by
-                const static std::uint16_t STATE_NO_DATA = 0x0000;
+                static const std::uint16_t STATE_NO_DATA = 0x0000;
 
                 /// The device is projecting lines
-                const static std::uint16_t STATE_RUNNING = 0x0001;
+                static const std::uint16_t STATE_RUNNING = 0x0001;
 
                 /// The device is projecting lines and turning
-                const static std::uint16_t STATE_TURNING = 0x0002;
+                static const std::uint16_t STATE_TURNING = 0x0002;
 
                 /// There's been no error since the last poll.
-                const static std::uint16_t ERROR_NONE = 0x0000;
+                static const std::uint16_t ERROR_NONE = 0x0000;
 
                 /// There's been some major software or hardware problem, try turning off and turning on the device again.
-                const static std::uint16_t ERROR_BROKEN = 0xffff;
+                static const std::uint16_t ERROR_BROKEN = 0xffff;
+
+                /// The rotation speed of the SPED-3, in degrees per second
+                static constexpr double ROTATION_SPEED = 50;
         };
     }
 }

@@ -23,6 +23,8 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <sped3.hpp>
 
+#include <cmath>
+
 void galaxy::saturn::sped3::interrupt()
 {
     switch(cpu->A) {
@@ -64,4 +66,25 @@ void galaxy::saturn::sped3::interrupt()
 
 void galaxy::saturn::sped3::cycle()
 {
+    if (state == STATE_TURNING) {
+        double displacement = current_rotation - target_rotation;
+        double rotate_by = ROTATION_SPEED / cpu->clock_speed;
+
+        if (std::abs(displacement) < rotate_by) {
+            current_rotation = target_rotation;
+            state = STATE_RUNNING;
+        } else {
+
+            if (displacement < -180)
+                current_rotation -= rotate_by;
+            else if (displacement < 0)
+                current_rotation += rotate_by;
+            else if (displacement > 180)
+                current_rotation += rotate_by;
+            else if (displacement > 0)
+                current_rotation -= rotate_by;
+
+            current_rotation = std::fmod(current_rotation, 360);
+        }
+    }
 }
