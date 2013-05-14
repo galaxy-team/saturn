@@ -136,8 +136,20 @@ int main(int argc, char** argv)
              return -1;
         }
 
-        m35fd_ref.read_image(disk_image);
+        disk_image.seekg(0, std::ios::end);
+        disk_image_filesize = disk_image.tellg();
 
+        // i know its not supposed to output anything, this is just for debugging purposes
+        std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
+
+        // create an appropriately sized buffer and read into it
+        char* buffer = new char[disk_image_filesize];
+        disk_image.read(buffer, disk_image_filesize);
+
+        m35fd_ref.read_in_image(buffer, disk_image_filesize);
+
+        // wipe the buffer clean, close the file
+        delete[] buffer;
         disk_image.close();
 
         // if the file is read only, mark the floppy as such.
