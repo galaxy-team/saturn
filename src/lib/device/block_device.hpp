@@ -1,6 +1,9 @@
 #include <sstream>
 #include <iostream>
 
+#ifndef __BLOCK_DEVICE_HPP
+#define __BLOCK_DEVICE_HPP
+
 namespace galaxy {
     namespace saturn {
 //        namespace device {
@@ -13,3 +16,5 @@ namespace galaxy {
   //      }
     }
 }
+
+#endif

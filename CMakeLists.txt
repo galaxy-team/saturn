@@ -27,6 +27,7 @@ add_library (libsaturn
     ${SATURN_LIB_SRC}/device/keyboard.cpp
     ${SATURN_LIB_SRC}/device/lem1802.cpp
     ${SATURN_LIB_SRC}/device/m35fd.cpp
+    ${SATURN_LIB_SRC}/device/block_device.cpp
 )
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")

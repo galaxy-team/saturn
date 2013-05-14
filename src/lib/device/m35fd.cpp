@@ -83,7 +83,7 @@ void galaxy::saturn::m35fd::interrupt()
  
 
                     for (int i=0; i < SECTOR_SIZE; i++){
-                        cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
+                        cpu->ram[read_to + i] = block_image[read_from + i];
                     }
                     cpu->B = 1;
                 }
@@ -120,7 +120,7 @@ void galaxy::saturn::m35fd::interrupt()
                         int read_to = sector * SECTOR_SIZE;
 
                         for (int i=0; i < SECTOR_SIZE; i++){
-                            floppy_disk_image[read_to + i] = cpu->ram[read_from + i];
+                            block_image[read_to + i] = cpu->ram[read_from + i];
                         }
                         cpu->B = 1;
                     }

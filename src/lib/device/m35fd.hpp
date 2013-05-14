@@ -77,8 +77,8 @@ namespace galaxy {
             virtual void interrupt();
             virtual void cycle();
  
-            const static int FLOPPY_SIZE = 737280;
-            std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
+            const static int BLOCK_SIZE = 737280;
+            std::array<std::uint16_t, BLOCK_SIZE> block_image;
             bool disk_loaded = false;
             bool is_read_only = false;
 
