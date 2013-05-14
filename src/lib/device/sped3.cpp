@@ -42,12 +42,22 @@ void galaxy::saturn::sped3::interrupt()
          * to render to Y. See below for the encoding information.
          */
         case 1:
+            memory_map_offset = cpu->X;
+            num_vertices = cpu->Y;
+
+            if (num_vertices == 0)
+                state = STATE_NO_DATA;
+            else if (state == STATE_NO_DATA)
+                state = STATE_RUNNING;
+
             break;
 
         /**
          * Rotate device. Sets the target rotation for the device to X%360 degrees.
          */
         case 2:
+            target_rotation = cpu->X % 360;
+            state = STATE_TURNING;
             break;
     }
 }
