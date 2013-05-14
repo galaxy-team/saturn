@@ -47,13 +47,8 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 1:
             // this will work, right?
-            if (cpu->X != 0) {
-                // set interupt message to X
-                interrupt_message = cpu->X;
-            } else {
-                // disable interupts
-                interrupt_message = 0;
-            }
+            // set interupt message to X
+            interrupt_message = cpu->X;
             break;
 
         /**

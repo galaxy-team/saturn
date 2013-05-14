@@ -130,30 +130,14 @@ int main(int argc, char** argv)
         std::ifstream disk_image;
         // we should probably make sure the filename is absolute here
         disk_image.open(binary_filename, std::ios::in | std::ios::binary);
-
         // ensure the file is actually open :P
         if (!(disk_image.good() && disk_image.is_open())) {
-            std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
-            return -1;
+             std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
+             return -1;
         }
 
-        disk_image.seekg(0, std::ios::end);
- 
-        disk_image_filesize = disk_image.tellg();
-        std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
+        m35fd_ref.read_image(disk_image);
 
-        // create an appropriately sized buffer and read into it
-        char* buffer = new char[disk_image_filesize];
-        disk_image.read(buffer, galaxy::saturn::m35fd::FLOPPY_SIZE);
-
-        // read from the buffer into the floppy disk data array
-        for (int i = 0; i < (size / 2) && i < disk_image_filesize; i++) {
-            m35fd_ref.floppy_disk_image[i] = (buffer[i * 2]) << 0x8;
-            m35fd_ref.floppy_disk_image[i] ^= buffer[i * 2 + 1] & 0xff;
-        }
-
-        // wipe the buffer clean, close the file
-        delete[] buffer;
         disk_image.close();
 
         // if the file is read only, mark the floppy as such.

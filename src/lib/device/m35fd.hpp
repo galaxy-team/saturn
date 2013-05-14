@@ -25,6 +25,7 @@ file named "LICENSE-LGPL.txt".
 
 #include <libsaturn.hpp>
 #include <device.hpp>
+#include <block_device.hpp>
 
 #include <cstdint>
 
@@ -33,7 +34,7 @@ namespace galaxy {
         /**
          * represents a m35fd hardware device
          */
-        class m35fd : public device {
+        class m35fd : public device, public block_device {
         protected:
 
             // TODO make these enum class'
@@ -80,6 +81,8 @@ namespace galaxy {
             std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
             bool disk_loaded = false;
             bool is_read_only = false;
+
+    //        virtual int 
         };
     }
 }
