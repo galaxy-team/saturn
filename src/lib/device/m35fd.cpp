@@ -49,8 +49,10 @@ void galaxy::saturn::m35fd::interrupt()
             // this will work, right?
             if (cpu->X != 0) {
                 // set interupt message to X
+                interrupt_message = cpu->X;
             } else {
                 // disable interupts
+                interrupt_message = 0;
             }
             break;
 
@@ -63,7 +65,6 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial reads.
          */
         case 2:
-            // TODO: implement track seek delay of 2.4ms per track
 
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
                 int sector = cpu->X;
@@ -77,8 +78,16 @@ void galaxy::saturn::m35fd::interrupt()
                     cpu->B = 0;
                 } else {
                     // if everything seems to be in order...
+
+                    // okay, 2.4ms per track seeked you say?
+                    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
+                    if (!tracks_seeked >= 0) {
+                        tracks_seeked = 0 - tracks_seeked;
+                    }
+                    int track_seek_time = tracks_seeked * 2.4;
                     int read_from = sector * SECTOR_SIZE;
  
+
                     for (int i=0; i < SECTOR_SIZE; i++){
                         cpu->ram[read_to + i] = floppy_disk_image[read_from + i];
                     }
