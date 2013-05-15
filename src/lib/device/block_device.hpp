@@ -11,7 +11,7 @@ namespace galaxy {
     //            static const int BLOCK_SIZE = 737280;
       //          std::array<std::uint16_t, BLOCK_SIZE> block_image;
             public:
-//                void write_out_image(std::array<uint16_t> image);
+                void write_out_image(std::array<uint16_t, BLOCK_SIZE> image);
                 void read_in_image(char* file_data_array, int image_filesize);
             };
     }
