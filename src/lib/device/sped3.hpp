@@ -77,6 +77,9 @@ namespace galaxy {
                 
                 /// return the vertices representing the model in the order to be drawn
                 std::vector<vertex> model();
+                
+                /// return the SPED's rotation, in degrees
+                double rotation();
 
                 /// No vertices queued up, device is in stand-by
                 static const std::uint16_t STATE_NO_DATA = 0x0000;
