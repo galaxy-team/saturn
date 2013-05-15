@@ -25,15 +25,38 @@ file named "LICENSE-LGPL.txt".
 
 #include <libsaturn.hpp>
 #include <device.hpp>
+
 #include <cstdint>
+
+#include <vector>
 
 namespace galaxy {
     namespace saturn {
         class device;
+        
+        /**
+         * represents a 3D vertex
+         * TODO: move this into its own file
+         */
+        struct vertex {
+            enum colors {
+                COLOR_BLACK,
+                COLOR_RED,
+                COLOR_GREEN,
+                COLOR_BLUE
+            }
+            
+            std::uint8_t x;
+            std::uint8_t y;
+            std::uint8_t z;
+            
+            int color;
+            bool intense;
+        }
         /**
          * represents a Mackapar Suspended Particle Exciter Display
          */
-        class sped3 : public device{
+        class sped3 : public device {
             protected:
                 std::uint16_t memory_map_offset;
                 std::uint16_t num_vertices;
@@ -51,6 +74,9 @@ namespace galaxy {
 
                 virtual void interrupt();
                 virtual void cycle();
+                
+                /// return the vertices representing the model in the order to be drawn
+                std::vector<vertex> model();
 
                 /// No vertices queued up, device is in stand-by
                 static const std::uint16_t STATE_NO_DATA = 0x0000;
