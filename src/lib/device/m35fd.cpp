@@ -136,7 +136,7 @@ void galaxy::saturn::m35fd::cycle()
 {
 }
 
-std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> get_block_image(){
-    return *block_image;
+std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> galaxy::saturn::m35fd::get_block_image(){
+    return block_image;
 }
 
