@@ -33,7 +33,7 @@ file named "LICENSE-LGPL.txt".
 namespace galaxy {
     namespace saturn {
         class device;
-        
+
         /**
          * represents a 3D vertex
          * TODO: move this into its own file
@@ -44,15 +44,15 @@ namespace galaxy {
                 COLOR_RED,
                 COLOR_GREEN,
                 COLOR_BLUE
-            }
-            
+            };
+
             std::uint8_t x;
             std::uint8_t y;
             std::uint8_t z;
-            
+
             int color;
             bool intense;
-        }
+        };
         /**
          * represents a Mackapar Suspended Particle Exciter Display
          */
@@ -74,10 +74,10 @@ namespace galaxy {
 
                 virtual void interrupt();
                 virtual void cycle();
-                
+
                 /// return the vertices representing the model in the order to be drawn
                 std::vector<vertex> model();
-                
+
                 /// return the SPED's rotation, in degrees
                 double rotation();
 
