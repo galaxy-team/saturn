@@ -34,7 +34,8 @@ namespace galaxy {
         /**
          * represents a m35fd hardware device
          */
-        class m35fd : public device, public block_device {
+        class m35fd : public device, public block_device<737280> {
+                                                      /* ^ this number is the BLOCK_SIZE */
         protected:
 
             // TODO make these enum class'
@@ -74,15 +75,14 @@ namespace galaxy {
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
 
-            virtual void interrupt();
-            virtual void cycle();
- 
             const static int BLOCK_SIZE = 737280;
             std::array<std::uint16_t, BLOCK_SIZE> block_image;
             bool disk_loaded = false;
             bool is_read_only = false;
 
-    //        virtual int 
+            virtual void interrupt();
+            virtual void cycle();
+            std::array<uint16_t, BLOCK_SIZE> get_block_image();
         };
     }
 }
