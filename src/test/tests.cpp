@@ -1010,7 +1010,7 @@ TEST_CASE("hardware/cycles", "a device's cycle() method must be called once per 
     REQUIRE(dev.count_cycles == 0xfade);
 }
 
-TEST_CASE("hardware/clock", "test clock implementation") {
+TEST_CASE("clock/tick_count", "test interrupt #1") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::clock& clock = static_cast<galaxy::saturn::clock&>(cpu.attach_device(new galaxy::saturn::clock()));
 
@@ -1038,6 +1038,15 @@ TEST_CASE("hardware/clock", "test clock implementation") {
     clock.interrupt();
 
     REQUIRE(cpu.C == 0);
+}
+
+TEST_CASE("clock/tick_interrupt", "test interupt #2") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::clock& clock = static_cast<galaxy::saturn::clock&>(cpu.attach_device(new galaxy::saturn::clock()));
+
+    cpu.A = 0;
+    cpu.B = 60;
+    clock.interrupt();
 
     cpu.A = 2;
     cpu.B = 0x3;
