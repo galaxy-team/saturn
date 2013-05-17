@@ -76,7 +76,7 @@ namespace galaxy {
                 virtual void cycle();
 
                 /// return the vertices representing the model in the order to be drawn
-                std::vector<vertex> model();
+                std::vector<vertex> vertices();
 
                 /// return the SPED's rotation, in degrees
                 double rotation();

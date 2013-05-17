@@ -23,6 +23,15 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <sped3.hpp>
 
+
+
+
+
+#include <iostream>
+
+
+
+
 #include <cmath>
 
 const std::uint16_t galaxy::saturn::sped3::ERROR_NONE = 0x0000;
@@ -92,17 +101,17 @@ void galaxy::saturn::sped3::cycle()
     }
 }
 
-std::vector<galaxy::saturn::vertex> galaxy::saturn::sped3::model()
+std::vector<galaxy::saturn::vertex> galaxy::saturn::sped3::vertices()
 {
     std::vector<galaxy::saturn::vertex> model;
 
     for (std::uint16_t i = memory_map_offset; i < (static_cast<std::uint32_t>(memory_map_offset) + num_vertices * 2) % 0xffff; i += 2) {
         galaxy::saturn::vertex v;
-        v.x = cpu->ram[i] & 0xff;
-        v.y = (cpu->ram[i] >> 0xf) & 0xff;
+        v.x = cpu->ram[i % 0xffff] & 0xff;
+        v.y = (cpu->ram[i % 0xffff] >> 0x8) & 0xff;
         v.z = cpu->ram[(i + 1) % 0xffff] & 0xff;
-        v.color = (cpu->ram[(i + 1) % 0xffff] >> 0xf) & 0x3;
-        v.intense = (cpu->ram[(i + 1) % 0xffff] >> 0x11) & 0x1;
+        v.color = (cpu->ram[(i + 1) % 0xffff] >> 0x8) & 0x3;
+        v.intense = (cpu->ram[(i + 1) % 0xffff] >> 0xa) & 0x1;
 
         model.push_back(v);
     }
