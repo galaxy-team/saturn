@@ -130,6 +130,10 @@ int main(int argc, char** argv)
         std::ifstream disk_image;
         // we should probably make sure the filename is absolute here
         disk_image.open(binary_filename, std::ios::in | std::ios::binary);
+
+        if (disk_image.good()) std::cout << "good" << std::endl;
+        if (disk_image) std::cout << "disk_image evals to true" << std::endl;
+
         // ensure the file is actually open :P
         if (!(disk_image.good() && disk_image.is_open())) {
             disk_image.seekg(0, std::ios::end);
