@@ -23,15 +23,6 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <sped3.hpp>
 
-
-
-
-
-#include <iostream>
-
-
-
-
 #include <cmath>
 
 const std::uint16_t galaxy::saturn::sped3::ERROR_NONE = 0x0000;
