@@ -87,7 +87,7 @@ namespace galaxy {
             // storage functions for block_device
             std::array<uint16_t, BLOCK_SIZE> get_block_image();
 //            virtual void write_out_image(std::array<uint16_t, BLOCK_SIZE> image);
-            virtual void read_in_image(char* file_data_array, int image_filesize);
+ //           virtual void read_in_image(char* file_data_array, int image_filesize);
         };
     }
 }
