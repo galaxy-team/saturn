@@ -25,6 +25,9 @@ file named "LICENSE-LGPL.txt".
 
 #include <cmath>
 
+const std::uint16_t galaxy::saturn::sped3::ERROR_NONE = 0x0000;
+const std::uint16_t galaxy::saturn::sped3::ERROR_BROKEN = 0xFFFF;
+
 void galaxy::saturn::sped3::interrupt()
 {
     switch(cpu->A) {

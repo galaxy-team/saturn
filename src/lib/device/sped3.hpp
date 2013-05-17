@@ -20,8 +20,8 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#ifndef CLOCK_HPP
-#define CLOCK_HPP
+#ifndef SPED3_HPP
+#define SPED3_HPP
 
 #include <libsaturn.hpp>
 #include <device.hpp>
@@ -81,23 +81,20 @@ namespace galaxy {
                 /// return the SPED's rotation, in degrees
                 double rotation();
 
-                /// No vertices queued up, device is in stand-by
-                static const std::uint16_t STATE_NO_DATA = 0x0000;
-
-                /// The device is projecting lines
-                static const std::uint16_t STATE_RUNNING = 0x0001;
-
-                /// The device is projecting lines and turning
-                static const std::uint16_t STATE_TURNING = 0x0002;
+                enum states {
+                    STATE_NO_DATA,
+                    STATE_RUNNING,
+                    STATE_TURNING
+                };
 
                 /// There's been no error since the last poll.
-                static const std::uint16_t ERROR_NONE = 0x0000;
+                static const std::uint16_t ERROR_NONE;
 
                 /// There's been some major software or hardware problem, try turning off and turning on the device again.
-                static const std::uint16_t ERROR_BROKEN = 0xffff;
+                static const std::uint16_t ERROR_BROKEN;
 
                 /// The rotation speed of the SPED-3, in degrees per second
-                static constexpr double ROTATION_SPEED = 50;
+                double ROTATION_SPEED = 50;
         };
     }
 }
