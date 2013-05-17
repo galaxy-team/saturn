@@ -129,10 +129,10 @@ int main(int argc, char** argv)
 
         std::ifstream disk_image;
         // we should probably make sure the filename is absolute here
-        disk_image.open(binary_filename, std::ios::in | std::ios::binary);
+        disk_image.open(cur_disk_image_filename, std::ios::in | std::ios::binary);
 
         // ensure the file is actually open :P
-        if ((disk_image.good() && disk_image.is_open())) {
+        if ((disk_image && disk_image.good() && disk_image.is_open())) {
             disk_image.seekg(0, std::ios::end);
             disk_image_filesize = disk_image.tellg();
 
