@@ -1148,14 +1148,9 @@ TEST_CASE("sped3/model", "tests the sped3's interrupt #1 and vertices() function
     REQUIRE(pyramid[6].color == galaxy::saturn::vertex::COLOR_RED);
 }
 
-TEST_CASE("sped3/state_turning", "the sped3 should set its state to STATE_TURNING when it is projecting lines and rotating") {
+TEST_CASE("sped3/state_turning", "the sped3 should set its state to STATE_TURNING when it is rotating") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
-
-    cpu.A = 1;
-    cpu.X = 0xdead;
-    cpu.Y = 5;
-    sped.interrupt();
 
     cpu.A = 2;
     cpu.X = 200;
