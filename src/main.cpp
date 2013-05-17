@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
     // grab the number of LEM1802's the user wants to have attached
     int num_lems = 1;
-    if ((int)options.get("num_lems") != 0){
+    if (options.get("num_lems") != ""){
          num_lems = (int)options.get("num_lems");
     }
 
