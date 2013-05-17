@@ -109,3 +109,8 @@ std::vector<galaxy::saturn::vertex> galaxy::saturn::sped3::vertices()
 
     return model;
 }
+
+double galaxy::saturn::sped3::rotation()
+{
+    return current_rotation;
+}
