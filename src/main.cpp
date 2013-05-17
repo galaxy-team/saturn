@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     }
 
     // the binary filename is the first of the positional arguments
-    std::basic_string<char> binary_filename = args[0];
+    std::string binary_filename = args[0];
 
     // grab the number of LEM1802's the user wants to have attached
     int num_lems = 1;
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
     }
 
-    std::basic_string<char> cur_disk_image_filename;
+    std::string cur_disk_image_filename;
     int disk_image_filesize;
 
     for (std::vector<int>::size_type i = 0; i != floppy_disk_image_filenames.size(); i++){
