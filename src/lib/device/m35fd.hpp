@@ -80,9 +80,15 @@ namespace galaxy {
             bool disk_loaded = false;
             bool is_read_only = false;
 
+            // cpu interaction
             virtual void interrupt();
             virtual void cycle();
+
+            // storage functions
             std::array<uint16_t, BLOCK_SIZE> get_block_image();
+            virtual void write_out_image(std::array<uint16_t, BLOCK_SIZE> image);
+            virtual void read_in_image(char* file_data_array, int image_filesize);
+
         };
     }
 }
