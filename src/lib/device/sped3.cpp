@@ -23,18 +23,11 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <sped3.hpp>
 
-
-
-#include <iostream>
-
-
-
-
 #include <cmath>
 
 const std::uint16_t galaxy::saturn::sped3::ERROR_NONE = 0x0000;
 const std::uint16_t galaxy::saturn::sped3::ERROR_BROKEN = 0xFFFF;
-const double galaxy::saturn::sped3::ROTATION_SPEED = 50;
+const std::uint16_t galaxy::saturn::sped3::ROTATION_SPEED = 50;
 
 void galaxy::saturn::sped3::interrupt()
 {
@@ -77,30 +70,28 @@ void galaxy::saturn::sped3::interrupt()
 
 void galaxy::saturn::sped3::cycle()
 {
-    if (state == STATE_TURNING) {
-        double displacement = current_rotation - target_rotation;
-        double rotate_by = ROTATION_SPEED / cpu->clock_speed;
+    if (state == STATE_TURNING && cycles == ROTATION_SPEED) {
+        std::uint16_t displacement = current_rotation - target_rotation;
 
-        if (std::abs(displacement) < rotate_by) {
+        if (displacement == 0) {
             std::cout << "HONK" << std::endl;
-            current_rotation = target_rotation;
             if (num_vertices)
                 state = STATE_RUNNING;
             else
                 state = STATE_NO_DATA;
         } else {
-            if (displacement < -180) {
-                current_rotation -= rotate_by; }
-            else if (displacement < 0) {
-                current_rotation += rotate_by; }
-            else if (displacement > 180) {
-                current_rotation += rotate_by; }
-            else if (displacement > 0) {
-                current_rotation -= rotate_by; }
+            if (displacement < -180)
+                current_rotation--;
+            else if (displacement < 0)
+                current_rotation++;
+            else if (displacement > 180)
+                current_rotation++;
+            else if (displacement > 0)
+                current_rotation--;
 
-            current_rotation = std::fmod(current_rotation, 360);
+            current_rotation = current_rotation % 360;
             if (current_rotation < 0) {
-                current_rotation = std::fmod(current_rotation + 360, 360);
+                current_rotation = (current_rotation + 360) % 360;
             }
         }
     }
@@ -124,7 +115,7 @@ std::vector<galaxy::saturn::vertex> galaxy::saturn::sped3::vertices()
     return model;
 }
 
-double galaxy::saturn::sped3::rotation()
+int galaxy::saturn::sped3::rotation()
 {
     return current_rotation;
 }

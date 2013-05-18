@@ -62,14 +62,16 @@ namespace galaxy {
                 std::uint16_t num_vertices;
 
                 std::uint16_t target_rotation;
-                double current_rotation;
+                int current_rotation;
+
+                int cycles;
 
                 std::uint16_t state;
                 std::uint16_t error;
             public:
                 /// initialize the device to values specified by the spec
                 sped3() : device(0x42babf3c, 0x1eb37e91, 0x0003, "Mackapar Suspended Particle Exciter Display, Rev 3 (SPED-3)"),
-                          memory_map_offset(0), num_vertices(0), target_rotation(0), current_rotation(0),
+                          memory_map_offset(0), num_vertices(0), target_rotation(0), current_rotation(0), cycles(0),
                           state(STATE_NO_DATA), error(ERROR_NONE) {}
 
                 virtual void interrupt();
@@ -79,7 +81,7 @@ namespace galaxy {
                 std::vector<vertex> vertices();
 
                 /// return the SPED's rotation, in degrees
-                double rotation();
+                int rotation();
 
                 enum states {
                     STATE_NO_DATA,
@@ -94,7 +96,7 @@ namespace galaxy {
                 static const std::uint16_t ERROR_BROKEN;
 
                 /// The rotation speed of the SPED-3, in degrees per second
-                static const double ROTATION_SPEED;
+                static const std::uint16_t ROTATION_SPEED;
         };
     }
 }
