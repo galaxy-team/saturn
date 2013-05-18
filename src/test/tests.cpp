@@ -1161,6 +1161,40 @@ TEST_CASE("sped3/state_turning", "the sped3 should set its state to STATE_TURNIN
 
     REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_TURNING);
     REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    for (int i = 0; i < cpu.clock_speed * 4; i++) {
+        sped.cycle();
+    }
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_NO_DATA);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    cpu.A = 1;
+    cpu.Y = 10;
+    sped.interrupt();
+
+    cpu.A = 2;
+    cpu.X = 0;
+    sped.interrupt();
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_TURNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    for (int i = 0; i < cpu.clock_speed * 4; i++) {
+        sped.cycle();
+    }
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_RUNNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
 }
 
 TEST_CASE("sped3/rotation", "tests the sped3's rotation") {
@@ -1179,7 +1213,7 @@ TEST_CASE("sped3/rotation", "tests the sped3's rotation") {
         sped.cycle();
     }
 
-    REQUIRE(std::abs(sped.rotation() - sped.ROTATION_SPEED) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
+    REQUIRE(sped.rotation() == sped.ROTATION_SPEED);
 
     cpu.A = 2;
     cpu.X = 320;
@@ -1189,14 +1223,15 @@ TEST_CASE("sped3/rotation", "tests the sped3's rotation") {
         sped.cycle();
     }
 
-    REQUIRE(std::abs(sped.rotation() - 0) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
+    REQUIRE(sped.rotation() == 0);
 
     cpu.A = 2;
     cpu.X = 800;
+    sped.interrupt();
 
-    for (int i = 0; i < cpu.clock_speed * 100; i++) {
+    for (int i = 0; i < cpu.clock_speed * 9; i++) {
         sped.cycle();
     }
 
-    REQUIRE(std::abs(sped.rotation() - 80) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
+    REQUIRE(sped.rotation() == 80);
 }

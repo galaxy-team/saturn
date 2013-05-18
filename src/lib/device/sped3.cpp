@@ -70,27 +70,31 @@ void galaxy::saturn::sped3::interrupt()
 
 void galaxy::saturn::sped3::cycle()
 {
-    if (state == STATE_TURNING && cycles == ROTATION_SPEED) {
-        std::uint16_t displacement = current_rotation - target_rotation;
+    if (state == STATE_TURNING) {
+        cycles++;
+        if (cycles >= (cpu->clock_speed / ROTATION_SPEED)) {
+            cycles = 0;
+            int displacement = current_rotation - target_rotation;
 
-        if (displacement == 0) {
-            if (num_vertices)
-                state = STATE_RUNNING;
-            else
-                state = STATE_NO_DATA;
-        } else {
-            if (displacement < -180)
-                current_rotation--;
-            else if (displacement < 0)
-                current_rotation++;
-            else if (displacement > 180)
-                current_rotation++;
-            else if (displacement > 0)
-                current_rotation--;
+            if (displacement == 0) {
+                if (num_vertices)
+                    state = STATE_RUNNING;
+                else
+                    state = STATE_NO_DATA;
+            } else {
+                if (displacement < -180)
+                    current_rotation--;
+                else if (displacement < 0)
+                    current_rotation++;
+                else if (displacement > 180)
+                    current_rotation++;
+                else if (displacement > 0)
+                    current_rotation--;
 
-            current_rotation = current_rotation % 360;
-            if (current_rotation < 0) {
-                current_rotation = (current_rotation + 360) % 360;
+                current_rotation = current_rotation % 360;
+                if (current_rotation < 0) {
+                    current_rotation = (current_rotation + 360) % 360;
+                }
             }
         }
     }
