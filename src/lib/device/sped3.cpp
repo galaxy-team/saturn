@@ -74,7 +74,6 @@ void galaxy::saturn::sped3::cycle()
         std::uint16_t displacement = current_rotation - target_rotation;
 
         if (displacement == 0) {
-            std::cout << "HONK" << std::endl;
             if (num_vertices)
                 state = STATE_RUNNING;
             else
