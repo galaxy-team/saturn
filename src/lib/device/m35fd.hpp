@@ -36,7 +36,8 @@ namespace galaxy {
          */
         class m35fd : public device, public block_device<737280> {
                                                       /* ^ this number is the BLOCK_SIZE */
-        protected:
+//        protected:
+          public:
 
             // TODO make these enum class'
             enum fd_states {

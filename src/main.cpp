@@ -132,7 +132,7 @@ int main(int argc, char** argv)
         disk_image.open(cur_disk_image_filename, std::ios::in | std::ios::binary);
 
         // ensure the file is actually open :P
-        if ((disk_image && disk_image.good() && disk_image.is_open())) {
+        if (disk_image.is_open()) {
             disk_image.seekg(0, std::ios::end);
             disk_image_filesize = disk_image.tellg();
 
@@ -151,9 +151,10 @@ int main(int argc, char** argv)
              return -1;
         }
         disk_image.close();
-
+        m35fd_ref.current_state = m35fd_ref.STATE_READY;
+        m35fd_ref.is_read_only = false;
         // if the file is read only, mark the floppy as such.
-        // TODO: determine is this should be configurable via some other method
+        // TODO: determine if this should be configurable via some other method
 /*        if (file_utils.is_read_only(cur_disk_image_filename)) {
             m35fd_ref.is_read_only = true;
         } else {
@@ -220,5 +221,11 @@ int main(int argc, char** argv)
 
     }
 
+/*    std::cout << std::endl << std::endl;
+    for (int i=0; i<20; i++) {
+        std::cout << " 0x" << std::hex << m35fd_ref->block_image[i];
+    }
+    std::cout << std::endl;
+*/
     return 0;
 }
