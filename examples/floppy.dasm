@@ -1,0 +1,37 @@
+jsr find_drive
+jsr write_disk
+jsr end
+
+find_drive:
+  hwn i
+  find_drive_loop:
+    sub i, 1
+    hwq i
+    ifn a, 0x24c5
+    ifn b, 0x4fd5
+      set pc, find_drive_loop
+  set [drive], i
+  set a, 1
+  set x, [drive_interrupt]
+  hwi [drive]
+  set pc, pop
+
+drive: dat 0
+drive_interrupt: dat 0x1000
+
+write_disk:
+  set a, 3
+  set x, 0
+  set y, 0xeeef
+;  set y, data
+  set 0xeeef, 0xffff
+  hwi [drive]
+  set pc, pop
+  
+end:
+  ; we do this so that the emulator exits here
+  dat 0
+  ;set pc, end
+
+data: dat 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+  
