@@ -94,7 +94,7 @@ namespace galaxy {
                 static const std::uint16_t ERROR_BROKEN;
 
                 /// The rotation speed of the SPED-3, in degrees per second
-                double ROTATION_SPEED = 50;
+                static const double ROTATION_SPEED;
         };
     }
 }

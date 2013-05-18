@@ -1164,4 +1164,39 @@ TEST_CASE("sped3/state_turning", "the sped3 should set its state to STATE_TURNIN
 }
 
 TEST_CASE("sped3/rotation", "tests the sped3's rotation") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    REQUIRE(sped.rotation() == 0);
+
+    cpu.A = 2;
+    cpu.X = 100;
+    sped.interrupt();
+
+    REQUIRE(sped.rotation() == 0);
+
+    for (int i = 0; i < cpu.clock_speed; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(std::abs(sped.rotation() - sped.ROTATION_SPEED) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
+
+    cpu.A = 2;
+    cpu.X = 320;
+    sped.interrupt();
+
+    for (int i = 0; i < cpu.clock_speed; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(std::abs(sped.rotation() - 0) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
+
+    cpu.A = 2;
+    cpu.X = 800;
+
+    for (int i = 0; i < cpu.clock_speed * 100; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(std::abs(sped.rotation() - 80) < static_cast<double>(sped.ROTATION_SPEED) / cpu.clock_speed);
 }

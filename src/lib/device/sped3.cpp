@@ -23,10 +23,18 @@ file named "LICENSE-LGPL.txt".
 #include <libsaturn.hpp>
 #include <sped3.hpp>
 
+
+
+#include <iostream>
+
+
+
+
 #include <cmath>
 
 const std::uint16_t galaxy::saturn::sped3::ERROR_NONE = 0x0000;
 const std::uint16_t galaxy::saturn::sped3::ERROR_BROKEN = 0xFFFF;
+const double galaxy::saturn::sped3::ROTATION_SPEED = 50;
 
 void galaxy::saturn::sped3::interrupt()
 {
@@ -74,20 +82,26 @@ void galaxy::saturn::sped3::cycle()
         double rotate_by = ROTATION_SPEED / cpu->clock_speed;
 
         if (std::abs(displacement) < rotate_by) {
+            std::cout << "HONK" << std::endl;
             current_rotation = target_rotation;
-            state = STATE_RUNNING;
+            if (num_vertices)
+                state = STATE_RUNNING;
+            else
+                state = STATE_NO_DATA;
         } else {
-
-            if (displacement < -180)
-                current_rotation -= rotate_by;
-            else if (displacement < 0)
-                current_rotation += rotate_by;
-            else if (displacement > 180)
-                current_rotation += rotate_by;
-            else if (displacement > 0)
-                current_rotation -= rotate_by;
+            if (displacement < -180) {
+                current_rotation -= rotate_by; }
+            else if (displacement < 0) {
+                current_rotation += rotate_by; }
+            else if (displacement > 180) {
+                current_rotation += rotate_by; }
+            else if (displacement > 0) {
+                current_rotation -= rotate_by; }
 
             current_rotation = std::fmod(current_rotation, 360);
+            if (current_rotation < 0) {
+                current_rotation = std::fmod(current_rotation + 360, 360);
+            }
         }
     }
 }
