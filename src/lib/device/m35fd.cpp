@@ -38,10 +38,10 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-            DEBUG(std::cout << "Poll device; " << last_error_since_poll << ", current_state; " << current_state << std::endl;)
-            cpu->C = last_error_since_poll;
-            cpu->B = current_state;
-            break;
+	    DEBUG(std::cout << "Poll device; " << last_error_since_poll << ", current_state; " << current_state << std::endl;)
+	    cpu->C = last_error_since_poll;
+	    cpu->B = current_state;
+	    break;
 
         /**
          * Set interupt;
@@ -78,17 +78,10 @@ void galaxy::saturn::m35fd::interrupt()
                     // ensure the user is not trying to read from outside the ram
                     cpu->B = 0;
                 } else {
-                    DEBUG(std::cout << "Everything seems to be in order" << std::endl;)
                     // if everything seems to be in order...
-
-                    // okay, 2.4ms per track seeked you say?
-                    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
-                    if (!tracks_seeked >= 0) {
-                        tracks_seeked = 0 - tracks_seeked;
-                    }
-                    int track_seek_time = tracks_seeked * 2.4;
+                    DEBUG(std::cout << "Everything seems to be in order" << std::endl;)
+                    int track_seek_time = get_track_seek_time(current_track, sector);
                     int read_from = sector * SECTOR_SIZE;
- 
 
                     for (int i=0; i < SECTOR_SIZE; i++){
                         cpu->ram[read_to + i] = block_image[read_from + i];
@@ -129,6 +122,7 @@ void galaxy::saturn::m35fd::interrupt()
                         // if everything seems to be in order...
                         DEBUG(std::cout << "Everything seems to be in order..." << std::endl;)
                         int read_to = sector * SECTOR_SIZE;
+		        int track_seek_time = get_track_seek_time(current_track, sector);
 
                         for (int i=0; i < SECTOR_SIZE; i++){
                                 DEBUG(
@@ -147,11 +141,21 @@ void galaxy::saturn::m35fd::interrupt()
     }
 }
 
-void galaxy::saturn::m35fd::cycle()
-{
+void galaxy::saturn::m35fd::cycle() {
 }
 
-std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> galaxy::saturn::m35fd::get_block_image(){
+
+int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
+    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
+    if (!tracks_seeked >= 0) {
+	tracks_seeked = 0 - tracks_seeked;
+    }
+    int track_seek_time = tracks_seeked * 2.4;
+    return track_seek_time;
+}
+
+
+std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> galaxy::saturn::m35fd::get_block_image() {
     return block_image;
 }
 
