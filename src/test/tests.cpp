@@ -1010,7 +1010,7 @@ TEST_CASE("clock/tick_count", "test interrupt #1") {
     clock.interrupt();
 
     // call clock.cycle() for 10 seconds
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < cpu.clock_speed * 10; i++) {
         clock.cycle();
     }
 
@@ -1046,7 +1046,7 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
     std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
     cpu.flash(codez.begin(), codez.end());
 
-    for (int i = 0; i < 300001; i++) {
+    for (int i = 0; i < cpu.clock_speed * 3 + 1; i++) {
         cpu.cycle();
     }
 
@@ -1148,7 +1148,7 @@ TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
     keyboard.release(0x90);
     keyboard.release(0x31);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         cpu.cycle();
     }
 
