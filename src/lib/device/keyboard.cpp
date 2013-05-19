@@ -76,10 +76,8 @@ void galaxy::saturn::keyboard::press(std::uint16_t key)
         if (pressed.find(key) == pressed.end())
             pressed.insert(key);
         buffer.push_back(key);
-        if (key_type == 1) {
-            if (interrupt_message)
-                cpu->interrupt(interrupt_message);
-        }
+        if (interrupt_message)
+            cpu->interrupt(interrupt_message);
     }
 }
 
@@ -89,8 +87,11 @@ void galaxy::saturn::keyboard::release(std::uint16_t key)
     if (key_type) {
         pressed.erase(key);
 
-        if (interrupt_message)
-            cpu->interrupt(interrupt_message);
+        if (key_type == 1) {
+            buffer.push_back(key);
+            if (interrupt_message)
+                cpu->interrupt(interrupt_message);
+        }
     }
 }
 
