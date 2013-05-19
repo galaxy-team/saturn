@@ -73,8 +73,14 @@ namespace galaxy {
                 std::set<std::uint16_t> pressed;
                 std::uint16_t interrupt_message;
 
+                enum key_types {
+                    TYPE_INVALID,
+                    TYPE_NON_ASCII,
+                    TYPE_ASCII
+                };
+
                 /**
-                 * If key is alphanumeric, return 2
+                 * If key is ascii, return 2
                  * Otherwise, if the key is still valid, return 1
                  * If the key isn't valid, return 0
                  */
