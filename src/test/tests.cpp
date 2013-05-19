@@ -1128,6 +1128,33 @@ TEST_CASE("keyboard/key-pressed", "test the keyboard's ability to check if a key
     REQUIRE(cpu.C == 0);
 }
 
+TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.A = 3;
+    cpu.B = 0xdead;
+    keyboard.interrupt();
+
+    keyboard.press(0x11);
+    keyboard.press(0x31);
+    keyboard.release(0x11);
+    keyboard.press(0x90);
+    keyboard.release(0x90);
+    keyboard.release(0x31);
+
+    cpu.IA = 0x2;
+    cpu.I = 0x0;
+    std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+
+    for (int i = 0; i < 100; i++) {
+        cpu.cycle();
+    }
+
+    REQUIRE(cpu.I == 0x5);
+}
+
 TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
