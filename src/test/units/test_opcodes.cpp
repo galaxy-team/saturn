@@ -1,5 +1,5 @@
-#ifndef __TEST_OPCODES
-#define __TEST_OPCODES
+#ifndef __TEST_OPCODES_CPP
+#define __TEST_OPCODES_CPP
 
 TEST_CASE("opcodes/invalid", "a runtime error should be thrown on invalid opcode") {
     galaxy::saturn::dcpu cpu;

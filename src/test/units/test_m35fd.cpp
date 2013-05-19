@@ -15,7 +15,9 @@ TEST_CASE("hardware/m35fd/write_to_image", "test the write to disk mechanism; ba
     for (int i=0; i<5; i++){
         buffer[i] = "hello"[i];
     }
+    CAPTURE(buffer);
     m35fd.read_in_image(buffer, 5);
+//    REQUIRE(std::strcmp(m35fd.block_image[0], "h"))
 }
 
 #endif
