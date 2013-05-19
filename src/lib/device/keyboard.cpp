@@ -72,32 +72,33 @@ void galaxy::saturn::keyboard::cycle()
 void galaxy::saturn::keyboard::press(std::uint16_t key)
 {
     int key_type = galaxy::saturn::keyboard::validate_key(key);
-    if (key_type) {
+    if (key_type != TYPE_INVALID) {
         if (pressed.find(key) == pressed.end())
             pressed.insert(key);
         buffer.push_back(key);
-        if (key_type == 1) {
-            if (interrupt_message)
-                cpu->interrupt(interrupt_message);
-        }
+        if (interrupt_message)
+            cpu->interrupt(interrupt_message);
     }
 }
 
 void galaxy::saturn::keyboard::release(std::uint16_t key)
 {
     int key_type = galaxy::saturn::keyboard::validate_key(key);
-    if (key_type) {
+    if (key_type != TYPE_INVALID) {
         pressed.erase(key);
 
-        if (interrupt_message)
-            cpu->interrupt(interrupt_message);
+        if (key_type == TYPE_NON_ASCII) {
+            buffer.push_back(key);
+            if (interrupt_message)
+                cpu->interrupt(interrupt_message);
+        }
     }
 }
 
 int galaxy::saturn::keyboard::validate_key(std::uint16_t key)
 {
     if (0x20 <= key && key <= 0x7f)
-        return 2;
+        return TYPE_ASCII;
 
     switch (key) {
         case KEY_BACKSPACE:
@@ -110,8 +111,8 @@ int galaxy::saturn::keyboard::validate_key(std::uint16_t key)
         case KEY_ARROW_RIGHT:
         case KEY_SHIFT:
         case KEY_CONTROL:
-            return 1;
+            return TYPE_NON_ASCII;
     }
 
-    return 0;
+    return TYPE_INVALID;
 }

@@ -3,6 +3,7 @@
 #include <libsaturn.hpp>
 #include <clock.hpp>
 #include <lem1802.hpp>
+#include <keyboard.hpp>
 #include <sped3.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
@@ -1012,7 +1013,7 @@ TEST_CASE("clock/tick_count", "test interrupt #1") {
     clock.interrupt();
 
     // call clock.cycle() for 10 seconds
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < cpu.clock_speed * 10; i++) {
         clock.cycle();
     }
 
@@ -1048,7 +1049,7 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
     std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
     cpu.flash(codez.begin(), codez.end());
 
-    for (int i = 0; i < 300001; i++) {
+    for (int i = 0; i < cpu.clock_speed * 3 + 1; i++) {
         cpu.cycle();
     }
 
@@ -1056,6 +1057,108 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
 }
 
 #include "units/test_m35fd.cpp"
+
+TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.A = 1;
+    cpu.C = 0xdead;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    // non-ascii
+    keyboard.press(0x11);
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x11);
+    keyboard.release(0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    // ascii
+    keyboard.press(0x21);
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x21);
+    keyboard.release(0x21);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    cpu.C = 0xdead;
+
+    // test interrupt 0
+    keyboard.press(0x11);
+    keyboard.release(0x11);
+    keyboard.press(0x31);
+    keyboard.release(0x31);
+    keyboard.press(0x13);
+    keyboard.release(0x13);
+    cpu.A = 0;
+    keyboard.interrupt();
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+}
+
+TEST_CASE("keyboard/key-pressed", "test the keyboard's ability to check if a key is pressed") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.C = 0xdead;
+
+    cpu.A = 2;
+    cpu.B = 0x11;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    keyboard.press(0x11);
+    cpu.A = 2;
+    cpu.B = 0x11;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 1);
+    keyboard.release(0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    keyboard.press(0x31);
+    cpu.A = 2;
+    cpu.B = 0x31;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 1);
+    keyboard.release(0x31);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+}
+
+TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.IA = 0x2;
+    cpu.I = 0x0;
+    std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+
+    cpu.A = 3;
+    cpu.B = 0x1;
+    keyboard.interrupt();
+
+    keyboard.press(0x11);
+    keyboard.press(0x31);
+    keyboard.release(0x11);
+    keyboard.press(0x90);
+    keyboard.release(0x90);
+    keyboard.release(0x31);
+
+    for (int i = 0; i < 50; i++) {
+        cpu.cycle();
+    }
+
+    REQUIRE(cpu.I == 0x5);
+}
 
 TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
     galaxy::saturn::dcpu cpu;
