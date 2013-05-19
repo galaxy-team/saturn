@@ -1132,8 +1132,13 @@ TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
 
+    cpu.IA = 0x2;
+    cpu.I = 0x0;
+    std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
+    cpu.flash(codez.begin(), codez.end());
+
     cpu.A = 3;
-    cpu.B = 0xdead;
+    cpu.B = 0x1;
     keyboard.interrupt();
 
     keyboard.press(0x11);
@@ -1142,11 +1147,6 @@ TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
     keyboard.press(0x90);
     keyboard.release(0x90);
     keyboard.release(0x31);
-
-    cpu.IA = 0x2;
-    cpu.I = 0x0;
-    std::vector<std::uint16_t> codez = {0x7f81, 0x0000, 0x00c2, 0x7d60, 0xdead};
-    cpu.flash(codez.begin(), codez.end());
 
     for (int i = 0; i < 100; i++) {
         cpu.cycle();
