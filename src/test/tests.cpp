@@ -3,6 +3,7 @@
 #include <libsaturn.hpp>
 #include <clock.hpp>
 #include <lem1802.hpp>
+#include <sped3.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
 #include "test_device.hpp"
@@ -1049,4 +1050,175 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
     }
 
     REQUIRE(cpu.I == 9);
+}
+
+TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_NO_DATA);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+}
+
+TEST_CASE("sped3/state_running", "the sped3 should set its state to STATE_RUNNING when it is projecting lines") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    cpu.A = 1;
+    cpu.X = 0xdead;
+    cpu.Y = 5;
+    sped.interrupt();
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_RUNNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+}
+
+TEST_CASE("sped3/model", "tests the sped3's interrupt #1 and vertices() function") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    cpu.A = 0x1;
+    cpu.X = 0x0;
+    cpu.Y = 7;
+    std::vector<std::uint16_t> codez = {0x505, 0x100, 0x8282, 0x658, 0xfafa, 0x300, 0x5fa, 0x500, 0x8282, 0x258, 0xfa05, 0x700, 0x505, 0x100};
+    cpu.flash(codez.begin(), codez.end());
+
+    sped.interrupt();
+    std::vector<galaxy::saturn::vertex> pyramid = sped.vertices();
+
+    REQUIRE(pyramid[0].x == 5);
+    REQUIRE(pyramid[0].y == 5);
+    REQUIRE(pyramid[0].z == 0);
+    REQUIRE_FALSE(pyramid[0].intense);
+    REQUIRE(pyramid[0].color == galaxy::saturn::vertex::COLOR_RED);
+
+    REQUIRE(pyramid[1].x == 130);
+    REQUIRE(pyramid[1].y == 130);
+    REQUIRE(pyramid[1].z == 88);
+    REQUIRE(pyramid[1].intense);
+    REQUIRE(pyramid[1].color == galaxy::saturn::vertex::COLOR_GREEN);
+
+    REQUIRE(pyramid[2].x == 250);
+    REQUIRE(pyramid[2].y == 250);
+    REQUIRE(pyramid[2].z == 0);
+    REQUIRE_FALSE(pyramid[2].intense);
+    REQUIRE(pyramid[2].color == galaxy::saturn::vertex::COLOR_BLUE);
+
+    REQUIRE(pyramid[3].x == 250);
+    REQUIRE(pyramid[3].y == 5);
+    REQUIRE(pyramid[3].z == 0);
+    REQUIRE(pyramid[3].intense);
+    REQUIRE(pyramid[3].color == galaxy::saturn::vertex::COLOR_RED);
+
+    REQUIRE(pyramid[4].x == 130);
+    REQUIRE(pyramid[4].y == 130);
+    REQUIRE(pyramid[4].z == 88);
+    REQUIRE_FALSE(pyramid[4].intense);
+    REQUIRE(pyramid[4].color == galaxy::saturn::vertex::COLOR_GREEN);
+
+    REQUIRE(pyramid[5].x == 5);
+    REQUIRE(pyramid[5].y == 250);
+    REQUIRE(pyramid[5].z == 0);
+    REQUIRE(pyramid[5].intense);
+    REQUIRE(pyramid[5].color == galaxy::saturn::vertex::COLOR_BLUE);
+
+    REQUIRE(pyramid[6].x == 5);
+    REQUIRE(pyramid[6].y == 5);
+    REQUIRE(pyramid[6].z == 0);
+    REQUIRE_FALSE(pyramid[6].intense);
+    REQUIRE(pyramid[6].color == galaxy::saturn::vertex::COLOR_RED);
+}
+
+TEST_CASE("sped3/state_turning", "the sped3 should set its state to STATE_TURNING when it is rotating") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    cpu.A = 2;
+    cpu.X = 200;
+    sped.interrupt();
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_TURNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    for (int i = 0; i < cpu.clock_speed * 4; i++) {
+        sped.cycle();
+    }
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_NO_DATA);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    cpu.A = 1;
+    cpu.Y = 10;
+    sped.interrupt();
+
+    cpu.A = 2;
+    cpu.X = 0;
+    sped.interrupt();
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_TURNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+
+    for (int i = 0; i < cpu.clock_speed * 4; i++) {
+        sped.cycle();
+    }
+
+    cpu.A = 0;
+    sped.interrupt();
+
+    REQUIRE(cpu.B == galaxy::saturn::sped3::STATE_RUNNING);
+    REQUIRE(cpu.C == galaxy::saturn::sped3::ERROR_NONE);
+}
+
+TEST_CASE("sped3/rotation", "tests the sped3's rotation") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
+
+    REQUIRE(sped.rotation() == 0);
+
+    cpu.A = 2;
+    cpu.X = 100;
+    sped.interrupt();
+
+    REQUIRE(sped.rotation() == 0);
+
+    for (int i = 0; i < cpu.clock_speed; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(sped.rotation() == sped.ROTATION_SPEED);
+
+    cpu.A = 2;
+    cpu.X = 320;
+    sped.interrupt();
+
+    for (int i = 0; i < cpu.clock_speed; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(sped.rotation() == 0);
+
+    cpu.A = 2;
+    cpu.X = 800;
+    sped.interrupt();
+
+    for (int i = 0; i < cpu.clock_speed * 9; i++) {
+        sped.cycle();
+    }
+
+    REQUIRE(sped.rotation() == 80);
 }
