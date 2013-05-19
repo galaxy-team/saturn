@@ -1058,6 +1058,7 @@ TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
     galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
 
     cpu.A = 1;
+    cpu.C = 0xdead;
     keyboard.interrupt();
     REQUIRE(cpu.C == 0);
 
@@ -1081,6 +1082,8 @@ TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
     keyboard.interrupt();
     REQUIRE(cpu.C == 0);
 
+    cpu.C = 0xdead;
+
     // test interrupt 0
     keyboard.press(0x11);
     keyboard.release(0x11);
@@ -1091,6 +1094,36 @@ TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
     cpu.A = 0;
     keyboard.interrupt();
     cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+}
+
+TEST_CASE("keyboard/key-pressed", "test the keyboard's ability to check if a key is pressed") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.C = 0xdead;
+
+    cpu.A = 2;
+    cpu.B = 0x11;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    keyboard.press(0x11);
+    cpu.A = 2;
+    cpu.B = 0x11;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 1);
+    keyboard.release(0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    keyboard.press(0x31);
+    cpu.A = 2;
+    cpu.B = 0x31;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 1);
+    keyboard.release(0x31);
     keyboard.interrupt();
     REQUIRE(cpu.C == 0);
 }
