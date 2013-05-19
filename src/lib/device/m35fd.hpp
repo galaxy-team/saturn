@@ -72,6 +72,7 @@ namespace galaxy {
             const static int SECTORS_PER_TRACK = 18;
 
             int get_track_seek_time(int current_track, int sector);
+            std::array<uint16_t, BLOCK_SIZE> get_block_image();
 
         public:
             /// initialize the device to values specified by the spec
@@ -88,7 +89,6 @@ namespace galaxy {
             virtual void cycle();
 
             // storage functions for block_device
-            std::array<uint16_t, BLOCK_SIZE> get_block_image();
 //            virtual void write_out_image(std::array<uint16_t, BLOCK_SIZE> image);
  //           virtual void read_in_image(char* file_data_array, int image_filesize);
         };
