@@ -3,6 +3,7 @@
 #include <libsaturn.hpp>
 #include <clock.hpp>
 #include <lem1802.hpp>
+#include <keyboard.hpp>
 #include <sped3.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
@@ -1050,6 +1051,48 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
     }
 
     REQUIRE(cpu.I == 9);
+}
+
+TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::keyboard& keyboard = static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard()));
+
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    // non-ascii
+    keyboard.press(0x11);
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x11);
+    keyboard.release(0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x11);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    // ascii
+    keyboard.press(0x21);
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0x21);
+    keyboard.release(0x21);
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
+
+    // test interrupt 0
+    keyboard.press(0x11);
+    keyboard.release(0x11);
+    keyboard.press(0x31);
+    keyboard.release(0x31);
+    keyboard.press(0x13);
+    keyboard.release(0x13);
+    cpu.A = 0;
+    keyboard.interrupt();
+    cpu.A = 1;
+    keyboard.interrupt();
+    REQUIRE(cpu.C == 0);
 }
 
 TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
