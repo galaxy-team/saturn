@@ -1155,7 +1155,7 @@ TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
     REQUIRE(cpu.I == 0x5);
 }
 
-TEST_CASE("lem1802/mem_map_screen", "tests lem1802's interrupt 0") {
+TEST_CASE("lem1802/activation", "tests the lem1802's activation") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
 
