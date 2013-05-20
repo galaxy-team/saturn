@@ -114,6 +114,7 @@ namespace galaxy {
                         const char* what() throw();
                     };
             };
+            const std::vector<std::unique_ptr<galaxy::saturn::device>> &get_devices() const;
         };
     }
 }
