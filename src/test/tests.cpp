@@ -1183,6 +1183,27 @@ TEST_CASE("lem1802/activation", "tests the lem1802's activation") {
     REQUIRE_FALSE(lem1802.activated());
 }
 
+TEST_CASE("lem1802/set-border-color", "tests the lem1802's SET_BORDER_COLOR interrupt") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
+
+    galaxy::saturn::pixel b = lem1802.border();
+
+    REQUIRE(b.r == 0);
+    REQUIRE(b.g == 0);
+    REQUIRE(b.b == 0);
+
+    cpu.A = 3;
+    cpu.B = 6;
+    lem1802.interrupt();
+
+    b = lem1802.border();
+
+    REQUIRE(b.r == 170);
+    REQUIRE(b.g == 85);
+    REQUIRE(b.b == 0);
+}
+
 TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
