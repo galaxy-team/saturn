@@ -1155,6 +1155,34 @@ TEST_CASE("keyboard/interrupts", "test the keyboard's event interrupts") {
     REQUIRE(cpu.I == 0x5);
 }
 
+TEST_CASE("lem1802/mem_map_screen", "tests lem1802's interrupt 0") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
+
+    REQUIRE_FALSE(lem1802.activated());
+
+    cpu.A = 0;
+    cpu.B = 0xdead;
+    lem1802.interrupt();
+
+    REQUIRE_FALSE(lem1802.activated());
+
+    for (int i = 0; i < cpu.clock_speed; i++) {
+        lem1802.cycle();
+    }
+
+    REQUIRE_FALSE(lem1802.activated());
+
+    lem1802.cycle();
+    REQUIRE(lem1802.activated());
+
+    cpu.A = 0;
+    cpu.B = 0;
+    lem1802.interrupt();
+
+    REQUIRE_FALSE(lem1802.activated());
+}
+
 TEST_CASE("sped3/initialize", "the sped3 should initialize in STATE_NO_DATA and with ERROR_NONE") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::sped3& sped = static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()));
