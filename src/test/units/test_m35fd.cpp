@@ -24,13 +24,13 @@ TEST_CASE("hardware/m35fd/write_to_image", "test the write to disk mechanism; ba
 TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk through assembly :D") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
-    /*
+ 
     std::vector<std::uint16_t> codez;
     for (int i=0; i<512; i++) {
         codez.push_back(i);
     }
     cpu.flash(codez.begin(), codez.end());
-*/
+    // TODO: check
 }
 
 TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk through assembly :P") { 
@@ -49,6 +49,15 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     cpu.X = 0; // sector 0
     cpu.Y = 0;
     m35fd.interrupt();
+
+    bool good = true;
+    for (int i=0; i<512; i++) {
+        REQUIRE(cpu.ram[i] == i);
+        //if (!cpu.ram[i] != i) {
+          //  good = false;
+        //}
+    }
+//    REQUIRE(good);
 }
 
 TEST_CASE("hardware/m35fd/test_default_state", "tests the default state of the floppy") {
