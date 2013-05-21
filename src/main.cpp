@@ -151,12 +151,16 @@ int main(int argc, char** argv)
              return -1;
         }
         disk_image.close();
-        m35fd_ref.current_state = m35fd_ref.STATE_READY;
-        m35fd_ref.is_read_only = false;
 
         // if the file is read only, mark the floppy as such.
         // TODO: determine if this should be configurable via some other method
         m35fd_ref.is_read_only = galaxy::saturn::utilities::is_read_only(cur_disk_image_filename);
+
+        if (m35fd.is_read_only) {
+            m35fd_ref.current_state = m35fd_ref.STATE_READY_WP;
+        } else {
+            m35fd_ref.current_state = m35fd_ref.STATE_READY;
+        }
     }
 
     // create the LEM1802 windows
