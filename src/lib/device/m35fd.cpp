@@ -51,7 +51,6 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 1:
             DEBUG("Setting interrupt message to; 0x" << std::hex << cpu->X);
-            // this will work, right?
             // set interupt message to X
             interrupt_message = cpu->X;
             break;
@@ -150,15 +149,13 @@ void galaxy::saturn::m35fd::cycle() {
 
 int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
     int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
+
+    // ensure it aint negitive; better way to do this?
     if (!tracks_seeked >= 0) {
 	tracks_seeked = 0 - tracks_seeked;
     }
+
     int track_seek_time = tracks_seeked * 2.4;
     return track_seek_time;
 }
 
-/*
-std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> galaxy::saturn::m35fd::get_block_image() {
-    return block_image;
-}
-*/

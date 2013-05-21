@@ -36,8 +36,25 @@ namespace galaxy {
          */
         class m35fd : public device, public block_device<737280> {
                                                       /* ^ this number is the BLOCK_SIZE */
-//        protected:
-          public:
+        protected:
+
+            int interrupt_message;
+
+            // we had to record the track so we can implement the track seek delay
+            int current_track = 0;
+            int last_error_since_poll = ERROR_NONE;
+
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
+
+            const static int TRACKS = 80;
+            const static int SECTORS_PER_TRACK = 18;
+
+            int get_track_seek_time(int current_track, int sector);
+
+        public:
+            /// initialize the device to values specified by the spec
+            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
             // TODO make these enum class'
             enum fd_states {
@@ -58,24 +75,7 @@ namespace galaxy {
                                             // try turning off and turning the device on again.
             };
 
-            int last_error_since_poll = ERROR_NONE;
             int current_state;
-            int interrupt_message;
-
-            // we had to record the track so we can implement the track seek delay
-            int current_track = 0;
-
-            const static int SECTOR_SIZE = 512;
-            const static int SECTOR_NUM = 1440;
-
-            const static int TRACKS = 80;
-            const static int SECTORS_PER_TRACK = 18;
-
-            int get_track_seek_time(int current_track, int sector);
-
-        public:
-            /// initialize the device to values specified by the spec
-            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
 
             bool disk_loaded = false;

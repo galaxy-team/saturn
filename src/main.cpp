@@ -222,11 +222,5 @@ int main(int argc, char** argv)
 
     }
 
-/*    std::cout << std::endl << std::endl;
-    for (int i=0; i<20; i++) {
-        std::cout << " 0x" << std::hex << m35fd_ref->block_image[i];
-    }
-    std::cout << std::endl;
-*/
     return 0;
 }
