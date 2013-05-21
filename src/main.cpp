@@ -156,7 +156,7 @@ int main(int argc, char** argv)
         // TODO: determine if this should be configurable via some other method
         m35fd_ref.is_read_only = galaxy::saturn::utilities::is_read_only(cur_disk_image_filename);
 
-        if (m35fd.is_read_only) {
+        if (m35fd_ref.is_read_only) {
             m35fd_ref.current_state = m35fd_ref.STATE_READY_WP;
         } else {
             m35fd_ref.current_state = m35fd_ref.STATE_READY;
