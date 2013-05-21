@@ -155,7 +155,7 @@ int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
 	tracks_seeked = 0 - tracks_seeked;
     }
 
-    int track_seek_time = tracks_seeked * 2.4;
+    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED;
     return track_seek_time;
 }
 

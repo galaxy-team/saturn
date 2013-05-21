@@ -19,5 +19,4 @@ template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::write_out
 }
 */
 
-
 #endif

@@ -37,10 +37,9 @@ namespace galaxy {
         class m35fd : public device, public block_device<737280> {
                                                       /* ^ this number is the BLOCK_SIZE */
         protected:
-
             int interrupt_message;
 
-            // we had to record the track so we can implement the track seek delay
+            // we have to record the track so we can implement the track seek delay
             int current_track;
             int last_error_since_poll;
 
@@ -49,6 +48,7 @@ namespace galaxy {
 
             const static int TRACKS = 80;
             const static int SECTORS_PER_TRACK = 18;
+            constexpr const static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
             int get_track_seek_time(int current_track, int sector);
 

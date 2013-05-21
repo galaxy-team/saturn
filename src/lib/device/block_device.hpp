@@ -23,6 +23,7 @@ namespace galaxy {
 //            void read_in_image(char* file_data_array, int image_filesize);
 
             void read_in_image(char* file_data_array, int image_filesize) {
+                // TODO: write a test for this :D (because i dont think it works)
                 // BLOCK_SIZE is defined in block_device.hpp
                 std::array<std::uint16_t, BLOCK_SIZE> block_image = get_block_image();
                 for (int i = 0; i < (image_filesize / 2) && i < BLOCK_SIZE; i++) {
@@ -30,7 +31,9 @@ namespace galaxy {
                     block_image[i] ^= file_data_array[i * 2 + 1] & 0xff;
                 }
             }
-            void write_out_image(std::array<uint16_t, BLOCK_SIZE> image) {};
+            void write_out_image(std::array<uint16_t, BLOCK_SIZE> image) {
+            // TODO: implement this :P
+            };
         };
     }
 }
