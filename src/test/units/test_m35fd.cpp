@@ -42,7 +42,7 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
 
     bool data_correct = true;
     for (int i=0; i<512; i++) {
-        if (m35fd[i] != i) {
+        if (m35fd.block_image[i] != i) {
             data_correct = false;
         }
     }
@@ -79,13 +79,13 @@ TEST_CASE("hardware/m35fd/test_default_state", "tests the default state of the f
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    bool good = true;
+    bool correct_values = true;
     for (int i=0; i < m35fd.BLOCK_SIZE; i++) {
-        if (!m35fd.block_image[i] == 0x0) {
-            good = false;
+        if (m35fd.block_image[i] != 0x0) {
+            correct_values = false;
         }
     }
-    REQUIRE(good);
+    REQUIRE(correct_values);
 }
 
 #endif
