@@ -18,4 +18,6 @@ template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::read_in_i
 template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::write_out_image(std::array<uint16_t, BLOCK_SIZE> image) {
 }
 */
+
+
 #endif

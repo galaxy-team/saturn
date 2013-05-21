@@ -37,7 +37,7 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-	    DEBUG("Poll device; " << last_error_since_poll << ", current_state; " << current_state);
+	    DEBUG("Last error since poll; " << last_error_since_poll << ", current_state; " << current_state);
 	    cpu->C = last_error_since_poll;
 	    cpu->B = current_state;
 	    break;
@@ -50,7 +50,7 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-            DEBUG("Setting interrupt message to; " << cpu->X);
+            DEBUG("Setting interrupt message to; 0x" << std::hex << cpu->X);
             // this will work, right?
             // set interupt message to X
             interrupt_message = cpu->X;
@@ -157,8 +157,8 @@ int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
     return track_seek_time;
 }
 
-
+/*
 std::array<uint16_t, galaxy::saturn::m35fd::BLOCK_SIZE> galaxy::saturn::m35fd::get_block_image() {
     return block_image;
 }
-
+*/

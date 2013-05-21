@@ -72,13 +72,12 @@ namespace galaxy {
             const static int SECTORS_PER_TRACK = 18;
 
             int get_track_seek_time(int current_track, int sector);
-            std::array<uint16_t, BLOCK_SIZE> get_block_image();
 
         public:
             /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
-            std::array<std::uint16_t, BLOCK_SIZE> block_image;
+
             bool disk_loaded = false;
             bool is_read_only = false;
 
@@ -92,5 +91,6 @@ namespace galaxy {
         };
     }
 }
+
 
 #endif
