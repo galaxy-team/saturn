@@ -14,8 +14,8 @@ template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::read_in_i
         block_image[i] ^= file_data_array[i * 2 + 1] & 0xff;
     }
 }
+/
+template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::write_out_image(std::array<uint16_t, BLOCK_SIZE> image) {
+}
 */
-/*template <int BlockSize> void galaxy::saturn::block_device<BlockSize>::write_out_image(std::array<uint16_t, BLOCK_SIZE> image) {
-}*/
-
 #endif
