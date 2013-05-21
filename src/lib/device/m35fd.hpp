@@ -41,8 +41,8 @@ namespace galaxy {
             int interrupt_message;
 
             // we had to record the track so we can implement the track seek delay
-            int current_track = 0;
-            int last_error_since_poll = ERROR_NONE;
+            int current_track;
+            int last_error_since_poll;
 
             const static int SECTOR_SIZE = 512;
             const static int SECTOR_NUM = 1440;
@@ -54,7 +54,9 @@ namespace galaxy {
 
         public:
             /// initialize the device to values specified by the spec
-            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
+            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
+                      current_track(0), last_error_since_poll(ERROR_NONE), disk_loaded(false),
+                      is_read_only(false) {}
 
             // TODO make these enum class'
             enum fd_states {
@@ -71,23 +73,18 @@ namespace galaxy {
                 ERROR_PROTECTED   = 0x0003, // Attempted to write to write protected floppy.
                 ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
                 ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
-                ERROR_BROKEN      = 0xfffff // There's some major software or hardware problem,
+                ERROR_BROKEN      = 0xffff  // There's some major software or hardware problem,
                                             // try turning off and turning the device on again.
             };
 
             int current_state;
 
-
-            bool disk_loaded = false;
-            bool is_read_only = false;
+            bool disk_loaded;
+            bool is_read_only;
 
             // cpu interaction
             virtual void interrupt();
             virtual void cycle();
-
-            // storage functions for block_device
-//            virtual void write_out_image(std::array<uint16_t, BLOCK_SIZE> image);
- //           virtual void read_in_image(char* file_data_array, int image_filesize);
         };
     }
 }
