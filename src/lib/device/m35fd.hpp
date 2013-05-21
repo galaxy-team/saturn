@@ -78,8 +78,6 @@ namespace galaxy {
             /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
 
-
-            const static int BLOCK_SIZE = 737280;
             std::array<std::uint16_t, BLOCK_SIZE> block_image;
             bool disk_loaded = false;
             bool is_read_only = false;
