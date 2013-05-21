@@ -66,20 +66,20 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 2:
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
-                DEBUG("Reading")
+//                DEBUG("Reading")
                 int sector = cpu->X;
                 int read_to = cpu->Y;
 
                 if (!(0 <= sector && sector <= SECTOR_NUM)) {
                     // ensure the user is not trying to read from outside the floppy disk image
                     cpu->B = 0;
-                    DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
+  //                  DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
                 } else if (!(0 <= read_to && read_to <= cpu->RAM_SIZE)) {
                     // ensure the user is not trying to read from outside the ram
                     cpu->B = 0;
                 } else {
                     // if everything seems to be in order...
-                    DEBUG("Everything seems to be in order");
+    //                DEBUG("Everything seems to be in order");
                     int track_seek_time = get_track_seek_time(current_track, sector);
                     int read_from = sector * SECTOR_SIZE;
 
@@ -111,7 +111,6 @@ void galaxy::saturn::m35fd::interrupt()
                     // the drive is set to be read only, error out
                     last_error_since_poll = ERROR_PROTECTED;
                     cpu->B = 0;
-                    DEBUG("Drive is read only");
                 } else {
                     int sector = cpu->X;
                     int read_from = cpu->Y;
@@ -124,14 +123,14 @@ void galaxy::saturn::m35fd::interrupt()
                         cpu->B = 0;
                     } else {
                         // if everything seems to be in order...
-                        DEBUG("Everything seems to be in order...");
+//                        DEBUG("Everything seems to be in order...");
                         int read_to = sector * SECTOR_SIZE;
 		        int track_seek_time = get_track_seek_time(current_track, sector);
 
                         for (int i=0; i < SECTOR_SIZE; i++){
-                                DEBUG(
+                /*                DEBUG(
                                     "Writing 0x" << std::hex << cpu->ram[read_from + i] << " from 0x" << std::hex << read_from + i <<
-                                    " to 0x" << std::hex << (read_to + i));
+                                    " to 0x" << std::hex << (read_to + i));*/
                             block_image[read_to + i] = cpu->ram[read_from + i];
                         }
                         cpu->B = 1;

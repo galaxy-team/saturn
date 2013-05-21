@@ -24,13 +24,29 @@ TEST_CASE("hardware/m35fd/write_to_image", "test the write to disk mechanism; ba
 TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk through assembly :D") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
+    m35fd.current_state = 0x1; // set state to STATE_READY
  
     std::vector<std::uint16_t> codez;
     for (int i=0; i<512; i++) {
         codez.push_back(i);
     }
     cpu.flash(codez.begin(), codez.end());
-    // TODO: check
+
+    // Tell the cpu to write a sector worth of memory from ram at Y to sector X
+    cpu.A = 3; // Read sector
+    cpu.X = 0; // sector to write to
+    cpu.Y = 0; // RAM position to read from
+    m35fd.interrupt();
+
+    REQUIRE_FALSE(cpu.B == 0);
+
+    bool data_correct = true;
+    for (int i=0; i<512; i++) {
+        if (m35fd[i] != i) {
+            data_correct = false;
+        }
+    }
+    REQUIRE(data_correct);
 }
 
 TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk through assembly :P") { 
@@ -43,12 +59,12 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     m35fd.current_state = 0x1; // set state to STATE_READY
 
     // Tell the floppy to read a sector from X to ram at Y
-    cpu.A = 2;
-    cpu.X = 0; // sector 0
+    cpu.A = 2; // Read sector
+    cpu.X = 0; // sector to read from
     cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
 
-    cpu.ram[0x1] = 0x1;
+    REQUIRE_FALSE(cpu.B == 0);
 
     bool data_correct = true;
     for (int i=0; i<512; i++) {
@@ -57,7 +73,6 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
         }
     }
     REQUIRE(data_correct);
-    REQUIRE_FALSE(cpu.B == 0);
 }
 
 TEST_CASE("hardware/m35fd/test_default_state", "tests the default state of the floppy") {
