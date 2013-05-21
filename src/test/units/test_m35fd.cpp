@@ -37,27 +37,27 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    char * buffer = new char[512];
-    for (int i=0; i<512; i++) {
-        buffer[i] = i;
+    for (int i = 0; i < 512 && i < m35fd.BLOCK_SIZE; i++) {
+        m35fd.block_image[i] = i;
     }
-    m35fd.read_in_image(buffer, 512);
     m35fd.current_state = 0x1; // set state to STATE_READY
 
     // Tell the floppy to read a sector from X to ram at Y
     cpu.A = 2;
     cpu.X = 0; // sector 0
-    cpu.Y = 0;
+    cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
 
-    bool good = true;
+    cpu.ram[0x1] = 0x1;
+
+    bool data_correct = true;
     for (int i=0; i<512; i++) {
-        REQUIRE(cpu.ram[i] == i);
-        //if (!cpu.ram[i] != i) {
-          //  good = false;
-        //}
+        if (cpu.ram[i] != i) {
+            data_correct = false;
+        }
     }
-//    REQUIRE(good);
+    REQUIRE(data_correct);
+    REQUIRE_FALSE(cpu.B == 0);
 }
 
 TEST_CASE("hardware/m35fd/test_default_state", "tests the default state of the floppy") {

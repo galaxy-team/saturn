@@ -24,13 +24,12 @@ file named "LICENSE-LGPL.txt".
 #include <device.hpp>
 #include <m35fd.hpp>
 
-#define DEBUG(code) if (debug) {code}
+#define DEBUG(code) if (debug) {std::cout << code << std::endl;}
 
 
 void galaxy::saturn::m35fd::interrupt()
 {
     bool debug = true;
-    //DEBUG(std::cout << "A; 0x" << std::hex << cpu->A << ", B; 0x" << std::hex << cpu->B << std::endl;)
     switch(cpu->A) {
         /**
          * Poll device;
@@ -38,7 +37,7 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-	    DEBUG(std::cout << "Poll device; " << last_error_since_poll << ", current_state; " << current_state << std::endl;)
+	    DEBUG("Poll device; " << last_error_since_poll << ", current_state; " << current_state);
 	    cpu->C = last_error_since_poll;
 	    cpu->B = current_state;
 	    break;
@@ -51,7 +50,7 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-            DEBUG(std::cout << "Setting interrupt message to; " << cpu->X << std::endl;)
+            DEBUG("Setting interrupt message to; " << cpu->X);
             // this will work, right?
             // set interupt message to X
             interrupt_message = cpu->X;
@@ -67,31 +66,36 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 2:
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
-                DEBUG(std::cout << "Reading" << std::endl;)
+                DEBUG("Reading")
                 int sector = cpu->X;
                 int read_to = cpu->Y;
 
-                if (0 <= sector && sector <= SECTOR_NUM) {
+                if (!(0 <= sector && sector <= SECTOR_NUM)) {
                     // ensure the user is not trying to read from outside the floppy disk image
                     cpu->B = 0;
-                } else if (0 <= read_to && read_to <= cpu->RAM_SIZE) {
+                    DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
+                } else if (!(0 <= read_to && read_to <= cpu->RAM_SIZE)) {
                     // ensure the user is not trying to read from outside the ram
                     cpu->B = 0;
                 } else {
                     // if everything seems to be in order...
-                    DEBUG(std::cout << "Everything seems to be in order" << std::endl;)
+                    DEBUG("Everything seems to be in order");
                     int track_seek_time = get_track_seek_time(current_track, sector);
                     int read_from = sector * SECTOR_SIZE;
 
                     for (int i=0; i < SECTOR_SIZE; i++){
+/*                        DEBUG(
+                            "Writing value " << block_image[read_from + i] <<
+                            " from position 0x" << std::hex << read_from + i <<
+                            " to position 0x" << std::hex << read_to + i);*/
                         cpu->ram[read_to + i] = block_image[read_from + i];
                     }
                     cpu->B = 1;
                 }
             } else {
-                DEBUG(std::cout << "Reading failed" << std::endl;)
                 cpu->B = 0;
             }
+            if (cpu->B == 0) DEBUG("Reading failed");
             break;
 
         /**
@@ -107,7 +111,7 @@ void galaxy::saturn::m35fd::interrupt()
                     // the drive is set to be read only, error out
                     last_error_since_poll = ERROR_PROTECTED;
                     cpu->B = 0;
-                    DEBUG(std::cout << "Drive is read only" << std::endl;)
+                    DEBUG("Drive is read only");
                 } else {
                     int sector = cpu->X;
                     int read_from = cpu->Y;
@@ -120,14 +124,14 @@ void galaxy::saturn::m35fd::interrupt()
                         cpu->B = 0;
                     } else {
                         // if everything seems to be in order...
-                        DEBUG(std::cout << "Everything seems to be in order..." << std::endl;)
+                        DEBUG("Everything seems to be in order...");
                         int read_to = sector * SECTOR_SIZE;
 		        int track_seek_time = get_track_seek_time(current_track, sector);
 
                         for (int i=0; i < SECTOR_SIZE; i++){
                                 DEBUG(
-                                    std::cout << "Writing 0x" << std::hex << cpu->ram[read_from + i] << " from 0x" << std::hex << read_from + i <<
-                                    " to 0x" << std::hex << (read_to + i) << std::endl;)
+                                    "Writing 0x" << std::hex << cpu->ram[read_from + i] << " from 0x" << std::hex << read_from + i <<
+                                    " to 0x" << std::hex << (read_to + i));
                             block_image[read_to + i] = cpu->ram[read_from + i];
                         }
                         cpu->B = 1;
@@ -136,7 +140,7 @@ void galaxy::saturn::m35fd::interrupt()
             } else {
                 cpu->B = 0;
             }
-            if (cpu->B == 0) DEBUG(std::cout << "Writing failed" << std::endl;) 
+            if (cpu->B == 0) DEBUG("Writing failed") 
             break;
     }
 }
