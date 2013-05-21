@@ -28,7 +28,7 @@ file named "LICENSE.txt".
 #include <m35fd.hpp>
 #include <invalid_opcode.hpp>
 #include <queue_overflow.hpp>
-//#include <utilities.hpp>
+#include <utilities.hpp>
 
 /* implementation specific */
 #include "LEM1802Window.hpp"
@@ -153,13 +153,10 @@ int main(int argc, char** argv)
         disk_image.close();
         m35fd_ref.current_state = m35fd_ref.STATE_READY;
         m35fd_ref.is_read_only = false;
+
         // if the file is read only, mark the floppy as such.
         // TODO: determine if this should be configurable via some other method
-/*        if (file_utils.is_read_only(cur_disk_image_filename)) {
-            m35fd_ref.is_read_only = true;
-        } else {
-            m35fd_ref.is_read_only = false;
-        }*/
+        m35fd_ref.is_read_only = galaxy::saturn::utilities::is_read_only(cur_disk_image_filename);
     }
 
     // create the LEM1802 windows

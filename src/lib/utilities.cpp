@@ -3,28 +3,14 @@
 #include <array>
 #include <utilities.hpp>
 #include <fstream>
+#include <unistd.h>
 
 #ifndef __UTILITIES_CPP
 #define __UTILITIES_CPP
 
 bool galaxy::saturn::utilities::is_read_only(std::string filename){
-	std::ifstream file_obj_in;
-	file_obj_in.open(filename, std::ios::in);
-
-	if (!file_obj_in.is_open()) {
-	   return false;
-	}
-
-	file_obj_in.close();
-
-	std::ofstream file_obj_out;
-	file_obj_out.open(filename);
-
-	if (!file_obj_in.is_open()) {
-	    return true;
-	} else {
-	    return false;
-	}
+    char const* r_name = filename.c_str();
+    return access(r_name, W_OK);
 }
 
 std::vector<std::uint16_t> galaxy::saturn::utilities::string_to_vector(char * string) {
