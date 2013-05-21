@@ -91,6 +91,15 @@ namespace galaxy {
             /// returns true if the monitor is on
             bool activated();
 
+            /**
+             * the next three functions are mainly for tests
+             * if there aren't any other purposes for them,
+             * perhaps they should be removed
+             */
+            std::uint16_t video_map_address();
+            std::uint16_t font_map_address();
+            std::uint16_t palette_map_address();
+
             static const unsigned int cell_width = 4;
             static const unsigned int cell_height = 8;
 

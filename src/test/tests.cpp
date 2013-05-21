@@ -1183,7 +1183,20 @@ TEST_CASE("lem1802/activation", "tests the lem1802's activation") {
     REQUIRE_FALSE(lem1802.activated());
 }
 
-TEST_CASE("lem1802/set-border-color", "tests the lem1802's SET_BORDER_COLOR interrupt") {
+TEST_CASE("lem1802/mem_map_screen", "tests the lem1802's MEM_MAP_SCREEN interrupt") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
+
+    REQUIRE(lem1802.video_map_address() == 0);
+
+    cpu.A = 0;
+    cpu.B = 0x8000;
+    lem1802.interrupt();
+
+    REQUIRE(lem1802.video_map_address() == 0x8000);
+}
+
+TEST_CASE("lem1802/set_border_color", "tests the lem1802's SET_BORDER_COLOR interrupt") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
 
@@ -1204,7 +1217,7 @@ TEST_CASE("lem1802/set-border-color", "tests the lem1802's SET_BORDER_COLOR inte
     REQUIRE(b.b == 0);
 }
 
-TEST_CASE("lem1802/mem-dump-font", "tests the lem1802's MEM_DUMP_FONT interrupt") {
+TEST_CASE("lem1802/mem_dump_font", "tests the lem1802's MEM_DUMP_FONT interrupt") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
 
@@ -1246,7 +1259,7 @@ TEST_CASE("lem1802/mem-dump-font", "tests the lem1802's MEM_DUMP_FONT interrupt"
     REQUIRE(identical);
 }
 
-TEST_CASE("lem1802/mem-dump-palette", "tests the lem1802's MEM_DUMP_PALETTE interrupt") {
+TEST_CASE("lem1802/mem_dump_palette", "tests the lem1802's MEM_DUMP_PALETTE interrupt") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::lem1802& lem1802 = static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()));
 

@@ -153,6 +153,21 @@ bool galaxy::saturn::lem1802::activated()
     return state == ACTIVATED;
 }
 
+std::uint16_t galaxy::saturn::lem1802::video_map_address()
+{
+    return vram_pointer;
+}
+
+std::uint16_t galaxy::saturn::lem1802::font_map_address()
+{
+    return fram_pointer;
+}
+
+std::uint16_t galaxy::saturn::lem1802::palette_map_address()
+{
+    return pram_pointer;
+}
+
 std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, galaxy::saturn::lem1802::height> galaxy::saturn::lem1802::image()
 {
     std::array<std::array<galaxy::saturn::pixel, galaxy::saturn::lem1802::width>, galaxy::saturn::lem1802::height> image;
