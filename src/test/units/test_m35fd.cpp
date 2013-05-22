@@ -12,14 +12,29 @@ TEST_CASE("hardware/m35fd/read_in_image", "test the write to disk mechanism; bas
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    char* buffer = new char[5];
-    for (int i=0; i<5; i++){
-        buffer[i] = "hello"[i];
+    const static int CONTENT_LENGTH = 5;
+    char* buffer = new char[CONTENT_LENGTH];
+    for (int i=0; i<CONTENT_LENGTH; i++){
+        buffer[i] = i;
     }
     CAPTURE(buffer);
-    m35fd.read_in_image(buffer, 5);
-//    REQUIRE(std::strcmp(m35fd.block_image[0], "h"))
+    m35fd.read_in_image(buffer, CONTENT_LENGTH);
+    // TODO: ensure the block_image attribute contains the correct content-ish (@ThatOtherPerson this will eseentially be doing what the function read_in_image does anyway... is it worth checking the contents?) 
 }
+
+
+TEST_CASE("hardware/m35fd/write_out_image", "test the read from disk mechanism; basically just loading the contents of the disk into a buffer") {
+    galaxy::saturn::dcpu cpu;
+    galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
+
+    char* buffer = new char[5];
+    for (int i=0; i<5; i++){
+        buffer[i] = i;
+    }
+    m35fd.read_in_image(buffer, 5);
+    // TODO: see previous test TODO
+}
+
 
 TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk through assembly :D") {
     galaxy::saturn::dcpu cpu;
