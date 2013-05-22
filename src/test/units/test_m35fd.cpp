@@ -8,7 +8,7 @@ TEST_CASE("hardware/m35fd/initialisation", "test m35fd initailisation") {
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 }
 
-TEST_CASE("hardware/m35fd/write_to_image", "test the write to disk mechanism; basically just flashing the disk with info!") {
+TEST_CASE("hardware/m35fd/read_in_image", "test the write to disk mechanism; basically just flashing the disk with info!") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 

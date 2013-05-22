@@ -48,7 +48,7 @@ namespace galaxy {
 
             const static int TRACKS = 80;
             const static int SECTORS_PER_TRACK = 18;
-            constexpr const static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
+            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
             int get_track_seek_time(int current_track, int sector);
 
