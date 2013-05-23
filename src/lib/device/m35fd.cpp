@@ -82,13 +82,14 @@ void galaxy::saturn::m35fd::interrupt()
                     int track_seek_time = get_track_seek_time(current_track, sector);
                     int read_from = sector * SECTOR_SIZE;
 
-                    for (int i=0; i < SECTOR_SIZE; i++){
-/*                        DEBUG(
+/*                    for (int i=0; i < SECTOR_SIZE; i++){
+*                        DEBUG(
                             "Writing value " << block_image[read_from + i] <<
                             " from position 0x" << std::hex << read_from + i <<
-                            " to position 0x" << std::hex << read_to + i);*/
+                            " to position 0x" << std::hex << read_to + i);*
                         cpu->ram[read_to + i] = block_image[read_from + i];
-                    }
+                    }*/
+                    assert(false);
                     cpu->B = 1;
                 }
             } else {
@@ -148,14 +149,32 @@ void galaxy::saturn::m35fd::cycle() {
 
 
 int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
-    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
+    int tracks_seeked = (current_track / disk.SECTORS_PER_TRACK) - (sector / disk.SECTORS_PER_TRACK);
 
     // ensure it aint negitive; better way to do this?
     if (!tracks_seeked >= 0) {
 	tracks_seeked = 0 - tracks_seeked;
     }
 
-    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED;
+    int track_seek_time = tracks_seeked * disk.MILLISECONDS_PER_TRACK_SEEKED;
     return track_seek_time;
+}
+
+std::array<std::uint16_t, 512> galaxy::saturn::m35fd_disk::read_sector(std::uint16_t sector) {
+    int read_from = sector * SECTOR_SIZE;
+
+    std::array<std::uint16_t, 512> sector_actual;
+    for (int i=0; i < SECTOR_SIZE; i++){
+        sector_actual[read_to + i] = disk_actual[read_from + i];
+    }
+    return *sector_actual;
+}
+
+void galaxy::saturn::m35fd_disk::write_sector(std::uint16_t sector, std::array<std::uint16_t, 512> sector_actual) {
+    int read_to = sector * SECTOR_SIZE;
+
+    for (int i=0; i < SECTOR_SIZE; i++){
+        disk_actual[read_to + i] = sector_actual[i];
+    }
 }
 

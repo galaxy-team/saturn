@@ -23,7 +23,7 @@ file named "LICENSE-LGPL.txt".
 #ifndef DISK_HPP
 #define DISK_HPP
 
-#include <libsaturn.hpp
+#include <libsaturn.hpp>
 #include <cstdint>
 
 namespace galaxy {

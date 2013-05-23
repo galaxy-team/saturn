@@ -25,30 +25,23 @@ file named "LICENSE-LGPL.txt".
 
 #include <libsaturn.hpp>
 #include <device.hpp>
-#include <block_device.hpp>
+#include <disk.hpp>
 
 #include <cstdint>
+#include <iostream>
 
 namespace galaxy {
     namespace saturn {
         /**
          * represents a m35fd hardware device
          */
-        class m35fd : public device, public block_device<737280> {
-                                                      /* ^ this number is the BLOCK_SIZE */
+        class m35fd : public device {
         protected:
             int interrupt_message;
 
             // we have to record the track so we can implement the track seek delay
             int current_track;
             int last_error_since_poll;
-
-            const static int SECTOR_SIZE = 512;
-            const static int SECTOR_NUM = 1440;
-
-            const static int TRACKS = 80;
-            const static int SECTORS_PER_TRACK = 18;
-            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
             int get_track_seek_time(int current_track, int sector);
 
@@ -79,6 +72,10 @@ namespace galaxy {
 
             int current_state;
 
+            m35fd_disk& disk = static_cast<m35fd_disk>(*new m35fd_disk());
+//    galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
+
+
             bool disk_loaded;
             bool is_read_only;
 
@@ -88,6 +85,24 @@ namespace galaxy {
             // cpu interaction
             virtual void interrupt();
             virtual void cycle();
+        };
+
+        class m35fd_disk : public disk {
+        protected:
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
+
+            const static int TRACKS = 80;
+            const static int SECTORS_PER_TRACK = 18;
+            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
+
+        public:
+            std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
+
+            std::array<std::uint16_t, 512> read_sector(std::uint16_t sector) = 0;
+
+            /// writes a sector to the disk
+            void write_sector(std::uint16_t sector, std::array<std::uint16_t, 512> sector_actual) = 0;
         };
     }
 }
