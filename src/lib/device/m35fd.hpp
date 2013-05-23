@@ -99,10 +99,10 @@ namespace galaxy {
         public:
             std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
 
-            std::array<std::uint16_t, 512> read_sector(std::uint16_t sector) = 0;
+            std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector);
 
             /// writes a sector to the disk
-            void write_sector(std::uint16_t sector, std::array<std::uint16_t, 512> sector_actual) = 0;
+            void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE> sector_actual);
         };
     }
 }
