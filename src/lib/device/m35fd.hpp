@@ -32,6 +32,32 @@ file named "LICENSE-LGPL.txt".
 
 namespace galaxy {
     namespace saturn {
+        template <int SECTOR_NUM, int SECTOR_SIZE>
+        class m35fd_disk : public disk {
+        protected:
+
+        public:
+            std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
+
+            std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) {
+                int read_from = sector * SECTOR_SIZE;
+
+                std::array<std::uint16_t, SECTOR_SIZE> sector_actual;
+                for (int i=0; i < SECTOR_SIZE; i++){
+                    sector_actual[i] = disk_actual[read_from + i];
+                }
+                return sector_actual;
+            }
+
+            void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE> sector_actual) {
+                int read_to = sector * SECTOR_SIZE;
+
+                for (int i=0; i < SECTOR_SIZE; i++){
+                    disk_actual[read_to + i] = sector_actual[i];
+                }
+            }
+        };
+
         /**
          * represents a m35fd hardware device
          */
@@ -72,7 +98,8 @@ namespace galaxy {
 
             int current_state;
 
-            m35fd_disk& disk = static_cast<m35fd_disk>(*new m35fd_disk());
+ //           m35fd_disk& disk = static_cast<m35fd_disk>(*new m35fd_disk());
+            m35fd_disk& disk_actual;
 //    galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
 
@@ -92,18 +119,6 @@ namespace galaxy {
             // cpu interaction
             virtual void interrupt();
             virtual void cycle();
-        };
-
-        class m35fd_disk : public disk {
-        protected:
-
-        public:
-            std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
-
-            std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector);
-
-            /// writes a sector to the disk
-            void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE> sector_actual);
         };
     }
 }

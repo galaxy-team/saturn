@@ -69,7 +69,7 @@ void galaxy::saturn::m35fd::interrupt()
                 int sector = cpu->X;
                 int read_to = cpu->Y;
 
-                if (!(0 <= sector && sector <= .SECTOR_NUM)) {
+                if (!(0 <= sector && sector <= SECTOR_NUM)) {
                     // ensure the user is not trying to read from outside the floppy disk image
                     cpu->B = 0;
   //                  DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
@@ -127,7 +127,7 @@ void galaxy::saturn::m35fd::interrupt()
 
                         std::array<std::uint16_t, SECTOR_SIZE> sector_temp;
                         std::copy(cpu->ram.begin() + read_from, cpu->ram.begin() + SECTOR_SIZE, sector_temp);
-                        disk.write_sector(sector, sector_temp);
+                        disk_actual->write_sector(sector, sector_temp);
                         cpu->B = 1;
                     }
                 }
@@ -144,32 +144,14 @@ void galaxy::saturn::m35fd::cycle() {
 
 
 int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
-    int tracks_seeked = (current_track / disk->SECTORS_PER_TRACK) - (sector / disk->SECTORS_PER_TRACK);
+    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
 
     // ensure it aint negitive; better way to do this?
     if (!tracks_seeked >= 0) {
 	tracks_seeked = 0 - tracks_seeked;
     }
 
-    int track_seek_time = tracks_seeked * disk->MILLISECONDS_PER_TRACK_SEEKED;
+    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED;
     return track_seek_time;
-}
-
-std::array<std::uint16_t, 512> galaxy::saturn::m35fd_disk::read_sector(std::uint16_t sector) {
-    int read_from = sector * SECTOR_SIZE;
-
-    std::array<std::uint16_t, 512> sector_actual;
-    for (int i=0; i < SECTOR_SIZE; i++){
-        sector_actual[i] = disk_actual[read_from + i];
-    }
-    return sector_actual;
-}
-
-void galaxy::saturn::m35fd_disk::write_sector(std::uint16_t sector, std::array<std::uint16_t, galaxy::saturn::m35fd_disk::SECTOR_SIZE> sector_actual) {
-    int read_to = sector * SECTOR_SIZE;
-
-    for (int i=0; i < SECTOR_SIZE; i++){
-        disk_actual[read_to + i] = sector_actual[i];
-    }
 }
 
