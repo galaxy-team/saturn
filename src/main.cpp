@@ -57,8 +57,6 @@ bool attach_m35fd(galaxy::saturn::dcpu& cpu, std::string filename, bool is_read_
         disk_image.seekg(0, std::ios::end);
         int disk_image_filesize = disk_image.tellg();
 
-        std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
-
         // create an appropriately sized buffer and read into it
         char* buffer = new char[disk_image_filesize];
         disk_image.read(buffer, disk_image_filesize);
@@ -100,6 +98,7 @@ int main(int argc, char** argv)
     parser.add_option("-d", "--add-disk")
         .dest("disk_image_filename")
         .type("STRING")
+        .action("append")
         .help("Provide a floppy disk image");
 
     // parse the buggers - Dom
@@ -146,21 +145,19 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
+    // setup the floppy disks
+    if (options.all("disk_image_filename").size() != 0){
+        // we start by grabbing a list of floppy names, and tell the user how many we are loading
+        std::list<std::string> filenames = options.all("disk_image_filename");
+        std::cout << "Loading " << filenames.size() << " floppy disks" << std::endl;
 
-    // once i figure out how to read in multiple arguments, these code blocks will be re-written
-    std::vector<std::string> floppy_disk_image_filenames;
-    if (options["disk_image_filename"] != ""){
-        std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
-        floppy_disk_image_filenames.push_back(
-             options["disk_image_filename"]);
-
-    }
-
-    for (std::vector<int>::size_type i = 0; i != floppy_disk_image_filenames.size(); i++){
-        // we don't want to limit the number of floppy disks the user can attach, so we loop
-        if (!attach_m35fd(cpu, floppy_disk_image_filenames[i], false)){
-            return -1;
+        // thence we iterate through, using my handy helper function attach_m35fd
+        for (std::list<std::string>::iterator i = filenames.begin(); i != filenames.end(); i++) {
+            if (!attach_m35fd(cpu, *i, false)){
+                return -1;
+            }
         }
+        // TODO: handle read only floppy disks here too! :D
     }
 
     // create the LEM1802 windows
