@@ -36,10 +36,10 @@ namespace galaxy {
                 const bool write_protected;
 
                 /// reads a sector from the disk
-                std::array<std::uint16_t, 512> read_sector(std::uint16_t sector) = 0;
+                virtual std::array<std::uint16_t, 512> read_sector(std::uint16_t sector) = 0;
 
                 /// writes a sector to the disk
-                void write_sector(std::uint16_t sector, std::array<std::uint16_t, 512>) = 0;
+                virtual void write_sector(std::uint16_t sector, std::array<std::uint16_t, 512>) = 0;
         };
     }
 }
