@@ -69,7 +69,7 @@ void galaxy::saturn::m35fd::interrupt()
                 int sector = cpu->X;
                 int read_to = cpu->Y;
 
-                if (!(0 <= sector && sector <= (disk.SECTOR_NUM))) {
+                if (!(0 <= sector && sector <= .SECTOR_NUM)) {
                     // ensure the user is not trying to read from outside the floppy disk image
                     cpu->B = 0;
   //                  DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
@@ -114,7 +114,7 @@ void galaxy::saturn::m35fd::interrupt()
                     int sector = cpu->X;
                     int read_from = cpu->Y;
 
-                    if (!(0 <= sector && sector <= (disk->SECTOR_NUM))) {
+                    if (!(0 <= sector && sector <= SECTOR_NUM)) {
                         // make sure that the user is not assuming there are more sectors than there are
                         cpu->B = 0;
                     } else if (!(0 <= read_from && read_from <= cpu->RAM_SIZE)) {
@@ -125,8 +125,8 @@ void galaxy::saturn::m35fd::interrupt()
 //                        DEBUG("Everything seems to be in order...");
 		        int track_seek_time = get_track_seek_time(current_track, sector);
 
-                        std::array<std::uint16_t, disk.SECTOR_SIZE> sector_temp;
-                        std::copy(cpu->ram.begin() + read_from, cpu->ram.begin() + disk.SECTOR_SIZE, sector_temp);
+                        std::array<std::uint16_t, SECTOR_SIZE> sector_temp;
+                        std::copy(cpu->ram.begin() + read_from, cpu->ram.begin() + SECTOR_SIZE, sector_temp);
                         disk.write_sector(sector, sector_temp);
                         cpu->B = 1;
                     }

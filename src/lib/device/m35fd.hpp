@@ -76,6 +76,13 @@ namespace galaxy {
 //    galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
 
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
+
+            const static int TRACKS = 80;
+            const static int SECTORS_PER_TRACK = 18;
+            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
+            
             bool disk_loaded;
             bool is_read_only;
 
@@ -89,12 +96,6 @@ namespace galaxy {
 
         class m35fd_disk : public disk {
         protected:
-            const static int SECTOR_SIZE = 512;
-            const static int SECTOR_NUM = 1440;
-
-            const static int TRACKS = 80;
-            const static int SECTORS_PER_TRACK = 18;
-            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
         public:
             std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
