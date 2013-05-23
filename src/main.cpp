@@ -44,6 +44,47 @@ file named "LICENSE.txt".
 #include "OptionParser.h"
 
 
+bool attach_m35fd(galaxy::saturn::dcpu& cpu, std::string filename, bool is_read_only){
+    // create a new floppy drive, attach it to the cpu, and store a reference
+    galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
+
+    std::ifstream disk_image;
+    // we should probably make sure the filename is absolute here
+    disk_image.open(filename, std::ios::in | std::ios::binary);
+
+    // ensure the file is actually open :P
+    if (disk_image.is_open()) {
+        disk_image.seekg(0, std::ios::end);
+        int disk_image_filesize = disk_image.tellg();
+
+        std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
+
+        // create an appropriately sized buffer and read into it
+        char* buffer = new char[disk_image_filesize];
+        disk_image.read(buffer, disk_image_filesize);
+
+        m35fd_ref.read_in_image(buffer, disk_image_filesize);
+
+        // wipe the buffer clean, close the file
+        delete[] buffer;
+    } else {
+         std::cerr << "Error: could not open file \"" << filename << "\"" << std::endl;
+         return false;
+    }
+    disk_image.close();
+
+    // if the file is designated read only, mark the floppy as such.
+    m35fd_ref.is_read_only = false;
+
+    if (m35fd_ref.is_read_only) {
+        m35fd_ref.current_state = m35fd_ref.STATE_READY_WP;
+    } else {
+        m35fd_ref.current_state = m35fd_ref.STATE_READY;
+    }
+    return true;
+}
+
+
 int main(int argc, char** argv)
 {
     // setup the command line argument parser
@@ -115,51 +156,10 @@ int main(int argc, char** argv)
 
     }
 
-    std::string cur_disk_image_filename;
-    int disk_image_filesize;
-
     for (std::vector<int>::size_type i = 0; i != floppy_disk_image_filenames.size(); i++){
-     
         // we don't want to limit the number of floppy disks the user can attach, so we loop
-
-        // create a new floppy drive, attach it to the cpu, and store a reference
-        galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
-
-        cur_disk_image_filename = floppy_disk_image_filenames[i];
-
-        std::ifstream disk_image;
-        // we should probably make sure the filename is absolute here
-        disk_image.open(cur_disk_image_filename, std::ios::in | std::ios::binary);
-
-        // ensure the file is actually open :P
-        if (disk_image.is_open()) {
-            disk_image.seekg(0, std::ios::end);
-            disk_image_filesize = disk_image.tellg();
-
-            std::cout << "Filesize obtained; " << disk_image_filesize << " bytes" << std::endl;
-
-            // create an appropriately sized buffer and read into it
-            char* buffer = new char[disk_image_filesize];
-            disk_image.read(buffer, disk_image_filesize);
-
-            m35fd_ref.read_in_image(buffer, disk_image_filesize);
-
-            // wipe the buffer clean, close the file
-            delete[] buffer;
-        } else {
-             std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
-             return -1;
-        }
-        disk_image.close();
-
-        // if the file is read only, mark the floppy as such.
-        // TODO: determine if this should be configurable via some other method
-        m35fd_ref.is_read_only = galaxy::saturn::utilities::is_read_only(cur_disk_image_filename);
-
-        if (m35fd_ref.is_read_only) {
-            m35fd_ref.current_state = m35fd_ref.STATE_READY_WP;
-        } else {
-            m35fd_ref.current_state = m35fd_ref.STATE_READY;
+        if (!attach_m35fd(cpu, floppy_disk_image_filenames[i], false)){
+            return -1;
         }
     }
 
