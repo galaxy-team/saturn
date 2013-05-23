@@ -82,6 +82,9 @@ namespace galaxy {
             bool disk_loaded;
             bool is_read_only;
 
+            void insert_disk();
+            void eject_disk();
+
             // cpu interaction
             virtual void interrupt();
             virtual void cycle();
