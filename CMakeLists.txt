@@ -29,6 +29,7 @@ add_library (libsaturn
     ${SATURN_LIB_SRC}/device/keyboard.cpp
     ${SATURN_LIB_SRC}/device/lem1802.cpp
     ${SATURN_LIB_SRC}/device/m35fd.cpp
+    ${SATURN_LIB_SRC}/device/disk.cpp
     ${SATURN_LIB_SRC}/device/block_device.cpp
     ${SATURN_LIB_SRC}/device/sped3.cpp
 
