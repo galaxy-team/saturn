@@ -118,3 +118,9 @@ int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
     return track_seek_time;
 }
 
+// TODO: implement these two
+void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>) {
+}
+std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
+}
+
