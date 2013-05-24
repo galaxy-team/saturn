@@ -66,7 +66,6 @@ void galaxy::saturn::m35fd::interrupt()
         case 2:
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
 //                DEBUG("Reading")
-
                 try {
                     std::array<uint16_t, 512> sector = floppy_disk->read_sector(cpu->X);
                     cpu->B = 1;

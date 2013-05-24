@@ -31,7 +31,6 @@ add_library (libsaturn
     ${SATURN_LIB_SRC}/device/m35fd.cpp
     ${SATURN_LIB_SRC}/device/disk.cpp
     ${SATURN_LIB_SRC}/device/fstream_disk.cpp
-    ${SATURN_LIB_SRC}/device/block_device.cpp
     ${SATURN_LIB_SRC}/device/sped3.cpp
 
     # misc

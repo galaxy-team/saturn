@@ -28,14 +28,40 @@ file named "LICENSE-LGPL.txt".
 #include <disk.hpp>
 
 #include <cstdint>
+#include <iostream>
 
 namespace galaxy {
     namespace saturn {
+        template <int SECTOR_NUM, int SECTOR_SIZE>
+        class m35fd_disk : public disk {
+        protected:
+
+        public:
+            std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
+
+            std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) {
+                int read_from = sector * SECTOR_SIZE;
+
+                std::array<std::uint16_t, SECTOR_SIZE> sector_actual;
+                for (int i=0; i < SECTOR_SIZE; i++){
+                    sector_actual[i] = disk_actual[read_from + i];
+                }
+                return sector_actual;
+            }
+
+            void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE> sector_actual) {
+                int read_to = sector * SECTOR_SIZE;
+
+                for (int i=0; i < SECTOR_SIZE; i++){
+                    disk_actual[read_to + i] = sector_actual[i];
+                }
+            }
+        };
+
         /**
          * represents a m35fd hardware device
          */
         class m35fd : public device {
-                                                      /* ^ this number is the BLOCK_SIZE */
         protected:
             bool disk_loaded;
             std::unique_ptr<disk> floppy_disk;
@@ -44,13 +70,6 @@ namespace galaxy {
             // we have to record the track so we can implement the track seek delay
             int current_track;
             int last_error_since_poll;
-
-            const static int SECTOR_SIZE = 512;
-            const static int SECTOR_NUM = 1440;
-
-            const static int TRACKS = 80;
-            const static int SECTORS_PER_TRACK = 18;
-            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
             int get_track_seek_time(int current_track, int sector);
 
@@ -80,8 +99,15 @@ namespace galaxy {
 
             int current_state;
 
-            void insert_disk();
-            void eject_disk();
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
+
+            const static int TRACKS = 80;
+            const static int SECTORS_PER_TRACK = 18;
+            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
+
+            void insert_disk(std::unique_ptr<disk>);
+            std::unique_ptr<disk> eject_disk();
 
             // cpu interaction
             virtual void interrupt();
