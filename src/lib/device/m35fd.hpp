@@ -32,32 +32,6 @@ file named "LICENSE-LGPL.txt".
 
 namespace galaxy {
     namespace saturn {
-        template <int SECTOR_NUM, int SECTOR_SIZE>
-        class m35fd_disk : public disk {
-        protected:
-
-        public:
-            std::array<std::uint16_t, SECTOR_NUM * SECTOR_SIZE> disk_actual;
-
-            std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) {
-                int read_from = sector * SECTOR_SIZE;
-
-                std::array<std::uint16_t, SECTOR_SIZE> sector_actual;
-                for (int i=0; i < SECTOR_SIZE; i++){
-                    sector_actual[i] = disk_actual[read_from + i];
-                }
-                return sector_actual;
-            }
-
-            void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE> sector_actual) {
-                int read_to = sector * SECTOR_SIZE;
-
-                for (int i=0; i < SECTOR_SIZE; i++){
-                    disk_actual[read_to + i] = sector_actual[i];
-                }
-            }
-        };
-
         /**
          * represents a m35fd hardware device
          */
@@ -94,7 +68,7 @@ namespace galaxy {
                 FD_ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
                 FD_ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
                 FD_ERROR_BROKEN      = 0xffff  // There's some major software or hardware problem,
-                                            // try turning off and turning the device on again.
+                                               // try turning off and turning the device on again.
             };
 
             int current_state;
