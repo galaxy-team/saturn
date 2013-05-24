@@ -39,7 +39,7 @@ void galaxy::saturn::m35fd::interrupt()
         case 0:
 //	    DEBUG("Last error since poll; " << last_error_since_poll << ", current_state; " << current_state);
 	    cpu->C = last_error_since_poll;
-	    cpu->B = current_state;
+	    cpu->B = state();
 	    break;
 
         /**
@@ -64,11 +64,12 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial reads.
          */
         case 2:
-            if (current_state == STATE_READY || current_state == STATE_READY_WP){
+            if (state() == STATE_READY || state() == STATE_READY_WP){
 //                DEBUG("Reading")
                 try {
                     std::array<uint16_t, SECTOR_SIZE> sector = floppy_disk->read_sector(cpu->X);
                     cpu->B = 1;
+                    reading = true;
                     //DEBUG("Reading failed")
                 } catch (std::out_of_range& e) {
                     cpu->B = 0;
@@ -85,15 +86,14 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial writes.
          */
         case 3:
-            if (current_state == STATE_READY) {
-                if (floppy_disk->write_protected()) {
-                    // the drive is set to be read only, error out
-                    last_error_since_poll = FD_ERROR_PROTECTED;
-                    cpu->B = 0;
-                } else {
-                    std::array<uint16_t, 512> blah;
-                    floppy_disk->write_sector(cpu->X, blah);
-                }
+            if (state() == STATE_READY) {
+                std::array<uint16_t, 512> blah;
+                floppy_disk->write_sector(cpu->X, blah);
+                writing = true;
+            } else if (state() == STATE_READY_WP) {
+                // the drive is set to be read only, error out
+                last_error_since_poll = FD_ERROR_PROTECTED;
+                cpu->B = 0;
             } else {
                 cpu->B = 0;
             }
@@ -119,7 +119,7 @@ int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
 }
 
 // TODO: implement these two
-void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk> floppy_disk_ptr) {
+void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
     floppy_disk = std::move(floppy_disk_ptr);
     disk_loaded = true;
 }
@@ -131,3 +131,13 @@ std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
     return ref;
 }
 
+std::uint16_t galaxy::saturn::m35fd::state()
+{
+    if (reading || writing)
+        return STATE_BUSY;
+    if (!disk_loaded)
+        return STATE_NO_MEDIA;
+    if (floppy_disk->write_protected())
+        return STATE_READY_WP;
+    return STATE_READY;
+}

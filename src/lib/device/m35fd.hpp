@@ -41,6 +41,9 @@ namespace galaxy {
             std::unique_ptr<disk> floppy_disk;
             int interrupt_message;
 
+            bool reading;
+            bool writing;
+
             // we have to record the track so we can implement the track seek delay
             int current_track;
             int last_error_since_poll;
@@ -50,7 +53,7 @@ namespace galaxy {
         public:
             /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
-                      disk_loaded(false), interrupt_message(0), current_track(0), last_error_since_poll(FD_ERROR_NONE) {}
+                      disk_loaded(false), interrupt_message(0), reading(false), writing(false), current_track(0), last_error_since_poll(FD_ERROR_NONE) {}
 
             // TODO make these enum class'
             enum fd_states {
@@ -71,8 +74,6 @@ namespace galaxy {
                                                // try turning off and turning the device on again.
             };
 
-            int current_state;
-
             const static int SECTOR_SIZE = 512;
             const static int SECTOR_NUM = 1440;
 
@@ -80,8 +81,10 @@ namespace galaxy {
             const static int SECTORS_PER_TRACK = 18;
             constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
-            void insert_disk(std::unique_ptr<disk>);
+            void insert_disk(std::unique_ptr<disk>&);
             std::unique_ptr<disk> eject_disk();
+
+            std::uint16_t state();
 
             // cpu interaction
             virtual void interrupt();
