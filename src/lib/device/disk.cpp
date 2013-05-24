@@ -20,33 +20,12 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#ifndef DISK_HPP
-#define DISK_HPP
+#include <disk.hpp>
 
-#include <libsaturn.hpp>
-#include <cstdint>
-
-namespace galaxy {
-    namespace saturn {
-        /**
-         * represents a data disk
-         */
-        class disk {
-            protected:
-                bool wp;
-            public:
-                const static int NUM_SECTORS = 1440;
-                const static int SECTOR_SIZE = 512;
-
-                /// reads a sector from the disk
-                virtual std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) = 0;
-
-                /// writes a sector to the disk
-                virtual void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE>) = 0;
-
-                bool write_protected();
-        };
-    }
+bool galaxy::saturn::disk::write_protected()
+{
+    return wp;
 }
 
-#endif
+//const int galaxy::saturn::disk::NUM_SECTORS = 1440;
+//const int galaxy::saturn::disk::SECTOR_SIZE = 512;

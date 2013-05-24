@@ -37,7 +37,7 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-	    DEBUG("Last error since poll; " << last_error_since_poll << ", current_state; " << current_state);
+//	    DEBUG("Last error since poll; " << last_error_since_poll << ", current_state; " << current_state);
 	    cpu->C = last_error_since_poll;
 	    cpu->B = current_state;
 	    break;
@@ -50,7 +50,7 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-            DEBUG("Setting interrupt message to; 0x" << std::hex << cpu->X);
+//          DEBUG("Setting interrupt message to; 0x" << std::hex << cpu->X);
             // set interupt message to X
             interrupt_message = cpu->X;
             break;
@@ -66,35 +66,16 @@ void galaxy::saturn::m35fd::interrupt()
         case 2:
             if (current_state == STATE_READY || current_state == STATE_READY_WP){
 //                DEBUG("Reading")
-                int sector = cpu->X;
-                int read_to = cpu->Y;
 
-                if (!(0 <= sector && sector <= SECTOR_NUM)) {
-                    // ensure the user is not trying to read from outside the floppy disk image
-                    cpu->B = 0;
-  //                  DEBUG("Out of sector range; sector was " << sector << ", sector range is 0-" << SECTOR_NUM);
-                } else if (!(0 <= read_to && read_to <= cpu->RAM_SIZE)) {
-                    // ensure the user is not trying to read from outside the ram
-                    cpu->B = 0;
-                } else {
-                    // if everything seems to be in order...
-    //                DEBUG("Everything seems to be in order");
-                    int track_seek_time = get_track_seek_time(current_track, sector);
-                    int read_from = sector * SECTOR_SIZE;
-
-                    for (int i=0; i < SECTOR_SIZE; i++){
-/*                        DEBUG(
-                            "Writing value " << block_image[read_from + i] <<
-                            " from position 0x" << std::hex << read_from + i <<
-                            " to position 0x" << std::hex << read_to + i);*/
-                        cpu->ram[read_to + i] = block_image[read_from + i];
-                    }
+                try {
+                    std::array<uint16_t, 512> sector = floppy_disk->read_sector(cpu->X);
                     cpu->B = 1;
+                    //DEBUG("Reading failed")
+                } catch (std::out_of_range& e) {
+                    cpu->B = 0;
                 }
-            } else {
-                cpu->B = 0;
             }
-            if (cpu->B == 0) DEBUG("Reading failed");
+
             break;
 
         /**
@@ -106,39 +87,18 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 3:
             if (current_state == STATE_READY) {
-                if (is_read_only) {
+                if (floppy_disk->write_protected()) {
                     // the drive is set to be read only, error out
-                    last_error_since_poll = ERROR_PROTECTED;
+                    last_error_since_poll = FD_ERROR_PROTECTED;
                     cpu->B = 0;
                 } else {
-                    int sector = cpu->X;
-                    int read_from = cpu->Y;
-
-                    if (!(0 <= sector && sector <= SECTOR_NUM)) {
-                        // make sure that the user is not assuming there are more sectors than there are
-                        cpu->B = 0;
-                    } else if (!(0 <= read_from && read_from <= cpu->RAM_SIZE)) {
-                        // ensure the user is not trying to read from outside the ram?
-                        cpu->B = 0;
-                    } else {
-                        // if everything seems to be in order...
-//                        DEBUG("Everything seems to be in order...");
-                        int read_to = sector * SECTOR_SIZE;
-		        int track_seek_time = get_track_seek_time(current_track, sector);
-
-                        for (int i=0; i < SECTOR_SIZE; i++){
-                /*                DEBUG(
-                                    "Writing 0x" << std::hex << cpu->ram[read_from + i] << " from 0x" << std::hex << read_from + i <<
-                                    " to 0x" << std::hex << (read_to + i));*/
-                            block_image[read_to + i] = cpu->ram[read_from + i];
-                        }
-                        cpu->B = 1;
-                    }
+                    std::array<uint16_t, 512> blah;
+                    floppy_disk->write_sector(cpu->X, blah);
                 }
             } else {
                 cpu->B = 0;
             }
-            if (cpu->B == 0) DEBUG("Writing failed") 
+//            if (cpu->B == 0) DEBUG("Writing failed")
             break;
     }
 }

@@ -25,7 +25,7 @@ file named "LICENSE-LGPL.txt".
 
 #include <libsaturn.hpp>
 #include <device.hpp>
-#include <block_device.hpp>
+#include <disk.hpp>
 
 #include <cstdint>
 
@@ -34,9 +34,11 @@ namespace galaxy {
         /**
          * represents a m35fd hardware device
          */
-        class m35fd : public device, public block_device<737280> {
+        class m35fd : public device {
                                                       /* ^ this number is the BLOCK_SIZE */
         protected:
+            bool disk_loaded;
+            std::unique_ptr<disk> floppy_disk;
             int interrupt_message;
 
             // we have to record the track so we can implement the track seek delay
@@ -55,8 +57,7 @@ namespace galaxy {
         public:
             /// initialize the device to values specified by the spec
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
-                      current_track(0), last_error_since_poll(ERROR_NONE), disk_loaded(false),
-                      is_read_only(false) {}
+                      disk_loaded(false), interrupt_message(0), current_track(0), last_error_since_poll(FD_ERROR_NONE) {}
 
             // TODO make these enum class'
             enum fd_states {
@@ -67,20 +68,17 @@ namespace galaxy {
             };
 
             enum error_codes {
-                ERROR_NONE        = 0x0000, // There's been no error since the last poll.
-                ERROR_BUSY        = 0x0001, // Drive is busy performing an action.
-                ERROR_NO_MEDIA    = 0x0002, // Attempted to read or write with no floppy inserted.
-                ERROR_PROTECTED   = 0x0003, // Attempted to write to write protected floppy.
-                ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
-                ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
-                ERROR_BROKEN      = 0xffff  // There's some major software or hardware problem,
+                FD_ERROR_NONE        = 0x0000, // There's been no error since the last poll.
+                FD_ERROR_BUSY        = 0x0001, // Drive is busy performing an action.
+                FD_ERROR_NO_MEDIA    = 0x0002, // Attempted to read or write with no floppy inserted.
+                FD_ERROR_PROTECTED   = 0x0003, // Attempted to write to write protected floppy.
+                FD_ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
+                FD_ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
+                FD_ERROR_BROKEN      = 0xffff  // There's some major software or hardware problem,
                                             // try turning off and turning the device on again.
             };
 
             int current_state;
-
-            bool disk_loaded;
-            bool is_read_only;
 
             void insert_disk();
             void eject_disk();

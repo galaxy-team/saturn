@@ -20,31 +20,19 @@ file named "LICENSE-LGPL.txt".
 
 */
 
-#ifndef DISK_HPP
-#define DISK_HPP
+#ifndef INVALID_OPCODE_HPP
+#define INVALID_OPCODE_HPP
 
-#include <libsaturn.hpp>
-#include <cstdint>
+#include <stdexcept>
 
 namespace galaxy {
     namespace saturn {
         /**
-         * represents a data disk
+         * throw when the DCPU attempts to execute an invalid opcode
          */
-        class disk {
-            protected:
-                bool wp;
-            public:
-                const static int NUM_SECTORS = 1440;
-                const static int SECTOR_SIZE = 512;
-
-                /// reads a sector from the disk
-                virtual std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) = 0;
-
-                /// writes a sector to the disk
-                virtual void write_sector(std::uint16_t sector, std::array<std::uint16_t, SECTOR_SIZE>) = 0;
-
-                bool write_protected();
+        class invalid_opcode : public std::runtime_error {
+        public:
+            invalid_opcode(const std::string& what_str) : runtime_error(what_str) {}
         };
     }
 }
