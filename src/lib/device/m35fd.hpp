@@ -41,6 +41,9 @@ namespace galaxy {
             std::unique_ptr<disk> floppy_disk;
             int interrupt_message;
 
+            int last_error_since_poll;
+            bool reading;
+            bool writing;
 
             // we have to record the track so we can implement the track seek delay
             int current_track;
@@ -49,9 +52,6 @@ namespace galaxy {
 
         public:
             /// initialize the device to values specified by the spec
-            int last_error_since_poll;
-            bool reading;
-            bool writing;
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
                       disk_loaded(false), interrupt_message(0), reading(false), writing(false), current_track(0), last_error_since_poll(FD_ERROR_NONE) {}
 
@@ -60,7 +60,7 @@ namespace galaxy {
                 STATE_NO_MEDIA = 0x0000, // There's no floppy in the drive.
                 STATE_READY    = 0x0001, // The drive is ready to accept commands.
                 STATE_READY_WP = 0x0002, // Same as ready, except the floppy is write protected.
-                STATE_BUSY     = 0x0003 // The drive is busy either reading or writing a sector.
+                STATE_BUSY     = 0x0003  // The drive is busy either reading or writing a sector.
             };
 
             enum error_codes {
@@ -85,6 +85,7 @@ namespace galaxy {
             std::unique_ptr<disk> eject_disk();
 
             std::uint16_t state();
+            bool get_last_error();
 
             // cpu interaction
             virtual void interrupt();

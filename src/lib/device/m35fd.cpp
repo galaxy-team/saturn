@@ -37,7 +37,6 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-//	    DEBUG("Last error since poll; " << last_error_since_poll << ", current_state; " << current_state);
 	    cpu->C = last_error_since_poll;
 	    cpu->B = state();
 	    break;
@@ -50,7 +49,6 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-//          DEBUG("Setting interrupt message to; 0x" << std::hex << cpu->X);
             // set interupt message to X
             interrupt_message = cpu->X;
             break;
@@ -65,12 +63,10 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 2:
             if (state() == STATE_READY || state() == STATE_READY_WP){
-//                DEBUG("Reading")
                 try {
                     std::array<uint16_t, SECTOR_SIZE> sector = floppy_disk->read_sector(cpu->X);
                     cpu->B = 1;
                     reading = true;
-                    //DEBUG("Reading failed")
                 } catch (std::out_of_range& e) {
                     cpu->B = 0;
                 }
@@ -87,13 +83,14 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 3:
             if (state() == STATE_READY) {
+                // temporary storage for the selected sector to write
                 std::array<uint16_t, SECTOR_SIZE> selected_sector;
                 int read_from = cpu->Y;
 
                 std::copy(
                     cpu->ram.begin() + read_from,               // copy start
                     cpu->ram.begin() + read_from + SECTOR_SIZE, // copy end
-                    selected_sector.begin());                     // coyp destination
+                    selected_sector.begin());                   // copy destination
 
                 floppy_disk->write_sector(cpu->X, selected_sector);
                 writing = true;
@@ -104,7 +101,6 @@ void galaxy::saturn::m35fd::interrupt()
             } else {
                 cpu->B = 0;
             }
-//            if (cpu->B == 0) DEBUG("Writing failed")
             break;
     }
 }
@@ -130,7 +126,8 @@ void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk> fl
     disk_loaded = true;
 }
 
-std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
+std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk()
+{
     std::unique_ptr<galaxy::saturn::disk> ref = std::move(floppy_disk);
     floppy_disk = 0x0;
     disk_loaded = false;
@@ -146,4 +143,9 @@ std::uint16_t galaxy::saturn::m35fd::state()
     if (floppy_disk->write_protected())
         return STATE_READY_WP;
     return STATE_READY;
+}
+
+bool galaxy::saturn::m35fd::get_last_error()
+{
+    return last_error_since_poll;
 }
