@@ -22,9 +22,7 @@ drive_interrupt: dat 0x1000
 write_disk:
   set a, 3
   set x, 0
-  set y, 0xeeef
-;  set y, data
-  set 0xeeef, 0xffff
+  set y, data
   hwi [drive]
   set pc, pop
   

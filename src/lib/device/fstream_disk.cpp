@@ -57,4 +57,5 @@ void galaxy::saturn::fstream_disk::write_sector(std::uint16_t sector, std::array
     }
 
     file.write(bytes, SECTOR_SIZE);
+    file.flush();
 }

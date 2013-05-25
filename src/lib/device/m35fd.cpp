@@ -87,7 +87,14 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 3:
             if (state() == STATE_READY) {
-                std::array<uint16_t, 512> blah;
+                std::array<uint16_t, SECTOR_SIZE> caught_sector;
+                int read_from = cpu->Y;
+
+                std::copy(
+                    cpu->ram.begin() + read_from,               // copy start
+                    cpu->ram.begin() + read_from + SECTOR_SIZE, // copy end
+                    caught_sector.begin());                     // coyp destination
+
                 floppy_disk->write_sector(cpu->X, blah);
                 writing = true;
             } else if (state() == STATE_READY_WP) {
