@@ -125,7 +125,8 @@ int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
     return track_seek_time;
 }
 
-void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk> floppy_disk_ptr) {
+// TODO: implement these two
+void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
     floppy_disk = std::move(floppy_disk_ptr);
     disk_loaded = true;
 }
