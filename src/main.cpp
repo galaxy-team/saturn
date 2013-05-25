@@ -50,7 +50,7 @@ void attach_m35fd(galaxy::saturn::dcpu& cpu, std::string filename){
     // create a new floppy drive, attach it to the cpu, and store a reference
     galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    m35fd_ref.insert_disk(std::unique_ptr<galaxy::saturn::fstream_disk>(new galaxy::saturn::fstream_disk(filename)));
+    m35fd_ref.insert_disk(new galaxy::saturn::fstream_disk(filename));
 }
 
 
