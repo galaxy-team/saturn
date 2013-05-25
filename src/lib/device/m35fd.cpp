@@ -87,15 +87,15 @@ void galaxy::saturn::m35fd::interrupt()
          */
         case 3:
             if (state() == STATE_READY) {
-                std::array<uint16_t, SECTOR_SIZE> caught_sector;
+                std::array<uint16_t, SECTOR_SIZE> selected_sector;
                 int read_from = cpu->Y;
 
                 std::copy(
                     cpu->ram.begin() + read_from,               // copy start
                     cpu->ram.begin() + read_from + SECTOR_SIZE, // copy end
-                    caught_sector.begin());                     // coyp destination
+                    selected_sector.begin());                     // coyp destination
 
-                floppy_disk->write_sector(cpu->X, blah);
+                floppy_disk->write_sector(cpu->X, selected_sector);
                 writing = true;
             } else if (state() == STATE_READY_WP) {
                 // the drive is set to be read only, error out
