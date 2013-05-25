@@ -94,6 +94,7 @@ void galaxy::saturn::m35fd::interrupt()
 
                 floppy_disk->write_sector(cpu->X, selected_sector);
                 writing = true;
+                cpu->B = 1;
             } else if (state() == STATE_READY_WP) {
                 // the drive is set to be read only, error out
                 last_error_since_poll = FD_ERROR_PROTECTED;

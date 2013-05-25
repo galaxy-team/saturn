@@ -38,6 +38,8 @@ namespace galaxy {
                 const static int NUM_SECTORS = 1440;
                 const static int SECTOR_SIZE = 512;
 
+                virtual ~disk() {}
+
                 /// reads a sector from the disk
                 virtual std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector) = 0;
 

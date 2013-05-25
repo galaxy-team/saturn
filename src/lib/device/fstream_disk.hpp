@@ -63,7 +63,8 @@ namespace galaxy {
                     }
                 }
 
-                ~fstream_disk() {
+                virtual ~fstream_disk()
+                {
                     file.close();
                 }
 

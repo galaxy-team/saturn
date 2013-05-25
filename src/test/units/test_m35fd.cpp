@@ -55,8 +55,6 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
     cpu.Y = 0; // RAM position to read from
     m35fd.interrupt();
 
-    std::cout << "Last error; 0x" << std::hex << m35fd.get_last_error() << std::endl;
-    std::cout << "State; 0x" << std::hex << m35fd.state() << std::endl;
     REQUIRE_FALSE(cpu.B == 0);
 
     bool data_correct = true;
