@@ -1,6 +1,7 @@
 #ifndef __M35FD_TESTS
 #define __M35FD_TESTS
 #include <m35fd.hpp>
+#include <fstream_disk.hpp>
 #include <iostream>
 
 TEST_CASE("hardware/m35fd/initialisation", "test m35fd initailisation") {
@@ -38,11 +39,13 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    /* TODO: fix this so that it uses disks
-    m35fd.current_state = 0x1; // set state to STATE_READY
+    // generate a random temporary filename
+    std::string filename = std::tmpnam(0);
+    std::unique_ptr<galaxy::saturn::fstream_disk>floppy_disk = std::unique_ptr<galaxy::saturn::fstream_disk>(new galaxy::saturn::fstream_disk(filename));
+    m35fd.insert_disk(floppy_disk);
 
     std::vector<std::uint16_t> codez;
-    for (int i=0; i<512; i++) {
+    for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
         codez.push_back(i);
     }
     cpu.flash(codez.begin(), codez.end());
@@ -53,16 +56,22 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
     cpu.Y = 0; // RAM position to read from
     m35fd.interrupt();
 
+    std::cout << "Last error; 0x" << std::hex << m35fd.last_error_since_poll << std::endl;
+    std::cout << "State; 0x" << std::hex << m35fd.state() << std::endl;
+    if (m35fd.reading) std::cout << "Disk is currently being read from" << std::endl;
+    if (m35fd.writing) std::cout << "Disk is currently being written to" << std::endl;
     REQUIRE_FALSE(cpu.B == 0);
 
     bool data_correct = true;
-    for (int i=0; i<512; i++) {
+    for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
 //        if (m35fd.block_image[i] != i) {
 //            data_correct = false;
 //        }
     }
     REQUIRE(data_correct);
-    */
+
+    // and remove the temporary file
+    std::remove(filename.c_str());
 }
 
 TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk through assembly :P") {

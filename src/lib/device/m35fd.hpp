@@ -41,17 +41,17 @@ namespace galaxy {
             std::unique_ptr<disk> floppy_disk;
             int interrupt_message;
 
-            bool reading;
-            bool writing;
 
             // we have to record the track so we can implement the track seek delay
             int current_track;
-            int last_error_since_poll;
 
             int get_track_seek_time(int current_track, int sector);
 
         public:
             /// initialize the device to values specified by the spec
+            int last_error_since_poll;
+            bool reading;
+            bool writing;
             m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
                       disk_loaded(false), interrupt_message(0), reading(false), writing(false), current_track(0), last_error_since_poll(FD_ERROR_NONE) {}
 
