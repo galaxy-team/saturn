@@ -82,6 +82,7 @@ namespace galaxy {
             constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
             void insert_disk(std::unique_ptr<disk>&);
+            void insert_disk(disk*);
             std::unique_ptr<disk> eject_disk();
 
             std::uint16_t state();

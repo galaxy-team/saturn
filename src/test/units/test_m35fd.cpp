@@ -41,7 +41,7 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
 
     // generate a random temporary filename
     std::string filename = std::tmpnam(0);
-    m35fd.insert_disk(std::unique_ptr<galaxy::saturn::fstream_disk>(new galaxy::saturn::fstream_disk(filename)));
+    m35fd.insert_disk(new galaxy::saturn::fstream_disk(filename));
 
     std::vector<std::uint16_t> codez;
     for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
