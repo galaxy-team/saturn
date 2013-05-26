@@ -148,14 +148,19 @@ int galaxy::saturn::m35fd::get_delay_cycles(int sector) {
     return track_seek_time + rwdelay;
 }
 
-void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
+galaxy::saturn::disk& galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
+    if (disk_loaded) {
+        // TODO: create a custom exception type
+        throw std::runtime_error("The m35fd can't hold more than one disk at a time");
+    }
     floppy_disk = std::move(floppy_disk_ptr);
     disk_loaded = true;
+    return *floppy_disk;
 }
 
-void galaxy::saturn::m35fd::insert_disk(galaxy::saturn::disk* floppy_disk_ptr) {
+galaxy::saturn::disk& galaxy::saturn::m35fd::insert_disk(galaxy::saturn::disk* floppy_disk_ptr) {
     floppy_disk = std::unique_ptr<disk>(floppy_disk_ptr);
-    disk_loaded = true;
+    return insert_disk(floppy_disk);
 }
 
 std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
