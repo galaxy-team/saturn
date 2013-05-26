@@ -110,13 +110,18 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
 
-    m35fd.cycle();
+    // twenty times, to make quite sure
+    int i = 20;
+    while (i!=0) {
+        m35fd.cycle();
+        i--;
+    }
 
     REQUIRE_FALSE(cpu.B == 0);
 
     bool data_correct = true;
     for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
-        std::cout << std::hex << cpu.ram[i * 2] << " - " << std::hex << i << std::endl;
+        std::cout << "0x" << std::hex << cpu.ram[i * 2] << " - 0x" << std::hex << i << std::endl;
         if (cpu.ram[i * 2] != i) {
             data_correct = false;
         }

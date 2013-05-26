@@ -124,10 +124,10 @@ void galaxy::saturn::m35fd::cycle() {
             if (reading) {
                 auto ram_begin = cpu->ram.begin();
                 std::advance(ram_begin, read_to);
-
+                std::cout << "Reading to RAM" << std::endl;
                 std::copy(
                     buffer.begin(),               // copy start
-                    buffer.end(), // copy end
+                    buffer.end(),                 // copy end
                     ram_begin);                   // copy destination
 
                 read_to = 0;
