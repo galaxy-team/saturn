@@ -110,6 +110,9 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     }
     REQUIRE(m35fd.state() == m35fd.STATE_READY);
 
+    // make sure the m35fd read the correct sector;
+    REQUIRE(disk.last_requested_sector == 0x123);
+
     bool data_correct = true;
     for (int i=0; i < m35fd.SECTOR_SIZE; i++) {
         //std::cout << "0x" << std::hex << cpu.ram[i] << " - 0x" << std::hex << disk.sector[i] << ": 0x" << std::hex << i << std::endl;
