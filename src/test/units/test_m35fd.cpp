@@ -90,26 +90,27 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     std::string filename = std::tmpnam(0);
     CAPTURE(filename);
 
-    char buffer[m35fd.SECTOR_SIZE];
+    char buffer[m35fd.SECTOR_SIZE * 2];
     for (int i = 0; i < 512 && i < m35fd.SECTOR_SIZE; i++) {
-        buffer[i] = i;
+        buffer[i * 2] = i;
     }
 
     std::ofstream file_obj;
     file_obj.open(filename, std::ios::out | std::ios::binary | std::ios::ate);
     REQUIRE(file_obj.is_open());
+    REQUIRE(file_obj.good());
     file_obj.write(buffer, m35fd.SECTOR_SIZE);
     file_obj.close();
 
     m35fd.insert_disk(new galaxy::saturn::fstream_disk(filename));
-
-    // TODO: fix this so it uses disks
 
     // Tell the floppy to read a sector from X to ram at Y
     cpu.A = 2; // Read sector
     cpu.X = 0; // sector to read from
     cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
+
+    cpu.cycle();
 
     REQUIRE_FALSE(cpu.B == 0);
 
