@@ -28,7 +28,6 @@ file named "LICENSE-LGPL.txt".
 #include <disk.hpp>
 
 #include <cstdint>
-#include <iostream>
 
 namespace galaxy {
     namespace saturn {

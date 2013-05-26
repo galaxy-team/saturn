@@ -3,6 +3,7 @@
 #include <m35fd.hpp>
 #include <fstream_disk.hpp>
 #include <iostream>
+#include "test_disk.hpp"
 
 TEST_CASE("hardware/m35fd/initialisation", "test m35fd initailisation") {
     galaxy::saturn::dcpu cpu;
@@ -82,47 +83,37 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
     std::remove(filename.c_str());
 }
 
+
 TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk through assembly :P") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-    // generate a random temporary filename
-    std::string filename = std::tmpnam(0);
-    CAPTURE(filename);
+    test_disk& disk = static_cast<test_disk&>(m35fd.insert_disk(new test_disk()));
 
-    char buffer[m35fd.SECTOR_SIZE * 2];
-    for (int i = 0; i < 512 && i < m35fd.SECTOR_SIZE; i++) {
-        buffer[i * 2] = i;
+    for (int i = 0; i < disk.SECTOR_SIZE; i++) {
+        disk.sector[i] = i;
     }
-
-    std::ofstream file_obj;
-    file_obj.open(filename, std::ios::out | std::ios::binary | std::ios::ate);
-    REQUIRE(file_obj.is_open());
-    REQUIRE(file_obj.good());
-    file_obj.write(buffer, m35fd.SECTOR_SIZE);
-    file_obj.close();
-
-    m35fd.insert_disk(new galaxy::saturn::fstream_disk(filename));
 
     // Tell the floppy to read a sector from X to ram at Y
     cpu.A = 2; // Read sector
-    cpu.X = 0; // sector to read from
+    cpu.X = 0x123; // sector to read from
     cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
 
-    // twenty times, to make quite sure
-    int i = 20;
-    while (i!=0) {
-        m35fd.cycle();
-        i--;
-    }
-
     REQUIRE_FALSE(cpu.B == 0);
+    REQUIRE(m35fd.state() == m35fd.STATE_BUSY);
+
+    // twenty times, to make quite sure
+    // TODO: actually test the timing
+    for (int i = 0; i < 3900; i++) {
+        m35fd.cycle();
+    }
+    REQUIRE(m35fd.state() == m35fd.STATE_READY);
 
     bool data_correct = true;
-    for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
-        std::cout << "0x" << std::hex << cpu.ram[i * 2] << " - 0x" << std::hex << i << std::endl;
-        if (cpu.ram[i * 2] != i) {
+    for (int i=0; i < m35fd.SECTOR_SIZE; i++) {
+        //std::cout << "0x" << std::hex << cpu.ram[i] << " - 0x" << std::hex << disk.sector[i] << ": 0x" << std::hex << i << std::endl;
+        if (cpu.ram[i] != disk.sector[i]) {
             data_correct = false;
         }
     }

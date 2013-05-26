@@ -26,6 +26,8 @@ file named "LICENSE-LGPL.txt".
 
 #include <cmath>
 
+#include <iostream>
+
 #define DEBUG(code) if (debug) {std::cout << code << std::endl;}
 
 
@@ -143,8 +145,11 @@ int galaxy::saturn::m35fd::get_delay_cycles(int sector) {
     int tracks_seeked = std::abs((current_sector / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK));
     int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED * (cpu->clock_speed / 1000);
 
+    std::cout << "SECTORS_PER_TRACK: " << SECTORS_PER_TRACK << " current_sector: " << current_sector << " sector: " << sector << " Tracks seeked: " << tracks_seeked << " MS_PER_TS: " << MILLISECONDS_PER_TRACK_SEEKED << std::endl;
+
     double rwtime = 512.0 / 1000.0 / 30.7;
-    int rwdelay = (cpu->clock_speed / 1000) * rwtime;
+    double rwdelay = (cpu->clock_speed / 1000) * rwtime;
+    std::cout << "Calculated delay cycles to be " << track_seek_time << " + " << rwdelay << std::endl;
     return track_seek_time + rwdelay;
 }
 
