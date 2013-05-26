@@ -159,9 +159,14 @@ void galaxy::saturn::m35fd::insert_disk(galaxy::saturn::disk* floppy_disk_ptr) {
 }
 
 std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
-    floppy_disk = 0x0;
-    disk_loaded = false;
-    return std::move(floppy_disk);
+    if (disk_loaded){
+        std::unique_ptr<galaxy::saturn::disk> floppy_disk_ref = std::move(floppy_disk);
+        floppy_disk = 0x0;
+        disk_loaded = false;
+        return std::move(floppy_disk_ref);
+    } else {
+        return 0;
+    }
 }
 
 std::uint16_t galaxy::saturn::m35fd::state()
