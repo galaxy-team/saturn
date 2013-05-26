@@ -4,6 +4,7 @@
 #include <fstream_disk.hpp>
 #include <iostream>
 
+
 TEST_CASE("hardware/m35fd/initialisation", "test m35fd initailisation") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
@@ -110,7 +111,7 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     cpu.Y = 0; // RAM position to write to
     m35fd.interrupt();
 
-    cpu.cycle();
+    m35fd.cycle();
 
     REQUIRE_FALSE(cpu.B == 0);
 
