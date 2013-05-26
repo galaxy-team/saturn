@@ -9,6 +9,8 @@ TEST_CASE("hardware/m35fd/initialisation", "test m35fd initailisation") {
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 }
 
+/*
+NOTE: these two tests have been rendered obselete
 TEST_CASE("hardware/m35fd/read_in_image", "test the write to disk mechanism; basically just flashing the disk with info!") {
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
@@ -19,7 +21,7 @@ TEST_CASE("hardware/m35fd/read_in_image", "test the write to disk mechanism; bas
         buffer[i] = i;
     }
     CAPTURE(buffer);
-    // TODO: ensure the block_image attribute contains the correct content-ish (@ThatOtherPerson this will eseentially be doing what the function read_in_image does anyway... is it worth checking the contents?)
+    // TODO: chec
 }
 
 
@@ -33,7 +35,7 @@ TEST_CASE("hardware/m35fd/write_out_image", "test the read from disk mechanism; 
     }
     // TODO: see previous test TODO
 }
-
+*/
 
 TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk through assembly :D") {
     galaxy::saturn::dcpu cpu;
@@ -41,10 +43,11 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
 
     // generate a random temporary filename
     std::string filename = std::tmpnam(0);
+    CAPTURE(filename);
     m35fd.insert_disk(new galaxy::saturn::fstream_disk(filename));
 
     std::vector<std::uint16_t> codez;
-    for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
+    for (int i=1; i<m35fd.SECTOR_SIZE; i++) {
         codez.push_back(i);
     }
     cpu.flash(codez.begin(), codez.end());
@@ -57,11 +60,21 @@ TEST_CASE("hardware/m35fd/write_to_floppy_disk", "test writing to floppy disk th
 
     REQUIRE_FALSE(cpu.B == 0);
 
+    m35fd.eject_disk();
+
+    char buffer[m35fd.SECTOR_SIZE * 2];
+
+    std::ifstream file_obj;
+    file_obj.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
+    REQUIRE(file_obj.is_open());
+    file_obj.read(buffer, m35fd.SECTOR_SIZE * 2);
+    file_obj.close();
+
     bool data_correct = true;
     for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
-//        if (m35fd.block_image[i] != i) {
-//            data_correct = false;
-//        }
+        if (buffer[i] != i) {
+            data_correct = false;
+        }
     }
     REQUIRE(data_correct);
 
@@ -73,12 +86,24 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     galaxy::saturn::dcpu cpu;
     galaxy::saturn::m35fd& m35fd = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
 
-//    for (int i = 0; i < 512 && i < m35fd.BLOCK_SIZE; i++) {
-//        m35fd.block_image[i] = i;
-//    }
+    // generate a random temporary filename
+    std::string filename = std::tmpnam(0);
+    CAPTURE(filename);
 
-    /* TODO: fix this so it uses disks
-    m35fd.current_state = 0x1; // set state to STATE_READY
+    char buffer[m35fd.SECTOR_SIZE];
+    for (int i = 0; i < 512 && i < m35fd.SECTOR_SIZE; i++) {
+        buffer[i] = i;
+    }
+
+    std::ofstream file_obj;
+    file_obj.open(filename, std::ios::out | std::ios::binary | std::ios::ate);
+    REQUIRE(file_obj.is_open());
+    file_obj.write(buffer, m35fd.SECTOR_SIZE);
+    file_obj.close();
+
+    m35fd.insert_disk(new galaxy::saturn::fstream_disk(filename));
+
+    // TODO: fix this so it uses disks
 
     // Tell the floppy to read a sector from X to ram at Y
     cpu.A = 2; // Read sector
@@ -89,13 +114,13 @@ TEST_CASE("hardware/m35fd/read_from_floppy_disk", "test reading from floppy disk
     REQUIRE_FALSE(cpu.B == 0);
 
     bool data_correct = true;
-    for (int i=0; i<512; i++) {
-        if (cpu.ram[i] != i) {
+    for (int i=0; i<m35fd.SECTOR_SIZE; i++) {
+        std::cout << std::hex << cpu.ram[i * 2] << " - " << std::hex << i << std::endl;
+        if (cpu.ram[i * 2] != i) {
             data_correct = false;
         }
     }
     REQUIRE(data_correct);
-    */
 }
 /*
 TODO: figure out why this test only fails sometimes...
