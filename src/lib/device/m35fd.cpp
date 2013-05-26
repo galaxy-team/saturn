@@ -24,6 +24,8 @@ file named "LICENSE-LGPL.txt".
 #include <device.hpp>
 #include <m35fd.hpp>
 
+#include <cmath>
+
 #define DEBUG(code) if (debug) {std::cout << code << std::endl;}
 
 
@@ -64,9 +66,12 @@ void galaxy::saturn::m35fd::interrupt()
         case 2:
             if (state() == STATE_READY || state() == STATE_READY_WP){
                 try {
-                    std::array<uint16_t, SECTOR_SIZE> sector = floppy_disk->read_sector(cpu->X);
+                    buffer = floppy_disk->read_sector(cpu->X);
                     cpu->B = 1;
+                    read_to = cpu->Y;
                     reading = true;
+                    cycles_left = get_delay_cycles(cpu->X);
+                    current_sector = cpu->X;
                 } catch (std::out_of_range& e) {
                     cpu->B = 0;
                 }
@@ -84,17 +89,22 @@ void galaxy::saturn::m35fd::interrupt()
         case 3:
             if (state() == STATE_READY) {
                 // temporary storage for the selected sector to write
-                std::array<uint16_t, SECTOR_SIZE> selected_sector;
                 int read_from = cpu->Y;
 
-                std::copy(
-                    cpu->ram.begin() + read_from,               // copy start
-                    cpu->ram.begin() + read_from + SECTOR_SIZE, // copy end
-                    selected_sector.begin());                   // copy destination
+                auto ram_begin = cpu->ram.begin(), ram_end = cpu->ram.begin();
+                std::advance(ram_begin, read_from);
+                std::advance(ram_end, read_from + SECTOR_SIZE);
 
-                floppy_disk->write_sector(cpu->X, selected_sector);
+                std::copy(
+                    ram_begin,               // copy start
+                    ram_end, // copy end
+                    buffer.begin());                   // copy destination
+
+                floppy_disk->write_sector(cpu->X, buffer);
                 writing = true;
                 cpu->B = 1;
+                cycles_left = get_delay_cycles(cpu->X);
+                current_sector = cpu->X;
             } else if (state() == STATE_READY_WP) {
                 // the drive is set to be read only, error out
                 last_error_since_poll = FD_ERROR_PROTECTED;
@@ -107,19 +117,35 @@ void galaxy::saturn::m35fd::interrupt()
 }
 
 void galaxy::saturn::m35fd::cycle() {
+    if (reading || writing) {
+        if (cycles_left > 0) {
+            cycles_left--;
+        } else {
+            if (reading) {
+                auto ram_begin = cpu->ram.begin();
+                std::advance(ram_begin, read_to);
+
+                std::copy(
+                    buffer.begin(),               // copy start
+                    buffer.end(), // copy end
+                    ram_begin);                   // copy destination
+
+                read_to = 0;
+            }
+            reading = false;
+            writing = false;
+        }
+    }
 }
 
 
-int galaxy::saturn::m35fd::get_track_seek_time(int current_track, int sector) {
-    int tracks_seeked = (current_track / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK);
+int galaxy::saturn::m35fd::get_delay_cycles(int sector) {
+    int tracks_seeked = std::abs((current_sector / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK));
+    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED * (cpu->clock_speed / 1000);
 
-    // ensure it aint negitive; better way to do this?
-    if (!tracks_seeked >= 0) {
-	tracks_seeked = 0 - tracks_seeked;
-    }
-
-    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED;
-    return track_seek_time;
+    double rwtime = 512.0 / 1000.0 / 30.7;
+    int rwdelay = (cpu->clock_speed / 1000) * rwtime;
+    return track_seek_time + rwdelay;
 }
 
 void galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
