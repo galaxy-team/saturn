@@ -1,0 +1,3 @@
+[submodule "src/libsaturn"]
+	path = src/libsaturn
+	url = https://github.com/galaxy-team/libsaturn.git
