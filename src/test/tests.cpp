@@ -1,12 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <libsaturn.hpp>
-#include <clock.hpp>
-#include <lem1802.hpp>
-#include <keyboard.hpp>
-#include <sped3.hpp>
-#include <invalid_opcode.hpp>
-#include <queue_overflow.hpp>
 #include "test_device.hpp"
 
 /// runs the cpu until it encounters an invalid opcode

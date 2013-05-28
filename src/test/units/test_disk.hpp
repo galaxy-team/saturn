@@ -2,7 +2,6 @@
 #define TEST_DSIK_HPP
 
 #include <libsaturn.hpp>
-#include <disk.hpp>
 
 class test_disk : public galaxy::saturn::disk {
     public:

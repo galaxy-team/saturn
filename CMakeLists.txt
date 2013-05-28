@@ -17,8 +17,7 @@ set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/libsaturn)
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/libsaturn
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/libsaturn/device
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/libsaturn/include
 )
 
 # setup sfml

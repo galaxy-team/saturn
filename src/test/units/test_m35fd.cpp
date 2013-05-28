@@ -1,7 +1,5 @@
 #ifndef __M35FD_TESTS
 #define __M35FD_TESTS
-#include <m35fd.hpp>
-#include <fstream_disk.hpp>
 #include <iostream>
 #include "test_disk.hpp"
 

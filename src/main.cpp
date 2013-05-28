@@ -22,16 +22,6 @@ file named "LICENSE.txt".
 
 /* libsaturn */
 #include <libsaturn.hpp>
-#include <queue_overflow.hpp>
-#include <invalid_opcode.hpp>
-#include <utilities.hpp>
-
-/* libsaturn devices */
-#include <clock.hpp>
-#include <keyboard.hpp>
-#include <m35fd.hpp>
-#include <lem1802.hpp>
-#include <fstream_disk.hpp>
 
 /* implementation specific */
 #include "LEM1802Window.hpp"
@@ -148,10 +138,10 @@ int main(int argc, char** argv)
         std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
         lem_windows.push_back(std::move(win));
     }
- 
+
     // attach the clock
     cpu.attach_device(new galaxy::saturn::clock());
-  
+
     // attack the keyboard
     keyboard_adaptor keyboard (static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard())));
 
@@ -160,7 +150,7 @@ int main(int argc, char** argv)
 
 
     bool running = true;
- 
+
     // start the main loop
     while (running)
     {

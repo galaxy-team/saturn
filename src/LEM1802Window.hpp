@@ -20,7 +20,7 @@ file named "LICENSE.txt".
 
 */
 
-#include <lem1802.hpp>
+#include <libsaturn.hpp>
 
 #include <SFML/Graphics.hpp>
 
