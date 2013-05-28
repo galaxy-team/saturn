@@ -25,6 +25,7 @@ file named "LICENSE-LGPL.txt".
 
 #include <libsaturn.hpp>
 #include <device.hpp>
+#include <disk.hpp>
 
 #include <cstdint>
 
@@ -34,39 +35,72 @@ namespace galaxy {
          * represents a m35fd hardware device
          */
         class m35fd : public device {
-        protected:
+        public:
+            /// initialize the device to values specified by the spec
+            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)"),
+                      disk_loaded(false), interrupt_message(0), last_error_since_poll(FD_ERROR_NONE),
+                      reading(false), writing(false), read_to(0), cycles_left(0), current_sector(0) {}
 
             // TODO make these enum class'
             enum fd_states {
-                STATE_NO_MEDIA, // There's no floppy in the drive.
-                STATE_READY,    // The drive is ready to accept commands.
-                STATE_READY_WP, // Same as ready, except the floppy is write protected.
-                STATE_BUSY      // The drive is busy either reading or writing a sector.
+                STATE_NO_MEDIA = 0x0000, // There's no floppy in the drive.
+                STATE_READY    = 0x0001, // The drive is ready to accept commands.
+                STATE_READY_WP = 0x0002, // Same as ready, except the floppy is write protected.
+                STATE_BUSY     = 0x0003  // The drive is busy either reading or writing a sector.
             };
 
             enum error_codes {
-                ERROR_NONE,       // There's been no error since the last poll.
-                ERROR_BUSY,       // Drive is busy performing an action.
-                ERROR_NO_MEDIA,   // Attempted to read or write with no floppy inserted.
-                ERROR_PROTECTED,  // Attempted to write to write protected floppy.
-                ERROR_EJECT,      // The floppy was removed while reading or writing.
-                ERROR_BAD_SECTOR, // The requested sector is broken, the data on it is lost.
-                ERROR_BROKEN      // There's some major software or hardware problem,
-                                  // try turning off and turning the device on again.
+                FD_ERROR_NONE        = 0x0000, // There's been no error since the last poll.
+                FD_ERROR_BUSY        = 0x0001, // Drive is busy performing an action.
+                FD_ERROR_NO_MEDIA    = 0x0002, // Attempted to read or write with no floppy inserted.
+                FD_ERROR_PROTECTED   = 0x0003, // Attempted to write to write protected floppy.
+                FD_ERROR_EJECT       = 0x0004, // The floppy was removed while reading or writing.
+                FD_ERROR_BAD_SECTOR  = 0x0005, // The requested sector is broken, the data on it is lost.
+                FD_ERROR_BROKEN      = 0xffff  // There's some major software or hardware problem,
+                                               // try turning off and turning the device on again.
             };
 
-        public:
-           /// initialize the device to values specified by the spec
-            m35fd() : device(0x4fd524c5, 0x1eb37e91, 0x000b, "Mackapar 3.5\" Floppy Drive (M35FD)") {}
+            const static int SECTOR_SIZE = 512;
+            const static int SECTOR_NUM = 1440;
 
+            const static int TRACKS = 80;
+            const static int SECTORS_PER_TRACK = 18;
+            constexpr static float MILLISECONDS_PER_TRACK_SEEKED = 2.4;
 
+            disk& insert_disk(std::unique_ptr<disk>&);
+            disk& insert_disk(disk*);
+            std::unique_ptr<disk> eject_disk();
+
+            std::uint16_t state();
+            bool get_last_error();
+
+            // cpu interaction
             virtual void interrupt();
             virtual void cycle();
- 
-            const static int FLOPPY_SIZE = 737280;
-            std::array<std::uint16_t, FLOPPY_SIZE> floppy_disk_image;
+
+        protected:
+            bool disk_loaded;
+            std::unique_ptr<disk> floppy_disk;
+            int interrupt_message;
+
+            int last_error_since_poll;
+            bool reading;
+            bool writing;
+
+            /// the internal buffer of the floppy drive
+            std::array<std::uint16_t, SECTOR_SIZE> buffer;
+            std::uint16_t read_to;
+
+            /// the number of cycles until the m35fd finishes reading or writing
+            int cycles_left;
+
+            /// we have to record the sector so we can implement the track seek delay
+            int current_sector;
+
+            int get_delay_cycles(int sector);
         };
     }
 }
+
 
 #endif

@@ -24,9 +24,14 @@ file named "LICENSE-LGPL.txt".
 #include <device.hpp>
 #include <m35fd.hpp>
 
+#include <cmath>
+
+#define DEBUG(code) if (debug) {std::cout << code << std::endl;}
+
 
 void galaxy::saturn::m35fd::interrupt()
 {
+    bool debug = true;
     switch(cpu->A) {
         /**
          * Poll device;
@@ -34,8 +39,9 @@ void galaxy::saturn::m35fd::interrupt()
          * since the last device poll.
          */
         case 0:
-            // TODO 
-            break;
+	    cpu->C = last_error_since_poll;
+	    cpu->B = state();
+	    break;
 
         /**
          * Set interupt;
@@ -45,7 +51,8 @@ void galaxy::saturn::m35fd::interrupt()
          * error message changes.
          */
         case 1:
-            // TODO
+            // set interupt message to X
+            interrupt_message = cpu->X;
             break;
 
         /**
@@ -57,7 +64,19 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial reads.
          */
         case 2:
-            // TODO
+            if (state() == STATE_READY || state() == STATE_READY_WP){
+                try {
+                    buffer = floppy_disk->read_sector(cpu->X);
+                    cpu->B = 1;
+                    read_to = cpu->Y;
+                    reading = true;
+                    cycles_left = get_delay_cycles(cpu->X);
+                    current_sector = cpu->X;
+                } catch (std::out_of_range& e) {
+                    cpu->B = 0;
+                }
+            }
+
             break;
 
         /**
@@ -68,11 +87,104 @@ void galaxy::saturn::m35fd::interrupt()
          * Protects against partial writes.
          */
         case 3:
-            // TODO
+            if (state() == STATE_READY) {
+                // temporary storage for the selected sector to write
+                int read_from = cpu->Y;
+
+                auto ram_begin = cpu->ram.begin(), ram_end = cpu->ram.begin();
+                std::advance(ram_begin, read_from);
+                std::advance(ram_end, read_from + SECTOR_SIZE);
+
+                std::copy(
+                    ram_begin,               // copy start
+                    ram_end, // copy end
+                    buffer.begin());                   // copy destination
+
+                floppy_disk->write_sector(cpu->X, buffer);
+                writing = true;
+                cpu->B = 1;
+                cycles_left = get_delay_cycles(cpu->X);
+                current_sector = cpu->X;
+            } else if (state() == STATE_READY_WP) {
+                // the drive is set to be read only, error out
+                last_error_since_poll = FD_ERROR_PROTECTED;
+                cpu->B = 0;
+            } else {
+                cpu->B = 0;
+            }
             break;
     }
 }
 
-void galaxy::saturn::m35fd::cycle()
+void galaxy::saturn::m35fd::cycle() {
+    if (reading || writing) {
+        if (cycles_left > 0) {
+            cycles_left--;
+        } else {
+            if (reading) {
+                auto ram_begin = cpu->ram.begin();
+                std::advance(ram_begin, read_to);
+                std::copy(
+                    buffer.begin(),               // copy start
+                    buffer.end(),                 // copy end
+                    ram_begin);                   // copy destination
+
+                read_to = 0;
+            }
+            reading = false;
+            writing = false;
+        }
+    }
+}
+
+
+int galaxy::saturn::m35fd::get_delay_cycles(int sector) {
+    int tracks_seeked = std::abs((current_sector / SECTORS_PER_TRACK) - (sector / SECTORS_PER_TRACK));
+    int track_seek_time = tracks_seeked * MILLISECONDS_PER_TRACK_SEEKED * (cpu->clock_speed / 1000);
+
+    double rwtime = 512.0 / 1000.0 / 30.7;
+    double rwdelay = (cpu->clock_speed / 1000) * rwtime;
+    return track_seek_time + rwdelay;
+}
+
+galaxy::saturn::disk& galaxy::saturn::m35fd::insert_disk(std::unique_ptr<galaxy::saturn::disk>& floppy_disk_ptr) {
+    if (disk_loaded) {
+        // TODO: create a custom exception type
+        throw std::runtime_error("The m35fd can't hold more than one disk at a time");
+    }
+    floppy_disk = std::move(floppy_disk_ptr);
+    disk_loaded = true;
+    return *floppy_disk;
+}
+
+galaxy::saturn::disk& galaxy::saturn::m35fd::insert_disk(galaxy::saturn::disk* floppy_disk_ptr) {
+    floppy_disk = std::unique_ptr<disk>(floppy_disk_ptr);
+    return insert_disk(floppy_disk);
+}
+
+std::unique_ptr<galaxy::saturn::disk> galaxy::saturn::m35fd::eject_disk() {
+    if (disk_loaded){
+        std::unique_ptr<galaxy::saturn::disk> floppy_disk_ref = std::move(floppy_disk);
+        floppy_disk = 0x0;
+        disk_loaded = false;
+        return std::move(floppy_disk_ref);
+    } else {
+        return 0;
+    }
+}
+
+std::uint16_t galaxy::saturn::m35fd::state()
 {
+    if (reading || writing)
+        return STATE_BUSY;
+    if (!disk_loaded)
+        return STATE_NO_MEDIA;
+    if (floppy_disk->write_protected())
+        return STATE_READY_WP;
+    return STATE_READY;
+}
+
+bool galaxy::saturn::m35fd::get_last_error()
+{
+    return last_error_since_poll;
 }

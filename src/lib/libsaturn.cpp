@@ -691,3 +691,7 @@ void galaxy::saturn::dcpu::reset()
 bool galaxy::saturn::dcpu::interrupt_queue_enabled() {
     return queue_interrupts;
 }
+
+const std::vector<std::unique_ptr<galaxy::saturn::device>> &galaxy::saturn::dcpu::get_devices() const{
+    return devices;
+}

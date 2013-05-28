@@ -1,3 +1,6 @@
+#ifndef __TEST_OPCODES_CPP
+#define __TEST_OPCODES_CPP
+
 TEST_CASE("opcodes/invalid", "a runtime error should be thrown on invalid opcode") {
     galaxy::saturn::dcpu cpu;
 
@@ -721,3 +724,4 @@ TEST_CASE("values/registers", "check registers") {
     REQUIRE(cycles == 16);
 }
 
+#endif
