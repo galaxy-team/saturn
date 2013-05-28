@@ -36,7 +36,7 @@ namespace galaxy {
          */
         class mem_disk : public disk{
             protected:
-                std::array<std::array<std::uint16_t sectors;
+                std::array<std::array<std::uint16_t, SECTOR_SIZE>, NUM_SECTORS> sectors;
             public:
 
                 virtual std::array<std::uint16_t, SECTOR_SIZE> read_sector(std::uint16_t sector);
