@@ -23,11 +23,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/device)
 set(SATURN_LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/)
 add_library (libsaturn
     ${SATURN_LIB_SRC}/libsaturn.cpp
+
+    # device files
     ${SATURN_LIB_SRC}/device/clock.cpp
     ${SATURN_LIB_SRC}/device/keyboard.cpp
     ${SATURN_LIB_SRC}/device/lem1802.cpp
     ${SATURN_LIB_SRC}/device/m35fd.cpp
+    ${SATURN_LIB_SRC}/device/disk.cpp
+    ${SATURN_LIB_SRC}/device/fstream_disk.cpp
+    ${SATURN_LIB_SRC}/device/mem_disk.cpp
     ${SATURN_LIB_SRC}/device/sped3.cpp
+
+    # misc
+    ${SATURN_LIB_SRC}/utilities.cpp
 )
 # ensure that the output file for libsaturn only contains one lib (ie, not liblibsaturn)
 set_target_properties(libsaturn PROPERTIES PREFIX "")
@@ -37,8 +45,10 @@ find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
+set(THIRD-PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
+
 # setup OptionParser
-set(OPTIONPARSER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/optparse/)
+set(OPTIONPARSER_DIR ${THIRD-PARTY}/optparse/)
 add_library(optionparser
     ${OPTIONPARSER_DIR}/OptionParser.cpp
 )
@@ -61,14 +71,15 @@ target_link_libraries(saturn
 ## if testing has been enabled, build the tests and run them! :D
 set(TEST "YES")
 IF (TEST)
-    ENABLE_TESTING()
+#    ENABLE_TESTING()
 
     add_executable(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/test/test_device.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/units/test_disk.cpp
     )
     target_link_libraries(tests libsaturn)
 
-    ADD_TEST(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests "Unit tests")
+#    ADD_TEST(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests "Unit tests")
 ENDIF(TEST)
 

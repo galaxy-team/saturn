@@ -56,7 +56,8 @@ namespace galaxy {
             std::uint16_t& get_reference(std::uint16_t, bool);
 
         public:
-            std::array<std::uint16_t, 0x10000> ram;
+            const static int RAM_SIZE = 0x10000;
+            std::array<std::uint16_t, RAM_SIZE> ram;
             uint16_t A, B, C, X, Y, Z, I, J, PC, SP, EX, IA;
 
             /**
@@ -106,12 +107,14 @@ namespace galaxy {
             /// indicated whether or not execution has begun
             bool execution_has_begun = false;
 
+            /// fairly self explanatory
             class device_modification_after_cycle_error : public std::exception {
                 public:
                     device_modification_after_cycle_error(const std::string& message) : std::exception() {
                         const char* what() throw();
                     };
             };
+            const std::vector<std::unique_ptr<galaxy::saturn::device>> &get_devices() const;
         };
     }
 }

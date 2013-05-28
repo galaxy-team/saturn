@@ -75,6 +75,8 @@ TEST_CASE("reset/memory", "All memory should be 0 after a reset") {
     REQUIRE(all_zero);
 }
 
+//#include "units/test_opcodes.cpp"
+/**/
 TEST_CASE("opcodes/invalid", "a runtime error should be thrown on invalid opcode") {
     galaxy::saturn::dcpu cpu;
 
@@ -781,6 +783,7 @@ TEST_CASE("opcodes/hwi", "sends an interrupt to hardware a") {
     REQUIRE(dev.count_interrupts == 0x1);
     REQUIRE(cycles == 5);
 }
+/**/
 
 TEST_CASE("values/registers", "check registers") {
     galaxy::saturn::dcpu cpu;
@@ -1052,6 +1055,8 @@ TEST_CASE("clock/tick_interrupt", "test interupt #2") {
 
     REQUIRE(cpu.I == 9);
 }
+
+#include "units/test_m35fd.cpp"
 
 TEST_CASE("keyboard/buffer", "test the keyboard's internal buffer") {
     galaxy::saturn::dcpu cpu;

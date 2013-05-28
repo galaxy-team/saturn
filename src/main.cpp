@@ -20,22 +20,39 @@ file named "LICENSE.txt".
 
 */
 
+/* libsaturn */
 #include <libsaturn.hpp>
-#include <lem1802.hpp>
+#include <queue_overflow.hpp>
+#include <invalid_opcode.hpp>
+#include <utilities.hpp>
+
+/* libsaturn devices */
 #include <clock.hpp>
 #include <keyboard.hpp>
 #include <m35fd.hpp>
-#include <invalid_opcode.hpp>
-#include <queue_overflow.hpp>
+#include <lem1802.hpp>
+#include <fstream_disk.hpp>
 
+/* implementation specific */
 #include "LEM1802Window.hpp"
 #include "keyboard_adaptor.hpp"
-#include <SFML/Graphics.hpp>
-#include "OptionParser.h"
 
+/* standard library */
 #include <fstream>
 #include <iostream>
 #include <memory>
+
+/* third party */
+#include "OptionParser.h"
+#include <SFML/Graphics.hpp>
+
+void attach_m35fd(galaxy::saturn::dcpu& cpu, std::string filename){
+    // create a new floppy drive, attach it to the cpu, and store a reference
+    galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
+
+    m35fd_ref.insert_disk(new galaxy::saturn::fstream_disk(filename));
+}
+
 
 int main(int argc, char** argv)
 {
@@ -52,7 +69,16 @@ int main(int argc, char** argv)
     parser.add_option("-d", "--add-disk")
         .dest("disk_image_filename")
         .type("STRING")
-        .help("Provide a floppy disk image");
+        .action("append") // this is required if you want to allow
+                          // the user to specify this more than once
+        .help("Attach a floppy with a disk image loaded");
+
+    parser.add_option("--add-ro-disk")
+        .dest("disk_image_filename_ro")
+        .type("STRING")
+        .action("append") // this is required if you want to allow
+                          // the user to specify this more than once
+        .help("Attach a floppy with a disk image loaded, and set it as read only");
 
     // parse the buggers - Dom
     optparse::Values options = parser.parse_args(argc, argv);
@@ -66,11 +92,11 @@ int main(int argc, char** argv)
     }
 
     // the binary filename is the first of the positional arguments
-    std::basic_string<char> binary_filename = args[0];
+    std::string binary_filename = args[0];
 
     // grab the number of LEM1802's the user wants to have attached
     int num_lems = 1;
-    if ((int)options.get("num_lems") != 0){
+    if (std::string(options.get("num_lems")) != ""){
          num_lems = (int)options.get("num_lems");
     }
 
@@ -90,7 +116,7 @@ int main(int argc, char** argv)
     file.close();
 
     galaxy::saturn::dcpu cpu;
-    // FIX: use cpu.flash()
+    // TODO: FIX: use cpu.flash()
     for (int i = 0; i < (size / 2) && i < cpu.ram.size(); i++) {
         cpu.ram[i] = (buffer[i * 2]) << 0x8;
         cpu.ram[i] ^= buffer[i * 2 + 1] & 0xff;
@@ -98,70 +124,47 @@ int main(int argc, char** argv)
 
     delete[] buffer;
 
+    // setup the floppy disks
+    if (options.all("disk_image_filename").size() != 0 || options.all("disk_image_filename_ro").size() != 0){
+        // we start by grabbing a list of floppy names, and tell the user how many we are loading
+        std::list<std::string> normal_filenames = options.all("disk_image_filename");
+        std::list<std::string> ro_filenames     = options.all("disk_image_filename_ro");
+        std::cout << "Loading " << normal_filenames.size() + ro_filenames.size() << " floppy disks" << std::endl;
 
-    // once i figure out how to read in multiple arguments, these code block will be re-written
-    // figure out how many floppy disks need to be created
-    int num_disks = 0;
-    if (options["disk_image_filename"] != ""){
-        std::cout << "Floppy disk detected; " << options["disk_image_filename"] << std::endl;
-        num_disks = 1;
-    } else {
-        std::cout << "No floppy disk image provided" << std::endl;
-    }
-
-    std::vector<galaxy::saturn::m35fd*> floppy_drives;
-    std::basic_string<char> cur_disk_image_filename;
-    int disk_image_filesize;
-
-    for (int i = 0; i < num_disks; i++){
-        // we don't want to limit the number of floppy disks the user can attach, so we loop
-
-        // create a new floppy, attach it to the cpu, and store a reference
-        galaxy::saturn::m35fd& m35fd_ref = static_cast<galaxy::saturn::m35fd&>(cpu.attach_device(new galaxy::saturn::m35fd()));
-
-        cur_disk_image_filename = options["disk_image_filename"];
-        std::ifstream disk_image;
-        disk_image.open(binary_filename, std::ios::in | std::ios::binary | std::ios::ate);
-
-        if (!file.is_open()) {
-            std::cerr << "Error: could not open file \"" << cur_disk_image_filename << "\"" << std::endl;
-            return -1;
+        // thence we iterate through, using my handy helper function attach_m35fd. normal first
+        for (std::list<std::string>::iterator i = normal_filenames.begin(); i != normal_filenames.end(); i++) {
+            attach_m35fd(cpu, *i);
         }
 
-        disk_image.seekg(0, std::ios::beg);
-
-        disk_image_filesize = disk_image.tellg();
-        char* buffer = new char[disk_image_filesize];
-        disk_image.read(buffer, galaxy::saturn::m35fd::FLOPPY_SIZE);
-
-        for (int i = 0; i < (size / 2) && i < galaxy::saturn::m35fd::FLOPPY_SIZE; i++) {
-            m35fd_ref.floppy_disk_image[i] = (buffer[i * 2]) << 0x8;
-            m35fd_ref.floppy_disk_image[i] ^= buffer[i * 2 + 1] & 0xff;
+        // thence the read only disks
+        for (std::list<std::string>::iterator i = ro_filenames.begin(); i != ro_filenames.end(); i++) {
+            attach_m35fd(cpu, *i);
         }
-
-        disk_image.close();
-        std::cout << "\"" << cur_disk_image_filename << "\" read.";
-        floppy_drives.push_back(&m35fd_ref);
     }
 
-
-
+    // create the LEM1802 windows
     std::vector<std::unique_ptr<LEM1802Window>> lem_windows;
     for (int i = 0; i < num_lems; i++) {
         std::unique_ptr<LEM1802Window> win (new LEM1802Window(static_cast<galaxy::saturn::lem1802&>(cpu.attach_device(new galaxy::saturn::lem1802()))));
         lem_windows.push_back(std::move(win));
     }
-
+ 
+    // attach the clock
     cpu.attach_device(new galaxy::saturn::clock());
+  
+    // attack the keyboard
     keyboard_adaptor keyboard (static_cast<galaxy::saturn::keyboard&>(cpu.attach_device(new galaxy::saturn::keyboard())));
 
+    // initialise the timing clock
     sf::Clock clock;
 
 
     bool running = true;
-
+ 
+    // start the main loop
     while (running)
     {
+        // we check for events on each window
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it) {
             sf::Event event;
             while ((*it)->pollEvent(event))
@@ -177,6 +180,7 @@ int main(int argc, char** argv)
             }
         }
 
+        // and compute however many cycles we must perform to keep in time
         try {
             sf::Int32 msec = clock.getElapsedTime().asMilliseconds();
             clock.restart();
@@ -191,6 +195,7 @@ int main(int argc, char** argv)
             running = false;
         }
 
+        // update all the windows with their appropriate contents
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it)
             (*it)->update();
 
