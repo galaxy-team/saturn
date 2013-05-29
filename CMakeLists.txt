@@ -49,17 +49,10 @@ target_link_libraries(saturn
 )
 
 ## if testing has been enabled, build the tests and run them! :D
-set(TEST "YES")
-IF (TEST)
-#    ENABLE_TESTING()
-
-    add_executable(tests
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/test_device.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test/units/test_disk.cpp
-    )
-    target_link_libraries(tests libsaturn)
-
-#    ADD_TEST(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests "Unit tests")
-ENDIF(TEST)
+#add_executable(tests
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/tests.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/test_device.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/units/test_disk.cpp
+#)
+#target_link_libraries(tests libsaturn)
 
