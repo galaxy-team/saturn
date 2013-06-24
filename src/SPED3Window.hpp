@@ -22,26 +22,16 @@ file named "LICENSE.txt".
 
 #include <libsaturn.hpp>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
 
-class LEM1802Window : public sf::RenderWindow {
+class SPED3Window : public sf::Window {
     public:
-        LEM1802Window(galaxy::saturn::lem1802& lem) : RenderWindow(sf::VideoMode((galaxy::saturn::lem1802::width + border * 2) * 4, (galaxy::saturn::lem1802::height + border * 2) * 4), "Saturn"), lem(lem)
+        SPED3Window(galaxy::saturn::sped3& sped) : Window(sf::VideoMode(512, 512), "Saturn"), sped(sped)
         {
-            screen_image.create(galaxy::saturn::lem1802::width, galaxy::saturn::lem1802::height, sf::Color(0, 0, 255));
-            screen_texture.loadFromImage(screen_image);
-            screen.setTexture(screen_texture);
-            screen.setScale(sf::Vector2f(4.f, 4.f));
-            screen.setPosition(sf::Vector2f(border * 4, border * 4));
-
             setVerticalSyncEnabled(true);
         }
         void update();
     private:
-        galaxy::saturn::lem1802& lem;
-        sf::Image screen_image;
-        sf::Texture screen_texture;
-        sf::Sprite screen;
-
-        static const unsigned int border = 3;
+        galaxy::saturn::sped3& sped;
 };

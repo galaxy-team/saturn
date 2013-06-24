@@ -38,6 +38,7 @@ include_directories(${OPTIONPARSER_DIR})
 add_executable(saturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LEM1802Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SPED3Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/keyboard_adaptor.cpp
 )
 

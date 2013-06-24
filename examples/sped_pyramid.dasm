@@ -1,0 +1,37 @@
+    HWN I
+hwloop:
+    SUB I, 1
+    HWQ I
+    IFE B, 0x42ba
+        IFE A, 0xbf3c
+            SET PC, found_sped
+    IFG I, 0
+        SET PC, hwloop
+
+found_sped:
+    SET A, 1
+    SET X, vertices
+    SET Y, 7
+    HWI I
+
+end:
+    SET PC, end
+
+:vertices 
+
+    ;(5, 5, 0)
+    .dat 0x505, 0x100
+    ;(130, 130, 88)
+    .dat 0x8282, 0x658
+    ;(250, 250, 0)
+    .dat 0xfafa, 0x300
+
+    ;(250, 5, 0)
+    .dat 0x5fa, 0x500
+    ;(130, 130, 88)
+    .dat 0x8282, 0x258
+    ;(5, 250, 0)
+    .dat 0xfa05, 0x700
+
+    ;(5, 5, 0)
+    .dat 0x505, 0x100

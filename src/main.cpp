@@ -25,6 +25,7 @@ file named "LICENSE.txt".
 
 /* implementation specific */
 #include "LEM1802Window.hpp"
+#include "SPED3Window.hpp"
 #include "keyboard_adaptor.hpp"
 
 /* standard library */
@@ -55,6 +56,11 @@ int main(int argc, char** argv)
         .dest("num_lems")
         .type("int")
         .help("Specify number of attached LEM1802's");
+
+    parser.add_option("-s", "--num_speds")
+        .dest("num_speds")
+        .type("int")
+        .help("Specify number of attached SPED-3's");
 
     parser.add_option("-d", "--add-disk")
         .dest("disk_image_filename")
@@ -88,6 +94,12 @@ int main(int argc, char** argv)
     int num_lems = 1;
     if (std::string(options.get("num_lems")) != ""){
          num_lems = (int)options.get("num_lems");
+    }
+
+    // grab the number of LEM1802's the user wants to have attached
+    int num_speds = 1;
+    if (std::string(options.get("num_speds")) != ""){
+         num_speds = (int)options.get("num_speds");
     }
 
     // read in the binary file, create the dcpu instance, and flash it with the binary
@@ -139,6 +151,13 @@ int main(int argc, char** argv)
         lem_windows.push_back(std::move(win));
     }
 
+    // create the LEM1802 windows
+    std::vector<std::unique_ptr<SPED3Window>> sped_windows;
+    for (int i = 0; i < num_speds; i++) {
+        std::unique_ptr<SPED3Window> win (new SPED3Window(static_cast<galaxy::saturn::sped3&>(cpu.attach_device(new galaxy::saturn::sped3()))));
+        sped_windows.push_back(std::move(win));
+    }
+
     // attach the clock
     cpu.attach_device(new galaxy::saturn::clock());
 
@@ -148,7 +167,6 @@ int main(int argc, char** argv)
     // initialise the timing clock
     sf::Clock clock;
 
-
     bool running = true;
 
     // start the main loop
@@ -156,6 +174,21 @@ int main(int argc, char** argv)
     {
         // we check for events on each window
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it) {
+            sf::Event event;
+            while ((*it)->pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    running = false;
+                else if (event.type == sf::Event::TextEntered)
+                    keyboard.key_type(event.text);
+                else if (event.type == sf::Event::KeyPressed)
+                    keyboard.key_press(event.key);
+                else if (event.type == sf::Event::KeyReleased)
+                    keyboard.key_release(event.key);
+            }
+        }
+        // we check for events on each window
+        for (auto it = sped_windows.begin(); it != sped_windows.end(); ++it) {
             sf::Event event;
             while ((*it)->pollEvent(event))
             {
@@ -187,6 +220,10 @@ int main(int argc, char** argv)
 
         // update all the windows with their appropriate contents
         for (auto it = lem_windows.begin(); it != lem_windows.end(); ++it)
+            (*it)->update();
+
+        // update all the windows with their appropriate contents
+        for (auto it = sped_windows.begin(); it != sped_windows.end(); ++it)
             (*it)->update();
 
     }
