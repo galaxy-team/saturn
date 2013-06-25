@@ -22,10 +22,37 @@ file named "LICENSE.txt".
 
 #include "SPED3Window.hpp"
 
+void SPED3Window::reshape(int w, int h)
+{
+    setActive(true);
+
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
 void SPED3Window::update()
 {
     setActive(true);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear (GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+    glRotatef(spin, 0.0, 0.0, 1.0);
+    glColor3f(1.0, 1.0, 1.0);
+    glRectf(-25.0, -25.0, 25.0, 25.0);
+    glPopMatrix();
+
+    glFlush();
+
+    display();
+}
+
+void SPED3Window::spinS()
+{
+    spin = spin + 2.0;
+    if (spin > 360)
+        spin -= 360.0;
 }

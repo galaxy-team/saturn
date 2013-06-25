@@ -194,6 +194,8 @@ int main(int argc, char** argv)
             {
                 if (event.type == sf::Event::Closed)
                     running = false;
+                else if (event.type == sf::Event::Resized)
+                    (*it)->reshape(event.size.width, event.size.height);
                 else if (event.type == sf::Event::TextEntered)
                     keyboard.key_type(event.text);
                 else if (event.type == sf::Event::KeyPressed)
@@ -201,6 +203,7 @@ int main(int argc, char** argv)
                 else if (event.type == sf::Event::KeyReleased)
                     keyboard.key_release(event.key);
             }
+            (*it)->spinS();
         }
 
         // and compute however many cycles we must perform to keep in time

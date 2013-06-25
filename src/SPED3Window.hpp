@@ -27,11 +27,21 @@ file named "LICENSE.txt".
 
 class SPED3Window : public sf::Window {
     public:
-        SPED3Window(galaxy::saturn::sped3& sped) : Window(sf::VideoMode(512, 512), "Saturn"), sped(sped)
+        SPED3Window(galaxy::saturn::sped3& sped) : Window(sf::VideoMode(512, 512), "Saturn"), sped(sped), spin(0.0)
         {
+            setActive(true);
+
+            glClearColor (0.0, 0.0, 0.0, 0.0);
+            glShadeModel(GL_FLAT);
+
+            reshape(512, 512);
+
             setVerticalSyncEnabled(true);
         }
+        void reshape(int w, int h);
         void update();
+        void spinS();
     private:
         galaxy::saturn::sped3& sped;
+        GLfloat spin;
 };
