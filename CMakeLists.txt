@@ -25,6 +25,8 @@ find_package(SFML COMPONENTS graphics window system)
 include_directories(${SFML_INCLUDE_DIR})
 #set(SFML_STATIC True)
 
+find_package(OpenGL)
+
 set(THIRD-PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
 
 # setup OptionParser
@@ -38,6 +40,7 @@ include_directories(${OPTIONPARSER_DIR})
 add_executable(saturn
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LEM1802Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SPED3Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/keyboard_adaptor.cpp
 )
 
@@ -46,6 +49,7 @@ target_link_libraries(saturn
     libsaturn
     ${SFML_LIBRARY}
     optionparser
+    ${OPENGL_LIBRARY}
 )
 
 ## if testing has been enabled, build the tests and run them! :D
