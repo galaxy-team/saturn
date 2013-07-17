@@ -208,8 +208,7 @@ int main(int argc, char** argv)
 
         // and compute however many cycles we must perform to keep in time
         try {
-            sf::Int32 msec = clock.getElapsedTime().asMilliseconds();
-            clock.restart();
+            sf::Int32 msec = clock.restart().asMilliseconds();
             int cycles = (cpu.clock_speed / 1000) * msec;
             //std::cout << "Executing " << std::dec << cycles << " cycles." << std::endl;
             while (cycles > 0) {
