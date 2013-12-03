@@ -22,6 +22,5 @@ cmake_install.cmake
 
 # generic dis-includes
 /bin
-/lib
 /build
 *.swp
