@@ -69,13 +69,6 @@ int main(int argc, char** argv)
                           // the user to specify this more than once
         .help("Attach a floppy with a disk image loaded");
 
-    parser.add_option("--add-ro-disk")
-        .dest("disk_image_filename_ro")
-        .type("STRING")
-        .action("append") // this is required if you want to allow
-                          // the user to specify this more than once
-        .help("Attach a floppy with a disk image loaded, and set it as read only");
-
     // parse the buggers - Dom
     optparse::Values options = parser.parse_args(argc, argv);
     std::vector<std::string> args = parser.args();
@@ -127,19 +120,13 @@ int main(int argc, char** argv)
     delete[] buffer;
 
     // setup the floppy disks
-    if (options.all("disk_image_filename").size() != 0 || options.all("disk_image_filename_ro").size() != 0){
+    if (options.all("disk_image_filename").size() != 0){
         // we start by grabbing a list of floppy names, and tell the user how many we are loading
-        std::list<std::string> normal_filenames = options.all("disk_image_filename");
-        std::list<std::string> ro_filenames     = options.all("disk_image_filename_ro");
-        std::cout << "Loading " << normal_filenames.size() + ro_filenames.size() << " floppy disks" << std::endl;
+        std::list<std::string> filenames = options.all("disk_image_filename");
+        std::cout << "Loading " << filenames.size() << " floppy disks" << std::endl;
 
-        // thence we iterate through, using my handy helper function attach_m35fd. normal first
-        for (std::list<std::string>::iterator i = normal_filenames.begin(); i != normal_filenames.end(); i++) {
-            attach_m35fd(cpu, *i);
-        }
-
-        // thence the read only disks
-        for (std::list<std::string>::iterator i = ro_filenames.begin(); i != ro_filenames.end(); i++) {
+        // thence we iterate through, using my handy helper function attach_m35fd
+        for (std::list<std::string>::iterator i = filenames.begin(); i != filenames.end(); i++) {
             attach_m35fd(cpu, *i);
         }
     }
