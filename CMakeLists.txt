@@ -29,12 +29,16 @@ find_package(OpenGL)
 
 set(THIRD-PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
 
-# setup OptionParser
 set(OPTIONPARSER_DIR ${THIRD-PARTY}/optparse/)
-add_library(optionparser
-    ${OPTIONPARSER_DIR}/OptionParser.cpp
-)
 include_directories(${OPTIONPARSER_DIR})
+if (TARGET optionparser)
+    message(STATUS "OptionParser added as part of another part of Galaxy")
+else()
+    # setup OptionParser
+    add_library(optionparser
+        ${OPTIONPARSER_DIR}/OptionParser.cpp
+    )
+endif()
 
 # add the primary executable
 add_executable(saturn
