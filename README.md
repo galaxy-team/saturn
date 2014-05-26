@@ -1,4 +1,4 @@
-saturn
+saturn [![Build Status](https://travis-ci.org/galaxy-team/saturn.svg?branch=develop)](https://travis-ci.org/galaxy-team/saturn)
 ======
 
 An emulator for the [DCPU-16](http://www.dcpu.com) platform.
